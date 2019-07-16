@@ -40,24 +40,27 @@ class CanId
 	uint32_t all;
 
 public:
-	static constexpr uint32_t DestIdMask = 0x7F;
-	static constexpr unsigned int DestIdShift = 0;
-	static constexpr unsigned int SrcIdShift = 8;
-	static constexpr CanAddress BroadcastId = 0x7F;
+	static constexpr uint32_t BoardAddressMask = 0x7F;
+	static constexpr unsigned int DstAddressShift = 0;
+	static constexpr unsigned int SrcAddressShift = 8;
+	static constexpr unsigned int MessageTypeShift = 16;
+	static constexpr CanAddress BroadcastAddress = 0x7F;
+	static constexpr uint32_t ResponseBit = 1ul << 15;
+	static constexpr uint32_t MessageTypeMask = 0x1FFF;
 
 	void SetRequest(CanMessageType msgType, CanAddress src, CanAddress dst)
 	{
-		all = ((uint32_t)msgType << 16) | ((uint32_t)src << 8) | (uint32_t)dst;
+		all = ((uint32_t)msgType << MessageTypeShift) | ((uint32_t)src << SrcAddressShift) | ((uint32_t)dst << DstAddressShift);
 	}
 
 	void SetResponse(CanMessageType msgType, CanAddress src, CanAddress dst)
 	{
-		all = ((uint32_t)msgType << 16) | ((uint32_t)src << 8) | (uint32_t)dst | (1u << 15);
+		all = ((uint32_t)msgType << MessageTypeShift) | ((uint32_t)src << SrcAddressShift) | ((uint32_t)dst << DstAddressShift) | ResponseBit;
 	}
 
 	void SetBroadcast(CanMessageType msgType, CanAddress src)
 	{
-		all = ((uint32_t)msgType << 16) | ((uint32_t)src << 8) | (uint32_t)BroadcastId;
+		all = ((uint32_t)msgType << MessageTypeShift) | ((uint32_t)src << SrcAddressShift) | ((uint32_t)BroadcastAddress << DstAddressShift);
 	}
 
 	void SetReceivedId(uint32_t id)
@@ -65,9 +68,9 @@ public:
 		all = id;
 	}
 
-	uint8_t Src() const { return (all >> SrcIdShift) & DestIdMask; }
-	uint8_t Dst() const { return all & DestIdMask; }
-	CanMessageType MsgType() const { return (CanMessageType)((all >> 16) & 0x1FFF); }
+	uint8_t Src() const { return (all >> SrcAddressShift) & BoardAddressMask; }
+	uint8_t Dst() const { return (all >> DstAddressShift) & BoardAddressMask; }
+	CanMessageType MsgType() const { return (CanMessageType)((all >> MessageTypeShift) & MessageTypeMask); }
 	uint32_t GetWholeId() const { return all; }
 };
 
