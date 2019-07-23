@@ -10,16 +10,12 @@
 
 #include "CanId.h"
 #include "General/BitMap.h"
+#include "General/StringRef.h"
 
 constexpr unsigned int MaxDriversPerCanSlave = 4;
 constexpr unsigned int MaxHeatersPerCanSlave = 6;
 
 // CAN message formats
-// Generic message
-struct CanMessageGeneric
-{
-	uint8_t data[64];
-};
 
 // Time sync message
 struct CanMessageTimeSync
@@ -66,7 +62,7 @@ struct CanMessageMovement
 		int32_t steps;					// net steps moved
 	} perDrive[MaxDriversPerCanSlave];
 
-	void DebugPrint();
+	void DebugPrint() const;
 };
 
 
@@ -84,38 +80,97 @@ struct CanMessageM303
 	uint16_t heaterNumber;
 };
 
-struct CanMessageM305
+// This struct describes a possible parameter in a CAN message.
+// An array of these describes all the possible parameters. The list is terminated by a zero entry.
+struct ParamDescriptor
 {
-	uint16_t heaterNumber;
-	uint16_t validParams;
-	uint32_t channel;
-	float paramB;
-	float paramC;
-	int32_t paramD;
-	int32_t paramF;
-	float paramL;
-	float paramH;
-	float paramR;
-	float paramT;
-	uint32_t paramW;
+	// The type of a parameter. The lower 4 bits are the item size, except for string.
+	enum ParamType : uint8_t
+	{
+		none = 0,
+		uint32 = 0x04,
+		int32 = 0x14,
+		float_p = 0x24,
+		uint16 = 0x02,
+		int16 = 0x12,
+		pwmFreq = 0x22,
+		uint8 = 0x01,
+		int8 = 0x11,
+		char_p = 0x21,
+		string = 0x10,
+		reducedString = 0x20
+	};
 
-	bool GotParamB() const { return IsBitSet(validParams, 0); }
-	bool GotParamC() const { return IsBitSet(validParams, 1); }
-	bool GotParamD() const { return IsBitSet(validParams, 2); }
-	bool GotParamF() const { return IsBitSet(validParams, 3); }
-	bool GotParamL() const { return IsBitSet(validParams, 4); }
-	bool GotParamH() const { return IsBitSet(validParams, 5); }
-	bool GotParamR() const { return IsBitSet(validParams, 6); }
-	bool GotParamT() const { return IsBitSet(validParams, 7); }
-	bool GotParamW() const { return IsBitSet(validParams, 8); }
+	char letter;
+	ParamType type;
+
+	unsigned int ItemSize() const { return (unsigned int)type & 0x0F; }
 };
 
-#define M305_SET_IF_PRESENT(_val, _msg, _letter) if (_msg.GotParam ## _letter ()) { _val = _msg.param ## _letter; }
-
-struct CanMessageM307
+// Generic message
+struct CanMessageGeneric
 {
-	uint16_t heaterNumber;
-	//TODO
+	uint32_t paramMap;
+	uint8_t data[60];
+
+	void DebugPrint(const ParamDescriptor *pt = nullptr) const;
+};
+
+// Parameter tables for various messages that use the generic format.
+// It's a good idea to put 32-bit parameters earlier than 16-bit parameters, and 16-bit parameters earlier than 8-bit or string parameters, so that accesses are aligned.
+
+#define UINT32_PARAM(_c) { _c, ParamDescriptor::uint32 }
+#define INT32_PARAM(_c) { _c, ParamDescriptor::int32 }
+#define FLOAT_PARAM(_c) { _c, ParamDescriptor::float_p }
+#define UINT16_PARAM(_c) { _c, ParamDescriptor::uint16 }
+#define INT16_PARAM(_c) { _c, ParamDescriptor::int16 }
+#define PWM_FREQ_PARAM(_c) { _c, ParamDescriptor::pwmFreq }
+#define UINT8_PARAM(_c) { _c, ParamDescriptor::uint8 }
+#define INT8_PARAM(_c) { _c, ParamDescriptor::int8 }
+#define CHAR_PARAM(_c) { _c, ParamDescriptor::char_p }
+#define STRING_PARAM(_c) { _c, ParamDescriptor::string }
+#define REDUCED_STRING_PARAM(_c) { _c, ParamDescriptor::reducedString }
+#define END_PARAMS { 0 }
+
+constexpr ParamDescriptor M308Params[] =
+{
+	FLOAT_PARAM('T'),
+	FLOAT_PARAM('B'),
+	FLOAT_PARAM('C'),
+	FLOAT_PARAM('R'),
+	INT8_PARAM('L'),
+	INT8_PARAM('H'),
+	UINT8_PARAM('F'),
+	UINT8_PARAM('S'),
+	UINT8_PARAM('W'),
+	REDUCED_STRING_PARAM('Y'),
+	REDUCED_STRING_PARAM('P'),
+	CHAR_PARAM('K'),
+	END_PARAMS
+};
+
+constexpr ParamDescriptor M950Params[] =
+{
+	PWM_FREQ_PARAM('Q'),
+	INT16_PARAM('T'),
+	UINT16_PARAM('F'),
+	UINT16_PARAM('H'),
+	UINT16_PARAM('P'),
+	UINT16_PARAM('S'),
+	REDUCED_STRING_PARAM('C'),
+	END_PARAMS
+};
+
+constexpr ParamDescriptor M307Params[] =
+{
+	FLOAT_PARAM('A'),
+	FLOAT_PARAM('C'),
+	FLOAT_PARAM('D'),
+	FLOAT_PARAM('S'),
+	FLOAT_PARAM('V'),
+	UINT16_PARAM('H'),
+	UINT8_PARAM('B'),
+	END_PARAMS
 };
 
 struct CanMessageM350
@@ -185,8 +240,6 @@ union CanMessage
 	CanMessageMovement move;
 	CanMessageM140 m140;
 	CanMessageM303 m303;
-	CanMessageM305 m305;
-	CanMessageM307 m307;
 	CanMessageM350 m350;
 	CanMessageM569 m569;
 	CanMessageM906 m906;

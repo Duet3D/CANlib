@@ -18,10 +18,11 @@ enum class CanMessageType : uint16_t
 	controlledStop = 1002,
 	timeSync = 1003,
 	movement = 1004,
+	m308 = (3u << 10) + 308,
 	m906 = (3u << 10) + 906
 };
 
-typedef uint8_t CanAddress;					// only the lower 7 bits are available
+typedef uint8_t CanAddress;						// only the lower 7 bits are available
 
 // CAN identifier
 // A CAN identifier must identify
@@ -40,11 +41,13 @@ class CanId
 	uint32_t all;
 
 public:
+	static constexpr CanAddress MaxCanAddress = 0x7E;		// 0x7F is reserved for broadcast
+	static constexpr CanAddress BroadcastAddress = 0x7F;
+	static constexpr CanAddress NoCanAddress = 0xFF;
 	static constexpr uint32_t BoardAddressMask = 0x7F;
 	static constexpr unsigned int DstAddressShift = 0;
 	static constexpr unsigned int SrcAddressShift = 8;
 	static constexpr unsigned int MessageTypeShift = 16;
-	static constexpr CanAddress BroadcastAddress = 0x7F;
 	static constexpr uint32_t ResponseBit = 1ul << 15;
 	static constexpr uint32_t MessageTypeMask = 0x1FFF;
 

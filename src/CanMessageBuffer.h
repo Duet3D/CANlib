@@ -27,6 +27,16 @@ public:
 	static void Free(CanMessageBuffer*& buf);
 	static unsigned int FreeBuffers() { return numFree; }
 
+	// Set up a message buffer to carry a particular message type, setting the priority and code fields.
+	// Return a pointer to the message data cast to the requested type.
+	CanMessageGeneric *SetupGenericMessage(CanMessageType msgType, uint16_t dest, unsigned int dataLen)
+	{
+		id.SetRequest(msgType, GetCanAddress(), dest);
+		dataLength = dataLen;
+		isTimeSyncMessage = false;
+		return &msg.generic;
+	}
+
 	// Set up a message buffer to carry a particular message type, setting the dataLength, priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
