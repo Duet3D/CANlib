@@ -18,8 +18,10 @@ enum class CanMessageType : uint16_t
 	controlledStop = 1002,
 	timeSync = 1003,
 	movement = 1004,
+	m307 = (3u << 10) + 307,
 	m308 = (3u << 10) + 308,
-	m906 = (3u << 10) + 906
+	m906 = (3u << 10) + 906,
+	m950 = (3u << 10) + 950
 };
 
 typedef uint8_t CanAddress;						// only the lower 7 bits are available

@@ -104,7 +104,7 @@ struct ParamDescriptor
 	char letter;
 	ParamType type;
 
-	unsigned int ItemSize() const { return (unsigned int)type & 0x0F; }
+	size_t ItemSize() const { return (size_t)type & 0x0F; }
 };
 
 // Generic message
