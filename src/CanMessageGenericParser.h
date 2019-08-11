@@ -1,5 +1,5 @@
 /*
- * CanMessageGenericParse.h
+ * CanMessageGenericParser.h
  *
  *  Created on: 23 Jul 2019
  *      Author: David
@@ -17,18 +17,19 @@ public:
 	CanMessageGenericParser(const CanMessageGeneric& p_msg, const ParamDescriptor *p_param) : msg(p_msg), paramTable(p_param) { }
 
 	// Methods to extract parameters from a CAN message. Each returns true if the specified parameter was present.
-	bool GetUint32Param(char c, uint32_t& v) const	{ return GetNonStringParam(c, (char*)&v, ParamDescriptor::ParamType::uint32); }
-	bool GetInt32Param(char c, int32_t& v) const	{ return GetNonStringParam(c, (char*)&v, ParamDescriptor::ParamType::int32); }
-	bool GetFloatParam(char c, float& v) const		{ return GetNonStringParam(c, (char*)&v, ParamDescriptor::ParamType::float_p); }
-	bool GetUint16Param(char c, uint16_t& v) const	{ return GetNonStringParam(c, (char*)&v, ParamDescriptor::ParamType::uint16); }
-	bool GetInt16Param(char c, int32_t& v) const	{ return GetNonStringParam(c, (char*)&v, ParamDescriptor::ParamType::int16); }
-	bool GetUint8Param(char c, uint8_t& v) const	{ return GetNonStringParam(c, (char*)&v, ParamDescriptor::ParamType::uint8); }
-	bool GetInt8Param(char c, int8_t& v) const		{ return GetNonStringParam(c, (char*)&v, ParamDescriptor::ParamType::int8); }
-	bool GetCharParam(char c, char& v) const		{ return GetNonStringParam(c, (char*)&v, ParamDescriptor::ParamType::char_p); }
+	bool GetUintParam(char c, uint32_t& v) const;
+	bool GetUintParam(char c, uint16_t& v) const;
+	bool GetUintParam(char c, uint8_t& v) const;
+	bool GetIntParam(char c, int32_t& v) const;
+	bool GetIntParam(char c, int16_t& v) const;
+	bool GetIntParam(char c, int8_t& v) const;
+	bool GetFloatParam(char c, float& v) const;
+	bool GetCharParam(char c, char& v) const;
 	bool GetStringParam(char c, const StringRef& v) const;
+	bool GetBoolParam(char c, bool &v) const;
+	bool HasParameter(char c) const;
 
 private:
-	bool GetNonStringParam(char c, char *v, ParamDescriptor::ParamType expectedType) const;
 	ParamDescriptor::ParamType FindParameter(char c, unsigned int& pos) const;
 
 	const CanMessageGeneric& msg;

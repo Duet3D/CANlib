@@ -10,18 +10,44 @@
 
 #include <cstdint>
 
-// CAN message types. This is a 13-bit field. Low numbers have highest priority.
+// CAN message types. This is a 13-bit field, so we can use numbers 0 to 8191. Low numbers have highest priority.
 enum class CanMessageType : uint16_t
 {
-	emergencyStop = 1000,
-	startup = 1001,
-	controlledStop = 1002,
-	timeSync = 1003,
-	movement = 1004,
-	m307 = (3u << 10) + 307,
-	m308 = (3u << 10) + 308,
-	m906 = (3u << 10) + 906,
-	m950 = (3u << 10) + 950
+	// Requests sent by the main board
+	emergencyStop = 0,
+	startup = 10,
+	controlledStop = 20,
+	timeSync = 30,
+	powerFailing = 40,
+	movement = 50,
+
+	reportPinStateChanges = 4010,
+	activateZProbe = 4011,
+	m42 = 4012,
+	m280 = 4013,
+
+	m950 = 6010,
+	m308 = 6011,
+	updateHeaterModel = 6012,
+	setHeaterTemperature = 6013,
+	setPressureAdvance = 6014,
+	setDateTime = 6015,
+	updateDeltaParameters = 6016,
+	setMotorCurrents = 6017,
+	m569 = 6018,
+	m106 = 6019,
+
+	// Responses sent by expansion boards and Smart Tools
+	zProbeTriggered = 100,
+	pinStateChanged = 101,
+	standardReply = 4510,
+	statusReport = 4511,
+	temperatureReport = 4512,
+	fanTachoReport = 4513,
+
+	// Firmware updates
+	FirmwareBlockRequest = 5000,
+	FirmwareBlockResponse = 5001
 };
 
 typedef uint8_t CanAddress;						// only the lower 7 bits are available
@@ -43,14 +69,17 @@ class CanId
 	uint32_t all;
 
 public:
-	static constexpr CanAddress MaxCanAddress = 0x7E;		// 0x7F is reserved for broadcast
+	static constexpr CanAddress MasterAddress = 0x00;			// the main board has address 0
+	static constexpr CanAddress MaxNormalAddress = 0x7D;		// maximum normal CAN address
+	static constexpr CanAddress FirmwareUpdateAddress = 0x7E;	// special address we use for backup firmware update system (board ID switches set to zero)
 	static constexpr CanAddress BroadcastAddress = 0x7F;
-	static constexpr CanAddress NoCanAddress = 0xFF;
+	static constexpr CanAddress NoAddress = 0xFF;
+
 	static constexpr uint32_t BoardAddressMask = 0x7F;
 	static constexpr unsigned int DstAddressShift = 0;
 	static constexpr unsigned int SrcAddressShift = 8;
-	static constexpr unsigned int MessageTypeShift = 16;
 	static constexpr uint32_t ResponseBit = 1ul << 15;
+	static constexpr unsigned int MessageTypeShift = 16;
 	static constexpr uint32_t MessageTypeMask = 0x1FFF;
 
 	void SetRequest(CanMessageType msgType, CanAddress src, CanAddress dst)

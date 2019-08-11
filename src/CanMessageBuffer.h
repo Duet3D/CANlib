@@ -14,8 +14,6 @@
 #include "CanId.h"
 #include "CanMessageFormats.h"
 
-extern CanAddress GetCanAddress();
-
 // Can message buffer management
 class CanMessageBuffer
 {
@@ -29,9 +27,9 @@ public:
 
 	// Set up a message buffer to carry a particular message type, setting the priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
-	CanMessageGeneric *SetupGenericMessage(CanMessageType msgType, uint16_t dest, unsigned int dataLen)
+	CanMessageGeneric *SetupGenericMessage(CanMessageType msgType, CanAddress src, CanAddress dest, unsigned int dataLen)
 	{
-		id.SetRequest(msgType, GetCanAddress(), dest);
+		id.SetRequest(msgType, src, dest);
 		dataLength = dataLen;
 		isTimeSyncMessage = false;
 		return &msg.generic;
@@ -40,9 +38,9 @@ public:
 	// Set up a message buffer to carry a particular message type, setting the dataLength, priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
-	template<class T> T* SetupRequestMessage(uint16_t dest)
+	template<class T> T* SetupRequestMessage(CanAddress src, CanAddress dest)
 	{
-		id.SetRequest(T::messageType, GetCanAddress(), dest);
+		id.SetRequest(T::messageType, src, dest);
 		dataLength = sizeof(T);
 		isTimeSyncMessage = false;
 		return reinterpret_cast<T*>(&msg);
@@ -51,9 +49,9 @@ public:
 	// Set up a message buffer to carry a particular message type, setting the dataLength, priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
-	template<class T> T* SetupResponseMessage(uint16_t dest)
+	template<class T> T* SetupResponseMessage(CanAddress src, CanAddress dest)
 	{
-		id.SetResponse(T::messageType, GetCanAddress(), dest);
+		id.SetResponse(T::messageType, src, dest);
 		dataLength = sizeof(T);
 		isTimeSyncMessage = false;
 		return reinterpret_cast<T*>(&msg);
@@ -62,9 +60,9 @@ public:
 	// Set up a message buffer to carry a particular message type, setting the dataLength, priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
-	template<class T> T* SetupBroadcastMessage(bool isTimeSync = false)
+	template<class T> T* SetupBroadcastMessage(CanAddress src, bool isTimeSync = false)
 	{
-		id.SetBroadcast(T::messageType, GetCanAddress());
+		id.SetBroadcast(T::messageType, src);
 		dataLength = sizeof(T);
 		isTimeSyncMessage = isTimeSync;
 		return reinterpret_cast<T*>(&msg);

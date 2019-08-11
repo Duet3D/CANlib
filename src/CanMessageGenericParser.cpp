@@ -1,5 +1,5 @@
 /*
- * CanMessageGenericParse.cpp
+ * CanMessageGenericParser.cpp
  *
  *  Created on: 23 Jul 2019
  *      Author: David
@@ -11,21 +11,9 @@ bool CanMessageGenericParser::GetStringParam(char c, const StringRef& v) const
 {
 	unsigned int pos;
 	const ParamDescriptor::ParamType type = FindParameter(c, pos);
-	if (type == ParamDescriptor::ParamType::string)
+	if (type == ParamDescriptor::ParamType::string || type == ParamDescriptor::ParamType::reducedString)
 	{
 		v.copy((const char *)msg.data + pos);
-		return true;
-	}
-	return false;
-}
-
-bool CanMessageGenericParser::GetNonStringParam(char c, char *v, ParamDescriptor::ParamType expectedType) const
-{
-	unsigned int pos;
-	const ParamDescriptor::ParamType type = FindParameter(c, pos);
-	if (type == expectedType)
-	{
-		memcpy(v, msg.data + pos, expectedType & 0x0F);
 		return true;
 	}
 	return false;
@@ -62,6 +50,168 @@ ParamDescriptor::ParamType CanMessageGenericParser::FindParameter(char c, unsign
 		paramMap >>= 1;
 	}
 	return ParamDescriptor::ParamType::none;
+}
+
+bool CanMessageGenericParser::GetUintParam(char c, uint32_t& v) const
+{
+	unsigned int pos;
+	const ParamDescriptor::ParamType type = FindParameter(c, pos);
+	switch (type)
+	{
+	case ParamDescriptor::ParamType::uint32:
+		v = *reinterpret_cast<const uint32_t*>(msg.data + pos);
+		return true;
+
+	case ParamDescriptor::ParamType::uint16:
+		v = *reinterpret_cast<const uint16_t*>(msg.data + pos);
+		return true;
+
+	case ParamDescriptor::ParamType::uint8:
+		v = *reinterpret_cast<const uint8_t*>(msg.data + pos);
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+bool CanMessageGenericParser::GetUintParam(char c, uint16_t& v) const
+{
+	uint32_t v2;
+	const bool ret = GetUintParam(c, v2);
+	if (ret)
+	{
+		v = (uint16_t)v2;
+	}
+	return ret;
+}
+
+bool CanMessageGenericParser::GetUintParam(char c, uint8_t& v) const
+{
+	uint32_t v2;
+	const bool ret = GetUintParam(c, v2);
+	if (ret)
+	{
+		v = (uint8_t)v2;
+	}
+	return ret;
+}
+
+bool CanMessageGenericParser::GetIntParam(char c, int32_t& v) const
+{
+	unsigned int pos;
+	const ParamDescriptor::ParamType type = FindParameter(c, pos);
+	switch (type)
+	{
+	case ParamDescriptor::ParamType::int32:
+		v = *reinterpret_cast<const int32_t*>(msg.data + pos);
+		return true;
+
+	case ParamDescriptor::ParamType::int16:
+		v = *reinterpret_cast<const int16_t*>(msg.data + pos);
+		return true;
+
+	case ParamDescriptor::ParamType::int8:
+		v = *reinterpret_cast<const int8_t*>(msg.data + pos);
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+bool CanMessageGenericParser::GetIntParam(char c, int16_t& v) const
+{
+	int32_t v2;
+	const bool ret = GetIntParam(c, v2);
+	if (ret)
+	{
+		v = (int16_t)v2;
+	}
+	return ret;
+}
+
+bool CanMessageGenericParser::GetIntParam(char c, int8_t& v) const
+{
+	int32_t v2;
+	const bool ret = GetIntParam(c, v2);
+	if (ret)
+	{
+		v = (int8_t)v2;
+	}
+	return ret;
+}
+
+bool CanMessageGenericParser::GetFloatParam(char c, float& v) const
+{
+	unsigned int pos;
+	const ParamDescriptor::ParamType type = FindParameter(c, pos);
+	switch (type)
+	{
+	case ParamDescriptor::ParamType::float_p:
+		v = *reinterpret_cast<const float*>(msg.data + pos);
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+bool CanMessageGenericParser::GetCharParam(char c, char& v) const
+{
+	unsigned int pos;
+	const ParamDescriptor::ParamType type = FindParameter(c, pos);
+	switch (type)
+	{
+	case ParamDescriptor::ParamType::char_p:
+		v = *reinterpret_cast<const char*>(msg.data + pos);
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+bool CanMessageGenericParser::GetBoolParam(char c, bool &v) const
+{
+	unsigned int pos;
+	const ParamDescriptor::ParamType type = FindParameter(c, pos);
+	switch (type)
+	{
+	case ParamDescriptor::ParamType::int32:
+		v = (*reinterpret_cast<const int32_t*>(msg.data + pos) > 0);
+		return true;
+
+	case ParamDescriptor::ParamType::int16:
+		v = (*reinterpret_cast<const int16_t*>(msg.data + pos) > 0);
+		return true;
+
+	case ParamDescriptor::ParamType::int8:
+		v = (*reinterpret_cast<const int8_t*>(msg.data + pos) > 0);
+		return true;
+
+	case ParamDescriptor::ParamType::uint32:
+		v = (*reinterpret_cast<const uint32_t*>(msg.data + pos) != 0);
+		return true;
+
+	case ParamDescriptor::ParamType::uint16:
+		v = (*reinterpret_cast<const uint16_t*>(msg.data + pos) != 0);
+		return true;
+
+	case ParamDescriptor::ParamType::uint8:
+		v = (*reinterpret_cast<const uint8_t*>(msg.data + pos) != 0);
+		return true;
+
+	default:
+		return false;
+	}
+
+}
+
+bool CanMessageGenericParser::HasParameter(char c) const
+{
+	unsigned int pos;
+	return FindParameter(c, pos) != ParamDescriptor::ParamType::none;
 }
 
 // End

@@ -15,6 +15,8 @@
 constexpr unsigned int MaxDriversPerCanSlave = 4;
 constexpr unsigned int MaxHeatersPerCanSlave = 6;
 
+constexpr size_t MaxCanReplyLength = 63;				// 63 chars max, first byte is the GCodeResult
+
 // CAN message formats
 
 // Time sync message
@@ -66,13 +68,12 @@ struct CanMessageMovement
 };
 
 
-// Here are the layouts for standard message types, excluding the first dword.
+// Here are the layouts for standard message types
 
-struct CanMessageM140								// also does M104, M141
+struct CanMessageSetHeaterTemperature
 {
-	uint16_t heaterNumber;
-	uint16_t spare;
 	float setPoint;
+	uint16_t heaterNumber;
 };
 
 struct CanMessageM303
@@ -107,6 +108,38 @@ struct ParamDescriptor
 	size_t ItemSize() const { return (size_t)type & 0x0F; }
 };
 
+// Firmware update request
+struct CanMessageFirmwareUpdateRequest
+{
+	static constexpr CanMessageType messageType = CanMessageType::FirmwareBlockRequest;
+
+	uint32_t fileOffset : 24,			// the offset in the file of the data we need
+			 bootloaderVersion: 8;		// the version of this bootloader
+	uint32_t lengthRequested : 24,		// how much data we want
+			 boardVersion : 8;			// the hardware version of this board
+	char boardType[56];					// null-terminated board type name
+
+	static constexpr uint32_t BootloaderVersion0 = 0;
+};
+
+// Firmware update response
+struct CanMessageFirmwareUpdateResponse
+{
+	static constexpr CanMessageType messageType = CanMessageType::FirmwareBlockResponse;
+
+	uint32_t fileOffset : 24,			// the offset in the file where this block starts
+			 dataLength : 6,			// the number of bytes of data that follow
+			 err : 2;					// the error code
+	uint32_t fileLength : 24,			// the total size of the firmware file
+			 spare2 : 8;
+	uint8_t data[56];					// up to 56 bytes of data
+
+	static constexpr uint32_t ErrNone = 0;
+	static constexpr uint32_t ErrNoFile = 1;
+	static constexpr uint32_t ErrBadOffset = 2;
+	static constexpr uint32_t ErrOther = 3;
+};
+
 // Generic message
 struct CanMessageGeneric
 {
@@ -114,6 +147,15 @@ struct CanMessageGeneric
 	uint8_t data[60];
 
 	void DebugPrint(const ParamDescriptor *pt = nullptr) const;
+};
+
+struct CanMessageStandardReply
+{
+	static constexpr CanMessageType messageType = CanMessageType::standardReply;
+
+	uint16_t requestId : 13,
+			 resultCode : 3;
+	char text[62];
 };
 
 // Parameter tables for various messages that use the generic format.
@@ -131,6 +173,32 @@ struct CanMessageGeneric
 #define STRING_PARAM(_c) { _c, ParamDescriptor::string }
 #define REDUCED_STRING_PARAM(_c) { _c, ParamDescriptor::reducedString }
 #define END_PARAMS { 0 }
+
+constexpr ParamDescriptor M42Params[] =
+{
+	UINT16_PARAM('P'),
+	FLOAT_PARAM('S'),
+	END_PARAMS
+};
+
+constexpr ParamDescriptor M106Params[] =
+{
+	FLOAT_PARAM('S'),
+	FLOAT_PARAM('L'),
+	FLOAT_PARAM('X'),
+	FLOAT_PARAM('B'),
+//	FLOAT_ARRAY_PARAM('T'),
+//	UINT16_ARRAY_PARAM('H'),
+	UINT16_PARAM('P'),
+	END_PARAMS
+};
+
+constexpr ParamDescriptor M208Params[] =
+{
+	UINT16_PARAM('P'),
+	UINT16_PARAM('S'),
+	END_PARAMS
+};
 
 constexpr ParamDescriptor M308Params[] =
 {
@@ -161,90 +229,17 @@ constexpr ParamDescriptor M950Params[] =
 	END_PARAMS
 };
 
-constexpr ParamDescriptor M307Params[] =
-{
-	FLOAT_PARAM('A'),
-	FLOAT_PARAM('C'),
-	FLOAT_PARAM('D'),
-	FLOAT_PARAM('S'),
-	FLOAT_PARAM('V'),
-	UINT16_PARAM('H'),
-	UINT8_PARAM('B'),
-	END_PARAMS
-};
-
-struct CanMessageM350
-{
-	uint32_t whichDrives;
-	struct MicrostepSetting
-	{
-		uint32_t microstepping : 16,
-				 interpolated : 1;
-	};
-	MicrostepSetting motorMicrostepping[MaxDriversPerCanSlave];
-};
-
-struct CanMessageM569
-{
-	uint32_t driverNumber;
-	uint32_t driverMode : 3,
-			 direction : 1,
-			 enablePolarity : 1,
-			 stepPulseLength : 5,
-			 stepPulseInterval : 5,
-			 dirSetupTime : 5,
-			 dirHoldTime : 5,
-			 tpfd : 4,
-			 blankingTime : 2,
-			 offTime : 4,
-			 hstart : 3,
-			 hend : 4,
-			 hdec : 2,
-			 tpwmthrs : 20,
-			 thigh : 20;
-};
-
-struct CanMessageM906
-{
-	uint32_t whichDrives;
-	struct MotorSetting
-	{
-		uint16_t currentMilliamps;
-		uint8_t standstillCurrentPercent;
-		uint8_t idleCurrentPercent;
-	};
-	MotorSetting motorCurrents[MaxDriversPerCanSlave];
-};
-
-struct CanMessageM913
-{
-	uint32_t whichDrives;
-	uint32_t motorCurrentPercentages[MaxDriversPerCanSlave];
-};
-
-struct CanMessageM915
-{
-	uint32_t whichDrives;
-	struct DriverStallSetting
-	{
-		//TODO
-	};
-	DriverStallSetting stallSettings[MaxDriversPerCanSlave];
-};
-
 union CanMessage
 {
+	uint8_t raw[64];
 	CanMessageGeneric generic;
 	CanMessageTimeSync sync;
 	CanMessageEmergencyStop eStop;
 	CanMessageMovement move;
-	CanMessageM140 m140;
-	CanMessageM303 m303;
-	CanMessageM350 m350;
-	CanMessageM569 m569;
-	CanMessageM906 m906;
-	CanMessageM913 m913;
-	CanMessageM915 m915;
+	CanMessageSetHeaterTemperature setTemp;
+	CanMessageStandardReply standardReply;
+	CanMessageFirmwareUpdateRequest firmwareUpdateRequest;
+	CanMessageFirmwareUpdateResponse firmwareUpdateResponse;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
