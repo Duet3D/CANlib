@@ -11,6 +11,7 @@
 #include "CanId.h"
 #include "General/BitMap.h"
 #include "General/StringRef.h"
+#include "General/Strnlen.h"
 
 constexpr unsigned int MaxDriversPerCanSlave = 4;
 constexpr unsigned int MaxHeatersPerCanSlave = 6;
@@ -120,6 +121,9 @@ struct CanMessageFirmwareUpdateRequest
 	char boardType[56];					// null-terminated board type name
 
 	static constexpr uint32_t BootloaderVersion0 = 0;
+
+	size_t GetActualDataLength() const { return 2 * sizeof(uint32_t) + Strnlen(boardType, sizeof(boardType)/sizeof(boardType[0])); }
+	size_t GetBoardTypeLength(size_t dataLength) const { return dataLength - 2 * sizeof(uint32_t); }
 };
 
 // Firmware update response
@@ -138,6 +142,8 @@ struct CanMessageFirmwareUpdateResponse
 	static constexpr uint32_t ErrNoFile = 1;
 	static constexpr uint32_t ErrBadOffset = 2;
 	static constexpr uint32_t ErrOther = 3;
+
+	size_t GetActualDataLength() const { return dataLength + 4; }
 };
 
 // Generic message
