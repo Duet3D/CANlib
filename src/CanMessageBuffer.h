@@ -31,7 +31,6 @@ public:
 	{
 		id.SetRequest(msgType, src, dest);
 		dataLength = dataLen;
-		isTimeSyncMessage = false;
 		return &msg.generic;
 	}
 
@@ -42,7 +41,6 @@ public:
 	{
 		id.SetRequest(T::messageType, src, dest);
 		dataLength = sizeof(T);
-		isTimeSyncMessage = false;
 		return reinterpret_cast<T*>(&msg);
 	}
 
@@ -53,26 +51,25 @@ public:
 	{
 		id.SetResponse(T::messageType, src, dest);
 		dataLength = sizeof(T);
-		isTimeSyncMessage = false;
 		return reinterpret_cast<T*>(&msg);
 	}
 
 	// Set up a message buffer to carry a particular message type, setting the dataLength, priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
-	template<class T> T* SetupBroadcastMessage(CanAddress src, bool isTimeSync = false)
+	template<class T> T* SetupBroadcastMessage(CanAddress src)
 	{
 		id.SetBroadcast(T::messageType, src);
 		dataLength = sizeof(T);
-		isTimeSyncMessage = isTimeSync;
 		return reinterpret_cast<T*>(&msg);
 	}
+
+	void DebugPrint(const char *prefix);
 
 	CanMessageBuffer *next;
 	CanId id;
 	size_t dataLength;
 	CanMessage msg;
-	bool isTimeSyncMessage;
 
 	static constexpr uint16_t broadcastId = 63;
 
