@@ -143,7 +143,7 @@ struct CanMessageFirmwareUpdateResponse
 	static constexpr uint32_t ErrBadOffset = 2;
 	static constexpr uint32_t ErrOther = 3;
 
-	size_t GetActualDataLength() const { return dataLength + 4; }
+	size_t GetActualDataLength() const { return dataLength + 2 * sizeof(uint32_t); }
 };
 
 // Generic message
