@@ -80,6 +80,21 @@ struct CanMessageSetHeaterTemperature
 struct CanMessageM303
 {
 	uint16_t heaterNumber;
+	float targetTemperature;
+};
+
+struct __attribute__((packed)) CanTemperatureReport
+{
+	uint8_t errorCode;						// this holds a TemperatureError
+	float temperature;						// the last temperature we read
+};
+
+struct CanMessageSensorTemperatures
+{
+	static constexpr CanMessageType messageType = CanMessageType::sensorTemperaturesReport;
+
+	uint64_t whichSensors;						// which sensor numbers we have
+	CanTemperatureReport temperatureReports[11];	// the error codes and temperatures of the ones we have, lowest sensor number first
 };
 
 // This struct describes a possible parameter in a CAN message.
@@ -246,6 +261,7 @@ union CanMessage
 	CanMessageStandardReply standardReply;
 	CanMessageFirmwareUpdateRequest firmwareUpdateRequest;
 	CanMessageFirmwareUpdateResponse firmwareUpdateResponse;
+	CanMessageSensorTemperatures sensorTemperaturesBroadcast;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
