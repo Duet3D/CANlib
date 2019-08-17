@@ -16,8 +16,6 @@
 constexpr unsigned int MaxDriversPerCanSlave = 4;
 constexpr unsigned int MaxHeatersPerCanSlave = 6;
 
-constexpr size_t MaxCanReplyLength = 63;				// 63 chars max, first byte is the GCodeResult
-
 // CAN message formats
 
 // Time sync message
@@ -73,14 +71,46 @@ struct CanMessageMovement
 
 struct CanMessageSetHeaterTemperature
 {
-	float setPoint;
+	uint16_t requestId : 12,
+			 spare : 4;
 	uint16_t heaterNumber;
+	float setPoint;
 };
 
 struct CanMessageM303
 {
+	uint16_t requestId : 12,
+			 spare : 4;
 	uint16_t heaterNumber;
 	float targetTemperature;
+};
+
+struct CanMessageUpdateHeaterModel
+{
+	static constexpr CanMessageType messageType = CanMessageType::updateHeaterModel;
+
+	struct PidParameters
+	{
+		float kP;			// controller (not model) gain
+		float recipTi;		// reciprocal of controller integral time
+		float tD;			// controller differential time
+	};
+
+	uint16_t requestId : 12,
+			 spare : 4;
+	uint16_t heater;
+	float gain;
+	float timeConstant;
+	float deadTime;
+	float maxPwm;
+	float standardVoltage;					// power voltage reading at which tuning was done, or 0 if unknown
+	bool enabled;
+	bool usePid;
+	bool inverted;
+	bool pidParametersOverridden;
+
+	PidParameters setpointChangeParams;		// parameters for handling changes in the setpoint
+	PidParameters loadChangeParams;			// parameters for handling changes in the load
 };
 
 struct __attribute__((packed)) CanTemperatureReport
@@ -93,35 +123,58 @@ struct CanMessageSensorTemperatures
 {
 	static constexpr CanMessageType messageType = CanMessageType::sensorTemperaturesReport;
 
-	uint64_t whichSensors;						// which sensor numbers we have
+	uint64_t whichSensors;					// which sensor numbers we have
 	CanTemperatureReport temperatureReports[11];	// the error codes and temperatures of the ones we have, lowest sensor number first
+
+	size_t GetActualDataLength(unsigned int numSensors) const { return numSensors * sizeof(CanTemperatureReport) + sizeof(uint64_t); }
 };
 
 // This struct describes a possible parameter in a CAN message.
 // An array of these describes all the possible parameters. The list is terminated by a zero entry.
 struct ParamDescriptor
 {
-	// The type of a parameter. The lower 4 bits are the item size, except for string.
+	// The type of a parameter. The lower 4 bits are the element size in bytes, except for string and reduced string.
 	enum ParamType : uint8_t
 	{
-		none = 0,
-		uint32 = 0x04,
-		int32 = 0x14,
-		float_p = 0x24,
-		uint16 = 0x02,
-		int16 = 0x12,
-		pwmFreq = 0x22,
-		uint8 = 0x01,
-		int8 = 0x11,
-		char_p = 0x21,
+		length1 = 0x01,
+		length2 = 0x02,
+		length4 = 0x04,
+		length8 = 0x08,
+		isArray = 0x80,
+
+		none = 0x00,
+		uint64 = 0x00 | length8,
+		uint32 = 0x00 | length4,
+		uint16 = 0x00 | length2,
+		uint8 = 0x00 | length1,
+
+		uint32_array = uint32 | isArray,
+		uint16_array = uint16 | isArray,
+		uint8_array = uint8 | isArray,
+
+		int32 = 0x10 | length4,
+		int16 = 0x10 | length2,
+		int8 = 0x10 | length1,
 		string = 0x10,
-		reducedString = 0x20
+
+		int32_array = int32 | isArray,
+		int16_array = int16 | isArray,
+		int8_array = int8 | isArray,
+
+		float_p = 0x20 | length4,
+		pwmFreq = 0x20 | length2,
+		char_p = 0x20 | length1,
+		reducedString = 0x20,
+
+		float_array = float_p | isArray,
+		pwmFreqArray = pwmFreq | isArray,
+		char_array = char_p | isArray,
 	};
 
 	char letter;
 	ParamType type;
 
-	size_t ItemSize() const { return (size_t)type & 0x0F; }
+	size_t ItemSize() const { return (size_t)type & 0x0F; }		// only valid for some types
 };
 
 // Firmware update request
@@ -164,35 +217,59 @@ struct CanMessageFirmwareUpdateResponse
 // Generic message
 struct CanMessageGeneric
 {
-	uint32_t paramMap;
+	uint32_t requestId : 12,
+			 paramMap : 20;
 	uint8_t data[60];
 
 	void DebugPrint(const ParamDescriptor *pt = nullptr) const;
+
+	static size_t GetActualDataLength(size_t paramLength) { return paramLength + sizeof(uint32_t); }
 };
 
 struct CanMessageStandardReply
 {
 	static constexpr CanMessageType messageType = CanMessageType::standardReply;
 
-	uint16_t requestId : 13,
-			 resultCode : 3;
+	uint16_t requestId : 12,
+			 resultCode : 4;
 	char text[62];
+
+	static constexpr size_t MaxTextLength = sizeof(text);
+
+	size_t GetTextLength(size_t dataLength) const
+	{
+		// can use min<> here because it hasn't been moved to RRFLibraries yet
+		const size_t maxLen = dataLength - sizeof(uint16_t);
+		return Strnlen(text, (maxLen < sizeof(text)) ? maxLen : sizeof(text));
+	}
+
+	size_t GetActualDataLength(size_t textLength) const
+	{
+		return textLength + sizeof(uint16_t);
+	}
 };
 
 // Parameter tables for various messages that use the generic format.
 // It's a good idea to put 32-bit parameters earlier than 16-bit parameters, and 16-bit parameters earlier than 8-bit or string parameters, so that accesses are aligned.
 
+#define UINT64_PARAM(_c) { _c, ParamDescriptor::uint64 }
 #define UINT32_PARAM(_c) { _c, ParamDescriptor::uint32 }
-#define INT32_PARAM(_c) { _c, ParamDescriptor::int32 }
-#define FLOAT_PARAM(_c) { _c, ParamDescriptor::float_p }
 #define UINT16_PARAM(_c) { _c, ParamDescriptor::uint16 }
-#define INT16_PARAM(_c) { _c, ParamDescriptor::int16 }
-#define PWM_FREQ_PARAM(_c) { _c, ParamDescriptor::pwmFreq }
 #define UINT8_PARAM(_c) { _c, ParamDescriptor::uint8 }
+
+#define INT32_PARAM(_c) { _c, ParamDescriptor::int32 }
+#define INT16_PARAM(_c) { _c, ParamDescriptor::int16 }
 #define INT8_PARAM(_c) { _c, ParamDescriptor::int8 }
+
+#define FLOAT_PARAM(_c) { _c, ParamDescriptor::float_p }
+#define PWM_FREQ_PARAM(_c) { _c, ParamDescriptor::pwmFreq }
 #define CHAR_PARAM(_c) { _c, ParamDescriptor::char_p }
 #define STRING_PARAM(_c) { _c, ParamDescriptor::string }
 #define REDUCED_STRING_PARAM(_c) { _c, ParamDescriptor::reducedString }
+
+#define UINT8_ARRAY_PARAM(_c) { _c, ParamDescriptor::uint8_array }
+#define FLOAT_ARRAY_PARAM(_c) { _c, ParamDescriptor::float_array }
+
 #define END_PARAMS { 0 }
 
 constexpr ParamDescriptor M42Params[] =
@@ -204,17 +281,17 @@ constexpr ParamDescriptor M42Params[] =
 
 constexpr ParamDescriptor M106Params[] =
 {
+	UINT16_PARAM('P'),
 	FLOAT_PARAM('S'),
 	FLOAT_PARAM('L'),
 	FLOAT_PARAM('X'),
 	FLOAT_PARAM('B'),
-//	FLOAT_ARRAY_PARAM('T'),
-//	UINT16_ARRAY_PARAM('H'),
-	UINT16_PARAM('P'),
+	UINT8_ARRAY_PARAM('H'),			// max 8 elements
+	FLOAT_ARRAY_PARAM('T'),			// max 8 elements
 	END_PARAMS
 };
 
-constexpr ParamDescriptor M208Params[] =
+constexpr ParamDescriptor M280Params[] =
 {
 	UINT16_PARAM('P'),
 	UINT16_PARAM('S'),

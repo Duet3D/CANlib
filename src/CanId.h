@@ -42,7 +42,6 @@ enum class CanMessageType : uint16_t
 	pinStateChanged = 101,
 	standardReply = 4510,
 	statusReport = 4511,
-	temperatureReport = 4512,
 	fanTachoReport = 4513,
 	sensorTemperaturesReport = 4514,
 
