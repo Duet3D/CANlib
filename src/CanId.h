@@ -36,10 +36,15 @@ enum class CanMessageType : uint16_t
 	setMotorCurrents = 6017,
 	m569 = 6018,
 	m106 = 6019,
+	m915 = 6020,
+	setMicrostepping = 6021,
+	setStandstillCurrentFactor = 6022,
+	setDriverStates = 6023,
 
 	// Responses sent by expansion boards and Smart Tools
 	zProbeTriggered = 100,
 	pinStateChanged = 101,
+	motorStalled = 102,
 	standardReply = 4510,
 	statusReport = 4511,
 	fanTachoReport = 4513,

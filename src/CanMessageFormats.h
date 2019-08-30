@@ -66,8 +66,20 @@ struct CanMessageMovement
 	void DebugPrint() const;
 };
 
+// This message is used to set the following parameters for multiple drivers:
+//  Motor currents: values are currents in mA
+//  Microstepping:  values are microstepping (bits 0-8) and interpolation enable (bit 15)
+//  Standstill current percentages:  values are the percentages
+//  Driver states: 0 = disabled, 1 = idle, 2 = active
+struct CanMessageMultipleDrivesRequest
+{
+	uint16_t driversToUpdate;
+	uint16_t values[MaxDriversPerCanSlave];			// bits 0-10 are microstepping, but 15 is interpolation enable
 
-// Here are the layouts for standard message types
+	static constexpr uint16_t driverDisabled = 0, driverIdle = 1, driverActive = 2;
+
+	size_t GetActualDataLength(size_t numDrivers) const { return sizeof(driversToUpdate) + numDrivers * sizeof(values[0]); }
+};
 
 struct CanMessageSetHeaterTemperature
 {
@@ -157,22 +169,29 @@ struct ParamDescriptor
 		int8 = 0x10 | length1,
 		string = 0x10,
 
+#if 0	// these are not used or supported yet
 		int32_array = int32 | isArray,
 		int16_array = int16 | isArray,
 		int8_array = int8 | isArray,
+#endif
 
 		float_p = 0x20 | length4,
 		pwmFreq = 0x20 | length2,
 		char_p = 0x20 | length1,
 		reducedString = 0x20,
 
+		localDriver = 0x40 | length1,
+
 		float_array = float_p | isArray,
+#if 0	// these are not used or supported yet
 		pwmFreqArray = pwmFreq | isArray,
 		char_array = char_p | isArray,
+#endif
 	};
 
 	char letter;
 	ParamType type;
+	uint8_t maxArrayLength;
 
 	size_t ItemSize() const { return (size_t)type & 0x0F; }		// only valid for some types
 };
@@ -252,23 +271,24 @@ struct CanMessageStandardReply
 // Parameter tables for various messages that use the generic format.
 // It's a good idea to put 32-bit parameters earlier than 16-bit parameters, and 16-bit parameters earlier than 8-bit or string parameters, so that accesses are aligned.
 
-#define UINT64_PARAM(_c) { _c, ParamDescriptor::uint64 }
-#define UINT32_PARAM(_c) { _c, ParamDescriptor::uint32 }
-#define UINT16_PARAM(_c) { _c, ParamDescriptor::uint16 }
-#define UINT8_PARAM(_c) { _c, ParamDescriptor::uint8 }
+#define UINT64_PARAM(_c) { _c, ParamDescriptor::uint64, 0 }
+#define UINT32_PARAM(_c) { _c, ParamDescriptor::uint32, 0 }
+#define UINT16_PARAM(_c) { _c, ParamDescriptor::uint16, 0 }
+#define UINT8_PARAM(_c) { _c, ParamDescriptor::uint8, 0 }
 
-#define INT32_PARAM(_c) { _c, ParamDescriptor::int32 }
-#define INT16_PARAM(_c) { _c, ParamDescriptor::int16 }
-#define INT8_PARAM(_c) { _c, ParamDescriptor::int8 }
+#define INT32_PARAM(_c) { _c, ParamDescriptor::int32, 0 }
+#define INT16_PARAM(_c) { _c, ParamDescriptor::int16, 0 }
+#define INT8_PARAM(_c) { _c, ParamDescriptor::int8, 0 }
 
-#define FLOAT_PARAM(_c) { _c, ParamDescriptor::float_p }
-#define PWM_FREQ_PARAM(_c) { _c, ParamDescriptor::pwmFreq }
-#define CHAR_PARAM(_c) { _c, ParamDescriptor::char_p }
-#define STRING_PARAM(_c) { _c, ParamDescriptor::string }
-#define REDUCED_STRING_PARAM(_c) { _c, ParamDescriptor::reducedString }
+#define FLOAT_PARAM(_c) { _c, ParamDescriptor::float_p, 0 }
+#define PWM_FREQ_PARAM(_c) { _c, ParamDescriptor::pwmFreq, 0 }
+#define CHAR_PARAM(_c) { _c, ParamDescriptor::char_p, 0 }
+#define STRING_PARAM(_c) { _c, ParamDescriptor::string, 0 }
+#define REDUCED_STRING_PARAM(_c) { _c, ParamDescriptor::reducedString, 0 }
+#define LOCAL_DRIVER_PARAM(_c) { _c, ParamDescriptor::localDriver, 0 }
 
-#define UINT8_ARRAY_PARAM(_c) { _c, ParamDescriptor::uint8_array }
-#define FLOAT_ARRAY_PARAM(_c) { _c, ParamDescriptor::float_array }
+#define UINT8_ARRAY_PARAM(_c, _n) { _c, ParamDescriptor::uint8_array, _n }
+#define FLOAT_ARRAY_PARAM(_c, _n) { _c, ParamDescriptor::float_array, _n }
 
 #define END_PARAMS { 0 }
 
@@ -286,8 +306,8 @@ constexpr ParamDescriptor M106Params[] =
 	FLOAT_PARAM('L'),
 	FLOAT_PARAM('X'),
 	FLOAT_PARAM('B'),
-	UINT8_ARRAY_PARAM('H'),			// max 8 elements
-	FLOAT_ARRAY_PARAM('T'),			// max 8 elements
+	UINT8_ARRAY_PARAM('H', 8),
+	FLOAT_ARRAY_PARAM('T', 8),
 	END_PARAMS
 };
 
@@ -324,6 +344,32 @@ constexpr ParamDescriptor M950Params[] =
 	UINT16_PARAM('P'),
 	UINT16_PARAM('S'),
 	REDUCED_STRING_PARAM('C'),
+	END_PARAMS
+};
+
+constexpr ParamDescriptor M569Params[] =
+{
+	LOCAL_DRIVER_PARAM('P'),
+	UINT8_PARAM('S'),
+	INT8_PARAM('R'),
+	UINT8_PARAM('D'),
+	UINT8_PARAM('F'),
+	UINT8_PARAM('B'),
+	UINT16_PARAM('H'),
+	UINT16_PARAM('V'),
+	UINT8_ARRAY_PARAM('Y', 3),
+	FLOAT_ARRAY_PARAM('T', 4),
+	END_PARAMS
+};
+
+constexpr ParamDescriptor M915Params[] =
+{
+	UINT16_PARAM('d'),					// this is the bitmap of driver numbers to change the parameters for
+	INT8_PARAM('S'),
+	UINT8_PARAM('F'),
+	UINT16_PARAM('H'),
+	UINT16_PARAM('T'),
+	UINT8_PARAM('R'),
 	END_PARAMS
 };
 

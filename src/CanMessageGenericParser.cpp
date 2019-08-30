@@ -6,6 +6,7 @@
  */
 
 #include "CanMessageGenericParser.h"
+#include <General/Portability.h>
 
 bool CanMessageGenericParser::GetStringParam(char c, const StringRef& v) const
 {
@@ -59,15 +60,15 @@ bool CanMessageGenericParser::GetUintParam(char c, uint32_t& v) const
 	switch (type)
 	{
 	case ParamDescriptor::ParamType::uint32:
-		v = *reinterpret_cast<const uint32_t*>(msg.data + pos);
+		v = LoadLE32(msg.data + pos);
 		return true;
 
 	case ParamDescriptor::ParamType::uint16:
-		v = *reinterpret_cast<const uint16_t*>(msg.data + pos);
+		v = LoadLE16(msg.data + pos);
 		return true;
 
 	case ParamDescriptor::ParamType::uint8:
-		v = *reinterpret_cast<const uint8_t*>(msg.data + pos);
+		v = msg.data[pos];
 		return true;
 
 	default:
@@ -104,11 +105,11 @@ bool CanMessageGenericParser::GetIntParam(char c, int32_t& v) const
 	switch (type)
 	{
 	case ParamDescriptor::ParamType::int32:
-		v = *reinterpret_cast<const int32_t*>(msg.data + pos);
+		v = (int32_t)LoadLE32(msg.data + pos);
 		return true;
 
 	case ParamDescriptor::ParamType::int16:
-		v = *reinterpret_cast<const int16_t*>(msg.data + pos);
+		v = (int16_t)LoadLE16(msg.data + pos);
 		return true;
 
 	case ParamDescriptor::ParamType::int8:
@@ -149,7 +150,7 @@ bool CanMessageGenericParser::GetFloatParam(char c, float& v) const
 	switch (type)
 	{
 	case ParamDescriptor::ParamType::float_p:
-		v = *reinterpret_cast<const float*>(msg.data + pos);
+		v = LoadLEFloat(msg.data + pos);
 		return true;
 
 	default:
