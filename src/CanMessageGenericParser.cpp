@@ -36,16 +36,21 @@ ParamDescriptor::ParamType CanMessageGenericParser::FindParameter(char c, unsign
 		{
 			// This parameter is present, so skip it
 			unsigned int size = d->ItemSize();
-			if (size != 0)
-			{
-				pos += size;
-			}
-			else
+			if (size == 0)
 			{
 				// The only item with size 0 is string, so skip up to and including the null terminator
 				do
 				{
 				} while (msg.data[pos++] != 0);
+			}
+			else if ((d->type & ParamDescriptor::ParamType::isArray) != 0)
+			{
+				const uint8_t numElems = msg.data[pos++];
+				pos += numElems * size;
+			}
+			else
+			{
+				pos += size;
 			}
 		}
 		paramMap >>= 1;
@@ -68,6 +73,7 @@ bool CanMessageGenericParser::GetUintParam(char c, uint32_t& v) const
 		return true;
 
 	case ParamDescriptor::ParamType::uint8:
+	case ParamDescriptor::ParamType::localDriver:
 		v = msg.data[pos];
 		return true;
 
@@ -206,7 +212,32 @@ bool CanMessageGenericParser::GetBoolParam(char c, bool &v) const
 	default:
 		return false;
 	}
+}
 
+bool CanMessageGenericParser::GetUint8ArrayParam(char c, size_t& numValues, const uint8_t*& values)
+{
+	unsigned int pos;
+	const ParamDescriptor::ParamType type = FindParameter(c, pos);
+	if (type == ParamDescriptor::ParamType::uint8_array)
+	{
+		numValues = msg.data[pos++];
+		values = msg.data + pos;
+		return true;
+	}
+	return false;
+}
+
+bool CanMessageGenericParser::GetFloatArrayParam(char c, size_t& numValues, const float*& values)
+{
+	unsigned int pos;
+	const ParamDescriptor::ParamType type = FindParameter(c, pos);
+	if (type == ParamDescriptor::ParamType::float_array)
+	{
+		numValues = msg.data[pos++];
+		values = reinterpret_cast<const float*>(msg.data + pos);
+		return true;
+	}
+	return false;
 }
 
 bool CanMessageGenericParser::HasParameter(char c) const

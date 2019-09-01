@@ -108,13 +108,6 @@ struct CanMessageUpdateHeaterModel
 {
 	static constexpr CanMessageType messageType = CanMessageType::updateHeaterModel;
 
-	struct PidParameters
-	{
-		float kP;			// controller (not model) gain
-		float recipTi;		// reciprocal of controller integral time
-		float tD;			// controller differential time
-	};
-
 	uint16_t requestId : 12,
 			 spare : 4;
 	uint16_t heater;
@@ -128,8 +121,10 @@ struct CanMessageUpdateHeaterModel
 	bool inverted;
 	bool pidParametersOverridden;
 
-	PidParameters setpointChangeParams;		// parameters for handling changes in the setpoint
-	PidParameters loadChangeParams;			// parameters for handling changes in the load
+	// The next 3 are used only if pidParametersOverridden is true
+	float kP;								// controller (not model) gain
+	float recipTi;							// reciprocal of controller integral time
+	float tD;								// controller differential time
 };
 
 struct __attribute__((packed)) CanTemperatureReport
@@ -392,6 +387,8 @@ union CanMessage
 	CanMessageFirmwareUpdateRequest firmwareUpdateRequest;
 	CanMessageFirmwareUpdateResponse firmwareUpdateResponse;
 	CanMessageSensorTemperatures sensorTemperaturesBroadcast;
+	CanMessageUpdateHeaterModel heaterModel;
+	CanMessageMultipleDrivesRequest multipleDrivesRequest;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large

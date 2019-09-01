@@ -27,6 +27,10 @@ public:
 	bool GetCharParam(char c, char& v) const;
 	bool GetStringParam(char c, const StringRef& v) const;
 	bool GetBoolParam(char c, bool &v) const;
+
+	bool GetUint8ArrayParam(char c, size_t& numValues, const uint8_t*& values);
+	bool GetFloatArrayParam(char c, size_t& numValues, const float*& values);
+
 	bool HasParameter(char c) const;
 
 private:
