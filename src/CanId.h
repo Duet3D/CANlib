@@ -40,6 +40,7 @@ enum class CanMessageType : uint16_t
 	setMicrostepping = 6021,
 	setStandstillCurrentFactor = 6022,
 	setDriverStates = 6023,
+	m122 = 6024,
 
 	// Responses sent by expansion boards and Smart Tools
 	zProbeTriggered = 100,

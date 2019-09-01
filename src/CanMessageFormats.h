@@ -81,6 +81,13 @@ struct CanMessageMultipleDrivesRequest
 	size_t GetActualDataLength(size_t numDrivers) const { return sizeof(driversToUpdate) + numDrivers * sizeof(values[0]); }
 };
 
+struct CanMessageDiagnostics
+{
+	static constexpr CanMessageType messageType = CanMessageType::m122;
+
+	uint8_t type;									// type of diagnostics requested, not currently used
+};
+
 struct CanMessageSetHeaterTemperature
 {
 	uint16_t requestId : 12,
