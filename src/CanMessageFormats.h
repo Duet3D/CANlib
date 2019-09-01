@@ -133,7 +133,7 @@ struct __attribute__((packed)) CanTemperatureReport
 	float temperature;						// the last temperature we read
 };
 
-struct CanMessageSensorTemperatures
+struct __attribute__((packed)) CanMessageSensorTemperatures
 {
 	static constexpr CanMessageType messageType = CanMessageType::sensorTemperaturesReport;
 
@@ -259,9 +259,8 @@ struct CanMessageStandardReply
 
 	size_t GetTextLength(size_t dataLength) const
 	{
-		// can use min<> here because it hasn't been moved to RRFLibraries yet
-		const size_t maxLen = dataLength - sizeof(uint16_t);
-		return Strnlen(text, (maxLen < sizeof(text)) ? maxLen : sizeof(text));
+		// can't use min<> here because it hasn't been moved to RRFLibraries yet
+		return Strnlen(text, (dataLength < sizeof(uint16_t) + sizeof(text)) ? dataLength - sizeof(uint16_t) : sizeof(text));
 	}
 
 	size_t GetActualDataLength(size_t textLength) const
@@ -271,7 +270,6 @@ struct CanMessageStandardReply
 };
 
 // Parameter tables for various messages that use the generic format.
-// It's a good idea to put 32-bit parameters earlier than 16-bit parameters, and 16-bit parameters earlier than 8-bit or string parameters, so that accesses are aligned.
 
 #define UINT64_PARAM(_c) { _c, ParamDescriptor::uint64, 0 }
 #define UINT32_PARAM(_c) { _c, ParamDescriptor::uint32, 0 }

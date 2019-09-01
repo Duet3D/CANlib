@@ -112,6 +112,8 @@ public:
 	uint8_t Dst() const { return (all >> DstAddressShift) & BoardAddressMask; }
 	CanMessageType MsgType() const { return (CanMessageType)((all >> MessageTypeShift) & MessageTypeMask); }
 	uint32_t GetWholeId() const { return all; }
+	bool IsRequest() const { return (all & ResponseBit) == 0; }
+	bool IsResponse() const { return (all & ResponseBit) != 0; }
 };
 
 #endif /* SRC_CAN_CANID_H_ */
