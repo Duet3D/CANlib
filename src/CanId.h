@@ -41,6 +41,7 @@ enum class CanMessageType : uint16_t
 	setStandstillCurrentFactor = 6022,
 	setDriverStates = 6023,
 	m122 = 6024,
+	updateFirmware = 6025,
 
 	// Responses sent by expansion boards and Smart Tools
 	zProbeTriggered = 100,

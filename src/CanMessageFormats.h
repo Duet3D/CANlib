@@ -143,6 +143,13 @@ struct __attribute__((packed)) CanMessageSensorTemperatures
 	size_t GetActualDataLength(unsigned int numSensors) const { return numSensors * sizeof(CanTemperatureReport) + sizeof(uint64_t); }
 };
 
+struct CanMessageUpdateYourFirmware
+{
+	static constexpr CanMessageType messageType = CanMessageType::updateFirmware;
+	uint8_t boardId;
+	uint8_t invertedBoardId;
+};
+
 // This struct describes a possible parameter in a CAN message.
 // An array of these describes all the possible parameters. The list is terminated by a zero entry.
 struct ParamDescriptor
@@ -387,6 +394,7 @@ union CanMessage
 	CanMessageSensorTemperatures sensorTemperaturesBroadcast;
 	CanMessageUpdateHeaterModel heaterModel;
 	CanMessageMultipleDrivesRequest multipleDrivesRequest;
+	CanMessageUpdateYourFirmware updateYourFirmware;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
