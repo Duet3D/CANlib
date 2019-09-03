@@ -26,7 +26,7 @@ enum class CanMessageType : uint16_t
 	m42 = 4012,
 	m280 = 4013,
 
-	m950 = 6010,
+	unused = 6010,			// was m950
 	m308 = 6011,
 	updateHeaterModel = 6012,
 	setHeaterTemperature = 6013,
@@ -35,13 +35,16 @@ enum class CanMessageType : uint16_t
 	updateDeltaParameters = 6016,
 	setMotorCurrents = 6017,
 	m569 = 6018,
-	m106 = 6019,
+	fanParameters = 6019,
 	m915 = 6020,
 	setMicrostepping = 6021,
 	setStandstillCurrentFactor = 6022,
 	setDriverStates = 6023,
 	m122 = 6024,
 	updateFirmware = 6025,
+	m950Heater = 6026,
+	m950Fan = 6026,
+	m950Gpio = 6026,
 
 	// Responses sent by expansion boards and Smart Tools
 	zProbeTriggered = 100,

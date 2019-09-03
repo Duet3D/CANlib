@@ -146,8 +146,22 @@ struct __attribute__((packed)) CanMessageSensorTemperatures
 struct CanMessageUpdateYourFirmware
 {
 	static constexpr CanMessageType messageType = CanMessageType::updateFirmware;
+
 	uint8_t boardId;
 	uint8_t invertedBoardId;
+};
+
+struct __attribute__((packed)) CanMessageFanParameters
+{
+	static constexpr CanMessageType messageType = CanMessageType::fanParameters;
+
+	uint16_t fanNumber;
+	uint16_t blipTime;						// in milliseconds
+	float val;
+	float minVal;
+	float maxVal;
+	float triggerTemperatures[2];
+	uint64_t sensorsMonitored;
 };
 
 // This struct describes a possible parameter in a CAN message.
@@ -306,18 +320,6 @@ constexpr ParamDescriptor M42Params[] =
 	END_PARAMS
 };
 
-constexpr ParamDescriptor M106Params[] =
-{
-	UINT16_PARAM('P'),
-	FLOAT_PARAM('S'),
-	FLOAT_PARAM('L'),
-	FLOAT_PARAM('X'),
-	FLOAT_PARAM('B'),
-	UINT8_ARRAY_PARAM('H', 8),
-	FLOAT_ARRAY_PARAM('T', 8),
-	END_PARAMS
-};
-
 constexpr ParamDescriptor M280Params[] =
 {
 	UINT16_PARAM('P'),
@@ -342,14 +344,27 @@ constexpr ParamDescriptor M308Params[] =
 	END_PARAMS
 };
 
-constexpr ParamDescriptor M950Params[] =
+constexpr ParamDescriptor M950HeaterParams[] =
 {
+	UINT16_PARAM('H'),
 	PWM_FREQ_PARAM('Q'),
 	INT16_PARAM('T'),
+	REDUCED_STRING_PARAM('C'),
+	END_PARAMS
+};
+
+constexpr ParamDescriptor M950FanParams[] =
+{
 	UINT16_PARAM('F'),
-	UINT16_PARAM('H'),
+	PWM_FREQ_PARAM('Q'),
+	REDUCED_STRING_PARAM('C'),
+	END_PARAMS
+};
+
+constexpr ParamDescriptor M950GpioParams[] =
+{
 	UINT16_PARAM('P'),
-	UINT16_PARAM('S'),
+	PWM_FREQ_PARAM('Q'),
 	REDUCED_STRING_PARAM('C'),
 	END_PARAMS
 };
