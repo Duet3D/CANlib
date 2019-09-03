@@ -43,8 +43,9 @@ enum class CanMessageType : uint16_t
 	m122 = 6024,
 	updateFirmware = 6025,
 	m950Heater = 6026,
-	m950Fan = 6026,
-	m950Gpio = 6026,
+	m950Fan = 6027,
+	m950Gpio = 6028,
+	setFanSpeed = 6029,
 
 	// Responses sent by expansion boards and Smart Tools
 	zProbeTriggered = 100,

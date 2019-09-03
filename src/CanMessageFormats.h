@@ -19,7 +19,7 @@ constexpr unsigned int MaxHeatersPerCanSlave = 6;
 // CAN message formats
 
 // Time sync message
-struct CanMessageTimeSync
+struct __attribute__((packed)) CanMessageTimeSync
 {
 	static constexpr CanMessageType messageType = CanMessageType::timeSync;
 
@@ -29,13 +29,13 @@ struct CanMessageTimeSync
 };
 
 // Emergency stop message
-struct CanMessageEmergencyStop
+struct __attribute__((packed)) CanMessageEmergencyStop
 {
 	static constexpr CanMessageType messageType = CanMessageType::emergencyStop;
 };
 
 // Movement message
-struct CanMessageMovement
+struct __attribute__((packed)) CanMessageMovement
 {
 	static constexpr CanMessageType messageType = CanMessageType::movement;
 
@@ -71,7 +71,7 @@ struct CanMessageMovement
 //  Microstepping:  values are microstepping (bits 0-8) and interpolation enable (bit 15)
 //  Standstill current percentages:  values are the percentages
 //  Driver states: 0 = disabled, 1 = idle, 2 = active
-struct CanMessageMultipleDrivesRequest
+struct __attribute__((packed)) CanMessageMultipleDrivesRequest
 {
 	uint16_t driversToUpdate;
 	uint16_t values[MaxDriversPerCanSlave];			// bits 0-10 are microstepping, but 15 is interpolation enable
@@ -81,14 +81,14 @@ struct CanMessageMultipleDrivesRequest
 	size_t GetActualDataLength(size_t numDrivers) const { return sizeof(driversToUpdate) + numDrivers * sizeof(values[0]); }
 };
 
-struct CanMessageDiagnostics
+struct __attribute__((packed)) CanMessageDiagnostics
 {
 	static constexpr CanMessageType messageType = CanMessageType::m122;
 
 	uint8_t type;									// type of diagnostics requested, not currently used
 };
 
-struct CanMessageSetHeaterTemperature
+struct __attribute__((packed)) CanMessageSetHeaterTemperature
 {
 	uint16_t requestId : 12,
 			 spare : 4;
@@ -96,7 +96,7 @@ struct CanMessageSetHeaterTemperature
 	float setPoint;
 };
 
-struct CanMessageM303
+struct __attribute__((packed)) CanMessageM303
 {
 	uint16_t requestId : 12,
 			 spare : 4;
@@ -104,7 +104,7 @@ struct CanMessageM303
 	float targetTemperature;
 };
 
-struct CanMessageUpdateHeaterModel
+struct __attribute__((packed)) CanMessageUpdateHeaterModel
 {
 	static constexpr CanMessageType messageType = CanMessageType::updateHeaterModel;
 
@@ -143,7 +143,7 @@ struct __attribute__((packed)) CanMessageSensorTemperatures
 	size_t GetActualDataLength(unsigned int numSensors) const { return numSensors * sizeof(CanTemperatureReport) + sizeof(uint64_t); }
 };
 
-struct CanMessageUpdateYourFirmware
+struct __attribute__((packed)) CanMessageUpdateYourFirmware
 {
 	static constexpr CanMessageType messageType = CanMessageType::updateFirmware;
 
@@ -162,6 +162,14 @@ struct __attribute__((packed)) CanMessageFanParameters
 	float maxVal;
 	float triggerTemperatures[2];
 	uint64_t sensorsMonitored;
+};
+
+struct __attribute__((packed)) CanMessageSetFanSpeed
+{
+	static constexpr CanMessageType messageType = CanMessageType::setFanSpeed;
+
+	uint16_t fanNumber;
+	float pwm;
 };
 
 // This struct describes a possible parameter in a CAN message.
@@ -357,7 +365,7 @@ constexpr ParamDescriptor M950FanParams[] =
 {
 	UINT16_PARAM('F'),
 	PWM_FREQ_PARAM('Q'),
-	REDUCED_STRING_PARAM('C'),
+	STRING_PARAM('C'),
 	END_PARAMS
 };
 
@@ -410,6 +418,8 @@ union CanMessage
 	CanMessageUpdateHeaterModel heaterModel;
 	CanMessageMultipleDrivesRequest multipleDrivesRequest;
 	CanMessageUpdateYourFirmware updateYourFirmware;
+	CanMessageFanParameters fanParameters;
+	CanMessageSetFanSpeed setFanSpeed;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
