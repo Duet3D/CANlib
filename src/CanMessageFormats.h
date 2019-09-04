@@ -81,7 +81,7 @@ struct __attribute__((packed)) CanMessageMultipleDrivesRequest
 
 	static constexpr uint16_t driverDisabled = 0, driverIdle = 1, driverActive = 2;
 
-	size_t GetActualDataLength(size_t numDrivers) const { return sizeof(driversToUpdate) + numDrivers * sizeof(values[0]); }
+	size_t GetActualDataLength(size_t numDrivers) const { return sizeof(uint16_t) * 2 + numDrivers * sizeof(values[0]); }
 	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 
