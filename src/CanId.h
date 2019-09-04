@@ -61,7 +61,11 @@ enum class CanMessageType : uint16_t
 	FirmwareBlockResponse = 5001
 };
 
-typedef uint8_t CanAddress;						// only the lower 7 bits are available
+typedef uint16_t CanRequestId;
+constexpr uint16_t CanRequestIdMask = 0x07FF;					// only the lower 12 bits used
+constexpr CanRequestId CanRequestIdAcceptAlways = 0x0FFF;		// special ID means always accept this
+
+typedef uint8_t CanAddress;										// only the lower 7 bits are available
 
 // CAN identifier
 // A CAN identifier must identify

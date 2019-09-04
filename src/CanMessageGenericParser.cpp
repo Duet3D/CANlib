@@ -69,6 +69,7 @@ bool CanMessageGenericParser::GetUintParam(char c, uint32_t& v) const
 		return true;
 
 	case ParamDescriptor::ParamType::uint16:
+	case ParamDescriptor::ParamType::pwmFreq:
 		v = LoadLE16(msg.data + pos);
 		return true;
 

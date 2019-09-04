@@ -63,6 +63,7 @@ struct __attribute__((packed)) CanMessageMovement
 		int32_t steps;					// net steps moved
 	} perDrive[MaxDriversPerCanSlave];
 
+	void SetRequestId(CanRequestId rid) { }		// these messages don't have RIDs yet
 	void DebugPrint() const;
 };
 
@@ -73,19 +74,26 @@ struct __attribute__((packed)) CanMessageMovement
 //  Driver states: 0 = disabled, 1 = idle, 2 = active
 struct __attribute__((packed)) CanMessageMultipleDrivesRequest
 {
+	uint16_t requestId : 12,
+			 spare : 4;
 	uint16_t driversToUpdate;
 	uint16_t values[MaxDriversPerCanSlave];			// bits 0-10 are microstepping, but 15 is interpolation enable
 
 	static constexpr uint16_t driverDisabled = 0, driverIdle = 1, driverActive = 2;
 
 	size_t GetActualDataLength(size_t numDrivers) const { return sizeof(driversToUpdate) + numDrivers * sizeof(values[0]); }
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 
 struct __attribute__((packed)) CanMessageDiagnostics
 {
 	static constexpr CanMessageType messageType = CanMessageType::m122;
 
+	uint16_t requestId : 12,
+			 spare : 4;
 	uint8_t type;									// type of diagnostics requested, not currently used
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 
 struct __attribute__((packed)) CanMessageSetHeaterTemperature
@@ -94,6 +102,8 @@ struct __attribute__((packed)) CanMessageSetHeaterTemperature
 			 spare : 4;
 	uint16_t heaterNumber;
 	float setPoint;
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 
 struct __attribute__((packed)) CanMessageM303
@@ -102,6 +112,8 @@ struct __attribute__((packed)) CanMessageM303
 			 spare : 4;
 	uint16_t heaterNumber;
 	float targetTemperature;
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 
 struct __attribute__((packed)) CanMessageUpdateHeaterModel
@@ -125,6 +137,8 @@ struct __attribute__((packed)) CanMessageUpdateHeaterModel
 	float kP;								// controller (not model) gain
 	float recipTi;							// reciprocal of controller integral time
 	float tD;								// controller differential time
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 
 struct __attribute__((packed)) CanTemperatureReport
@@ -147,14 +161,20 @@ struct __attribute__((packed)) CanMessageUpdateYourFirmware
 {
 	static constexpr CanMessageType messageType = CanMessageType::updateFirmware;
 
+	uint16_t requestId : 12,
+			 spare : 4;
 	uint8_t boardId;
 	uint8_t invertedBoardId;
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 
 struct __attribute__((packed)) CanMessageFanParameters
 {
 	static constexpr CanMessageType messageType = CanMessageType::fanParameters;
 
+	uint16_t requestId : 12,
+			 spare : 4;
 	uint16_t fanNumber;
 	uint16_t blipTime;						// in milliseconds
 	float val;
@@ -162,14 +182,20 @@ struct __attribute__((packed)) CanMessageFanParameters
 	float maxVal;
 	float triggerTemperatures[2];
 	uint64_t sensorsMonitored;
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 
 struct __attribute__((packed)) CanMessageSetFanSpeed
 {
 	static constexpr CanMessageType messageType = CanMessageType::setFanSpeed;
 
+	uint16_t requestId : 12,
+			 spare : 4;
 	uint16_t fanNumber;
 	float pwm;
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 
 // This struct describes a possible parameter in a CAN message.
@@ -262,6 +288,7 @@ struct CanMessageFirmwareUpdateResponse
 	static constexpr uint32_t ErrOther = 3;
 
 	size_t GetActualDataLength() const { return dataLength + 2 * sizeof(uint32_t); }
+	void SetRequestId(CanRequestId rid) { }	// we don't have or need request IDs in this message type
 };
 
 // Generic message
@@ -274,6 +301,7 @@ struct CanMessageGeneric
 	void DebugPrint(const ParamDescriptor *pt = nullptr) const;
 
 	static size_t GetActualDataLength(size_t paramLength) { return paramLength + sizeof(uint32_t); }
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 
 struct CanMessageStandardReply
@@ -296,6 +324,8 @@ struct CanMessageStandardReply
 	{
 		return textLength + sizeof(uint16_t);
 	}
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 
 // Parameter tables for various messages that use the generic format.
@@ -410,6 +440,7 @@ union CanMessage
 	CanMessageTimeSync sync;
 	CanMessageEmergencyStop eStop;
 	CanMessageMovement move;
+	CanMessageDiagnostics diagnostics;
 	CanMessageSetHeaterTemperature setTemp;
 	CanMessageStandardReply standardReply;
 	CanMessageFirmwareUpdateRequest firmwareUpdateRequest;

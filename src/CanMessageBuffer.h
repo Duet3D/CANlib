@@ -27,41 +27,48 @@ public:
 
 	// Set up a message buffer to carry a particular message type, setting the priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
-	CanMessageGeneric *SetupGenericMessage(CanMessageType msgType, CanAddress src, CanAddress dest, unsigned int dataLen)
+	CanMessageGeneric *SetupGenericRequestMessage(CanRequestId rid, CanAddress src, CanAddress dest, CanMessageType msgType, unsigned int dataLen)
 	{
 		id.SetRequest(msgType, src, dest);
 		dataLength = dataLen;
+		msg.generic.requestId = rid;
 		return &msg.generic;
 	}
 
 	// Set up a message buffer to carry a particular message type, setting the dataLength, priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
-	template<class T> T* SetupRequestMessage(CanAddress src, CanAddress dest)
+	template<class T> T* SetupRequestMessage(CanRequestId rid, CanAddress src, CanAddress dest)
 	{
 		id.SetRequest(T::messageType, src, dest);
 		dataLength = sizeof(T);
-		return reinterpret_cast<T*>(&msg);
+		T* rslt = reinterpret_cast<T*>(&msg);
+		rslt->SetRequestId(rid);
+		return rslt;
 	}
 
 	// Set up a message buffer to carry a particular message type, setting the dataLength, priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
-	template<class T> T* SetupRequestMessage(CanAddress src, CanAddress dest, CanMessageType msgType)
+	template<class T> T* SetupRequestMessage(CanRequestId rid, CanAddress src, CanAddress dest, CanMessageType msgType)
 	{
 		id.SetRequest(msgType, src, dest);
 		dataLength = sizeof(T);
-		return reinterpret_cast<T*>(&msg);
+		T* rslt = reinterpret_cast<T*>(&msg);
+		rslt->SetRequestId(rid);
+		return rslt;
 	}
 
 	// Set up a message buffer to carry a particular message type, setting the dataLength, priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
-	template<class T> T* SetupResponseMessage(CanAddress src, CanAddress dest)
+	template<class T> T* SetupResponseMessage(CanRequestId rid, CanAddress src, CanAddress dest)
 	{
 		id.SetResponse(T::messageType, src, dest);
 		dataLength = sizeof(T);
-		return reinterpret_cast<T*>(&msg);
+		T* rslt = reinterpret_cast<T*>(&msg);
+		rslt->SetRequestId(rid);
+		return rslt;
 	}
 
 	// Set up a message buffer to carry a particular message type, setting the dataLength, priority and code fields.
