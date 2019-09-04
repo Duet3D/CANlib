@@ -55,6 +55,7 @@ enum class CanMessageType : uint16_t
 	statusReport = 4511,
 	fanTachoReport = 4513,
 	sensorTemperaturesReport = 4514,
+	heatersStatusReport = 4515,
 
 	// Firmware updates
 	FirmwareBlockRequest = 5000,

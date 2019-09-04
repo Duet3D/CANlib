@@ -98,10 +98,20 @@ struct __attribute__((packed)) CanMessageDiagnostics
 
 struct __attribute__((packed)) CanMessageSetHeaterTemperature
 {
+	static constexpr CanMessageType messageType = CanMessageType::setHeaterTemperature;
+
 	uint16_t requestId : 12,
 			 spare : 4;
 	uint16_t heaterNumber;
 	float setPoint;
+	uint8_t command;
+
+	static constexpr uint8_t commandNone = 0;
+	static constexpr uint8_t commandOff = 1;
+	static constexpr uint8_t commandOn = 2;
+	static constexpr uint8_t commandResetFault = 3;
+	static constexpr uint8_t commandSuspend = 4;
+	static constexpr uint8_t commandUnsuspend = 5;
 
 	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
@@ -155,6 +165,23 @@ struct __attribute__((packed)) CanMessageSensorTemperatures
 	CanTemperatureReport temperatureReports[11];	// the error codes and temperatures of the ones we have, lowest sensor number first
 
 	size_t GetActualDataLength(unsigned int numSensors) const { return numSensors * sizeof(CanTemperatureReport) + sizeof(uint64_t); }
+};
+
+struct __attribute__((packed)) CanHeaterReport
+{
+	uint8_t state;
+	uint8_t averagePwm;						// scaled to 0-255 to save space
+	float temperature;						// the last temperature we read
+};
+
+struct __attribute__((packed)) CanMessageHeatersStatus
+{
+	static constexpr CanMessageType messageType = CanMessageType::heatersStatusReport;
+
+	uint64_t whichHeaters;					// which heater numbers we have
+	CanHeaterReport reports[9];				// the status and temperatures of the ones we have, lowest sensor number first
+
+	size_t GetActualDataLength(unsigned int numHeaters) const { return numHeaters * sizeof(CanHeaterReport) + sizeof(uint64_t); }
 };
 
 struct __attribute__((packed)) CanMessageUpdateYourFirmware
@@ -386,7 +413,7 @@ constexpr ParamDescriptor M950HeaterParams[] =
 {
 	UINT16_PARAM('H'),
 	PWM_FREQ_PARAM('Q'),
-	INT16_PARAM('T'),
+	UINT16_PARAM('T'),
 	REDUCED_STRING_PARAM('C'),
 	END_PARAMS
 };
@@ -446,6 +473,7 @@ union CanMessage
 	CanMessageFirmwareUpdateRequest firmwareUpdateRequest;
 	CanMessageFirmwareUpdateResponse firmwareUpdateResponse;
 	CanMessageSensorTemperatures sensorTemperaturesBroadcast;
+	CanMessageHeatersStatus heatersStatusBroadcast;
 	CanMessageUpdateHeaterModel heaterModel;
 	CanMessageMultipleDrivesRequest multipleDrivesRequest;
 	CanMessageUpdateYourFirmware updateYourFirmware;
