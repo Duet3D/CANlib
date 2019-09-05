@@ -169,7 +169,7 @@ struct __attribute__((packed)) CanMessageSensorTemperatures
 
 struct __attribute__((packed)) CanHeaterReport
 {
-	uint8_t state;
+	uint8_t mode;							// a HeaterMode value
 	uint8_t averagePwm;						// scaled to 0-255 to save space
 	float temperature;						// the last temperature we read
 };
