@@ -295,6 +295,7 @@ struct CanMessageFirmwareUpdateRequest
 
 	size_t GetActualDataLength() const { return 2 * sizeof(uint32_t) + Strnlen(boardType, sizeof(boardType)/sizeof(boardType[0])); }
 	size_t GetBoardTypeLength(size_t dataLength) const { return dataLength - 2 * sizeof(uint32_t); }
+	void SetRequestId(CanRequestId rid) { }		// these messages don't have RIDs
 };
 
 // Firmware update response
