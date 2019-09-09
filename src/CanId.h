@@ -40,12 +40,13 @@ enum class CanMessageType : uint16_t
 	setMicrostepping = 6021,
 	setStandstillCurrentFactor = 6022,
 	setDriverStates = 6023,
-	m122 = 6024,
+	returnInfo = 6024,
 	updateFirmware = 6025,
 	m950Heater = 6026,
 	m950Fan = 6027,
 	m950Gpio = 6028,
 	setFanSpeed = 6029,
+	setHeaterFaultDetection = 6030,
 
 	// Responses sent by expansion boards and Smart Tools
 	zProbeTriggered = 100,

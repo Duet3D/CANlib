@@ -85,9 +85,12 @@ struct __attribute__((packed)) CanMessageMultipleDrivesRequest
 	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 
-struct __attribute__((packed)) CanMessageDiagnostics
+struct __attribute__((packed)) CanMessageReturnInfo
 {
-	static constexpr CanMessageType messageType = CanMessageType::m122;
+	static constexpr CanMessageType messageType = CanMessageType::returnInfo;
+	static constexpr uint8_t typeFirmwareVersion = 0;
+	static constexpr uint8_t typeMemory = 1;
+	static constexpr uint8_t typePressureAdvance = 2;
 
 	uint16_t requestId : 12,
 			 spare : 4;
@@ -147,6 +150,19 @@ struct __attribute__((packed)) CanMessageUpdateHeaterModel
 	float kP;								// controller (not model) gain
 	float recipTi;							// reciprocal of controller integral time
 	float tD;								// controller differential time
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
+};
+
+struct __attribute__((packed)) CanMessageSetHeaterFaultDetectionParameters
+{
+	static constexpr CanMessageType messageType = CanMessageType::setHeaterFaultDetection;
+
+	uint16_t requestId : 12,
+			 spare : 4;
+	uint16_t heater;
+	float maxTempExcursion;
+	float maxFaultTime;
 
 	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
@@ -468,7 +484,7 @@ union CanMessage
 	CanMessageTimeSync sync;
 	CanMessageEmergencyStop eStop;
 	CanMessageMovement move;
-	CanMessageDiagnostics diagnostics;
+	CanMessageReturnInfo getInfo;
 	CanMessageSetHeaterTemperature setTemp;
 	CanMessageStandardReply standardReply;
 	CanMessageFirmwareUpdateRequest firmwareUpdateRequest;
@@ -480,6 +496,7 @@ union CanMessage
 	CanMessageUpdateYourFirmware updateYourFirmware;
 	CanMessageFanParameters fanParameters;
 	CanMessageSetFanSpeed setFanSpeed;
+	CanMessageSetHeaterFaultDetectionParameters setHeaterFaultDetection;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
