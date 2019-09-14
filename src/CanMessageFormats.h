@@ -241,6 +241,71 @@ struct __attribute__((packed)) CanMessageSetFanSpeed
 	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 
+struct __attribute__((packed)) CanMessageCreateZProbe
+{
+	static constexpr CanMessageType messageType = CanMessageType::createZProbe;
+
+	uint16_t requestId : 12,
+			 spare : 4;
+	uint8_t probeNumber;
+	uint8_t probeType;
+	char pinNames[60];			// actually a null-terminated string
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	size_t GetActualDataLength() const { return sizeof(uint16_t) + 2 * sizeof(uint8_t) + Strnlen(pinNames, sizeof(pinNames)/sizeof(pinNames[0])); }
+};
+
+struct __attribute__((packed)) CanMessageConfigureZProbe
+{
+	static constexpr CanMessageType messageType = CanMessageType::configureZProbe;
+
+	uint16_t requestId : 12,
+			 spare : 4;
+	uint8_t number;
+	uint8_t type;
+	float triggerHeight;			// the nozzle height at which the target ADC value is returned
+	float calibTemperature;			// the temperature at which we did the calibration
+	float temperatureCoefficient;	// the variation of height with bed temperature
+	int16_t adcValue;				// the target ADC value, after inversion if enabled
+	uint16_t misc;
+	int8_t sensor;					// the sensor number used for temperature calibration
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
+};
+
+struct __attribute__((packed)) CanMessageGetZProbePinNames
+{
+	static constexpr CanMessageType messageType = CanMessageType::getZProbePinNames;
+
+	uint16_t requestId : 12,
+			 spare : 4;
+	uint8_t number;
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
+};
+
+struct __attribute__((packed)) CanMessageDestroyZProbe
+{
+	static constexpr CanMessageType messageType = CanMessageType::destroyZProbe;
+
+	uint16_t requestId : 12,
+			 spare : 4;
+	uint8_t number;
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
+};
+
+struct __attribute__((packed)) CanMessageSetProbing
+{
+	static constexpr CanMessageType messageType = CanMessageType::setProbing;
+
+	uint16_t requestId : 12,
+			 spare : 4;
+	uint8_t number;
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
+};
+
 // This struct describes a possible parameter in a CAN message.
 // An array of these describes all the possible parameters. The list is terminated by a zero entry.
 struct ParamDescriptor
@@ -497,6 +562,10 @@ union CanMessage
 	CanMessageFanParameters fanParameters;
 	CanMessageSetFanSpeed setFanSpeed;
 	CanMessageSetHeaterFaultDetectionParameters setHeaterFaultDetection;
+	CanMessageCreateZProbe createZProbe;
+	CanMessageConfigureZProbe configureZProbe;
+	CanMessageGetZProbePinNames getZProbePinNames;
+	CanMessageDestroyZProbe destroyZProbe;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
