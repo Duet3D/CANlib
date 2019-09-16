@@ -16,6 +16,18 @@
 constexpr unsigned int MaxDriversPerCanSlave = 4;
 constexpr unsigned int MaxHeatersPerCanSlave = 6;
 
+// Type used to represent a handle to a remote input
+struct __attribute__((packed)) RemoteInputHandle
+{
+	void Set(uint8_t p_type, uint8_t p_major, uint8_t p_minor) { type = p_type; major = p_major; minor = p_minor; }
+
+	uint16_t minor : 8,						// endstop switch number within axis (for endstops), or trigger handle (for triggers)
+			major : 4,						// axis number (for endstops)
+			type : 4;
+
+	static constexpr uint16_t typeEndstop = 0, typeTrigger = 1;
+};
+
 // CAN message formats
 
 // Time sync message
@@ -32,6 +44,14 @@ struct __attribute__((packed)) CanMessageTimeSync
 struct __attribute__((packed)) CanMessageEmergencyStop
 {
 	static constexpr CanMessageType messageType = CanMessageType::emergencyStop;
+};
+
+// Stop movement on specific drives
+struct __attribute__((packed)) CanMessageStopMovement
+{
+	static constexpr CanMessageType messageType = CanMessageType::stopMovement;
+
+	uint16_t whichDrives;
 };
 
 // Movement message
@@ -89,8 +109,9 @@ struct __attribute__((packed)) CanMessageReturnInfo
 {
 	static constexpr CanMessageType messageType = CanMessageType::returnInfo;
 	static constexpr uint8_t typeFirmwareVersion = 0;
-	static constexpr uint8_t typeMemory = 1;
+	static constexpr uint8_t typeBoardName = 1;
 	static constexpr uint8_t typePressureAdvance = 2;
+	static constexpr uint8_t typeDiagnostics = 100;
 
 	uint16_t requestId : 12,
 			 spare : 4;
@@ -165,39 +186,6 @@ struct __attribute__((packed)) CanMessageSetHeaterFaultDetectionParameters
 	float maxFaultTime;
 
 	void SetRequestId(CanRequestId rid) { requestId = rid; }
-};
-
-struct __attribute__((packed)) CanTemperatureReport
-{
-	uint8_t errorCode;						// this holds a TemperatureError
-	float temperature;						// the last temperature we read
-};
-
-struct __attribute__((packed)) CanMessageSensorTemperatures
-{
-	static constexpr CanMessageType messageType = CanMessageType::sensorTemperaturesReport;
-
-	uint64_t whichSensors;					// which sensor numbers we have
-	CanTemperatureReport temperatureReports[11];	// the error codes and temperatures of the ones we have, lowest sensor number first
-
-	size_t GetActualDataLength(unsigned int numSensors) const { return numSensors * sizeof(CanTemperatureReport) + sizeof(uint64_t); }
-};
-
-struct __attribute__((packed)) CanHeaterReport
-{
-	uint8_t mode;							// a HeaterMode value
-	uint8_t averagePwm;						// scaled to 0-255 to save space
-	float temperature;						// the last temperature we read
-};
-
-struct __attribute__((packed)) CanMessageHeatersStatus
-{
-	static constexpr CanMessageType messageType = CanMessageType::heatersStatusReport;
-
-	uint64_t whichHeaters;					// which heater numbers we have
-	CanHeaterReport reports[9];				// the status and temperatures of the ones we have, lowest sensor number first
-
-	size_t GetActualDataLength(unsigned int numHeaters) const { return numHeaters * sizeof(CanHeaterReport) + sizeof(uint64_t); }
 };
 
 struct __attribute__((packed)) CanMessageUpdateYourFirmware
@@ -303,6 +291,33 @@ struct __attribute__((packed)) CanMessageSetProbing
 			 spare : 4;
 	uint8_t number;
 
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
+};
+
+struct __attribute__((packed)) CanMessageCreateInputMonitor
+{
+	static constexpr CanMessageType messageType = CanMessageType::createInputMonitor;
+
+	uint16_t requestId : 12,
+			 spare : 4;
+	RemoteInputHandle handle;
+	uint16_t minInterval;
+	char pinName[58];			// null terminated
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	size_t GetActualDataLength() const { return 3 * sizeof(uint16_t) + Strnlen(pinName, sizeof(pinName)/sizeof(pinName[0])); }
+};
+
+struct __attribute__((packed)) CanMessageChangeInputMonitor
+{
+	static constexpr CanMessageType messageType = CanMessageType::changeInputMonitor;
+
+	uint16_t requestId : 12,
+			 spare : 4;
+	RemoteInputHandle handle;
+	uint8_t action;
+
+	static constexpr uint8_t actionDontMonitor = 0, actionDoMonitor = 1, actionDelete = 2;
 	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 
@@ -417,21 +432,24 @@ struct CanMessageStandardReply
 {
 	static constexpr CanMessageType messageType = CanMessageType::standardReply;
 
-	uint16_t requestId : 12,
-			 resultCode : 4;
-	char text[62];
+	uint32_t requestId : 12,				// the request ID of the message we are replying to
+			 resultCode : 4,				// normally a GCodeResult
+			 fragmentNumber : 7,			// the fragment number of this message
+			 moreFollows : 1,				// set if this is not the last fragment of the reply
+			 extra : 8;						// normally unused, but occasionally carries extra data
+	char text[60];
 
 	static constexpr size_t MaxTextLength = sizeof(text);
 
 	size_t GetTextLength(size_t dataLength) const
 	{
 		// can't use min<> here because it hasn't been moved to RRFLibraries yet
-		return Strnlen(text, (dataLength < sizeof(uint16_t) + sizeof(text)) ? dataLength - sizeof(uint16_t) : sizeof(text));
+		return Strnlen(text, (dataLength < sizeof(uint32_t) + sizeof(text)) ? dataLength - sizeof(uint32_t) : sizeof(text));
 	}
 
 	size_t GetActualDataLength(size_t textLength) const
 	{
-		return textLength + sizeof(uint16_t);
+		return textLength + sizeof(uint32_t);
 	}
 
 	void SetRequestId(CanRequestId rid) { requestId = rid; }
@@ -542,12 +560,55 @@ constexpr ParamDescriptor M915Params[] =
 	END_PARAMS
 };
 
+// Messages sent from expansion boards to main board, or broadcast
+struct __attribute__((packed)) CanSensorReport
+{
+	uint8_t errorCode;						// this holds a TemperatureError
+	float temperature;						// the last temperature we read
+};
+
+struct __attribute__((packed)) CanMessageSensorTemperatures
+{
+	static constexpr CanMessageType messageType = CanMessageType::sensorTemperaturesReport;
+
+	uint64_t whichSensors;					// which sensor numbers we have
+	CanSensorReport temperatureReports[11];	// the error codes and temperatures of the ones we have, lowest sensor number first
+
+	size_t GetActualDataLength(unsigned int numSensors) const { return numSensors * sizeof(CanSensorReport) + sizeof(uint64_t); }
+};
+
+struct __attribute__((packed)) CanHeaterReport
+{
+	uint8_t mode;							// a HeaterMode value
+	uint8_t averagePwm;						// scaled to 0-255 to save space
+	float temperature;						// the last temperature we read
+};
+
+struct __attribute__((packed)) CanMessageHeatersStatus
+{
+	static constexpr CanMessageType messageType = CanMessageType::heatersStatusReport;
+
+	uint64_t whichHeaters;					// which heater numbers we have
+	CanHeaterReport reports[9];				// the status and temperatures of the ones we have, lowest sensor number first
+
+	size_t GetActualDataLength(unsigned int numHeaters) const { return numHeaters * sizeof(CanHeaterReport) + sizeof(uint64_t); }
+};
+
+struct __attribute__((packed)) CanMessageInputChanged
+{
+	static constexpr CanMessageType messageType = CanMessageType::inputStateChanged;
+
+	RemoteInputHandle handle;
+	uint8_t state;
+};
+
 union CanMessage
 {
 	uint8_t raw[64];
 	CanMessageGeneric generic;
 	CanMessageTimeSync sync;
 	CanMessageEmergencyStop eStop;
+	CanMessageStopMovement stopMovement;
 	CanMessageMovement move;
 	CanMessageReturnInfo getInfo;
 	CanMessageSetHeaterTemperature setTemp;
@@ -566,21 +627,12 @@ union CanMessage
 	CanMessageConfigureZProbe configureZProbe;
 	CanMessageGetZProbePinNames getZProbePinNames;
 	CanMessageDestroyZProbe destroyZProbe;
+	CanMessageSetProbing setProbing;
+	CanMessageCreateInputMonitor createInputMonitor;
+	CanMessageChangeInputMonitor changeInputMonitor;
+	CanMessageInputChanged inputChanged;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
-
-// Standard responses
-
-struct CanResponseHeaterStatus
-{
-	uint32_t status;						// 2 bits per heater: off, on, or fault
-	struct HeaterStatus
-	{
-		int16_t actualTemp;
-		float setPoint;
-	};
-	HeaterStatus heaterStatus[MaxHeatersPerCanSlave];
-};
 
 #endif /* SRC_CAN_CANMESSAGEFORMATS_H_ */

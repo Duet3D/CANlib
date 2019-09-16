@@ -19,10 +19,9 @@ enum class CanMessageType : uint16_t
 	controlledStop = 20,
 	timeSync = 30,
 	powerFailing = 40,
+	stopMovement = 45,
 	movement = 50,
 
-	reportPinStateChanges = 4010,
-	activateZProbe = 4011,
 	m42 = 4012,
 	m280 = 4013,
 
@@ -52,11 +51,13 @@ enum class CanMessageType : uint16_t
 	getZProbePinNames = 6033,
 	destroyZProbe = 6034,
 	setProbing = 6035,
+	createInputMonitor = 6036,
+	changeInputMonitor = 6037,
 
 	// Responses sent by expansion boards and Smart Tools
-	zProbeTriggered = 100,
-	pinStateChanged = 101,
+	inputStateChanged = 100,
 	motorStalled = 102,
+
 	standardReply = 4510,
 	statusReport = 4511,
 	fanTachoReport = 4513,
