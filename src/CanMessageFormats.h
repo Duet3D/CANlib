@@ -16,14 +16,24 @@
 constexpr unsigned int MaxDriversPerCanSlave = 4;
 constexpr unsigned int MaxHeatersPerCanSlave = 6;
 
+size_t CanAdjustedLength(size_t rawLength);
+
 // Type used to represent a handle to a remote input
 struct __attribute__((packed)) RemoteInputHandle
 {
-	void Set(uint8_t p_type, uint8_t p_major, uint8_t p_minor) { type = p_type; major = p_major; minor = p_minor; }
+	void Set(uint8_t p_type, uint8_t p_major, uint8_t p_minor) { u.parts.type = p_type; u.parts.major = p_major; u.parts.minor = p_minor; }
+	uint16_t asU16() const { return u.all; }
 
-	uint16_t minor : 8,						// endstop switch number within axis (for endstops), or trigger handle (for triggers)
-			major : 4,						// axis number (for endstops)
-			type : 4;
+	union
+	{
+		struct
+		{
+			uint16_t minor : 8,						// endstop switch number within axis (for endstops), or trigger handle (for triggers)
+					major : 4,						// axis number (for endstops)
+					type : 4;
+		} parts;
+		uint16_t all;
+	} u;
 
 	static constexpr uint16_t typeEndstop = 0, typeTrigger = 1;
 };
@@ -237,10 +247,11 @@ struct __attribute__((packed)) CanMessageCreateZProbe
 			 spare : 4;
 	uint8_t probeNumber;
 	uint8_t probeType;
-	char pinNames[60];			// actually a null-terminated string
+	char pinNames[60];				// actually a null-terminated string
 
 	void SetRequestId(CanRequestId rid) { requestId = rid; }
-	size_t GetActualDataLength() const { return sizeof(uint16_t) + 2 * sizeof(uint8_t) + Strnlen(pinNames, sizeof(pinNames)/sizeof(pinNames[0])); }
+	size_t GetActualDataLength() const { return CanAdjustedLength(sizeof(uint16_t) + 2 * sizeof(uint8_t) + Strnlen(pinNames, sizeof(pinNames)/sizeof(pinNames[0]))); }
+	size_t GetMaxPinNamesLength(size_t dataLength) const { return dataLength - (sizeof(uint16_t) + 2 * sizeof(uint8_t)); }
 };
 
 struct __attribute__((packed)) CanMessageConfigureZProbe
@@ -251,12 +262,8 @@ struct __attribute__((packed)) CanMessageConfigureZProbe
 			 spare : 4;
 	uint8_t number;
 	uint8_t type;
-	float triggerHeight;			// the nozzle height at which the target ADC value is returned
-	float calibTemperature;			// the temperature at which we did the calibration
-	float temperatureCoefficient;	// the variation of height with bed temperature
 	int16_t adcValue;				// the target ADC value, after inversion if enabled
-	uint16_t misc;
-	int8_t sensor;					// the sensor number used for temperature calibration
+	uint8_t invertReading;
 
 	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
@@ -290,6 +297,7 @@ struct __attribute__((packed)) CanMessageSetProbing
 	uint16_t requestId : 12,
 			 spare : 4;
 	uint8_t number;
+	uint8_t isProbing;
 
 	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
@@ -301,11 +309,13 @@ struct __attribute__((packed)) CanMessageCreateInputMonitor
 	uint16_t requestId : 12,
 			 spare : 4;
 	RemoteInputHandle handle;
+	uint16_t threshold;			// analog threshold, or zero if digital
 	uint16_t minInterval;
-	char pinName[58];			// null terminated
+	char pinName[56];			// null terminated
 
 	void SetRequestId(CanRequestId rid) { requestId = rid; }
-	size_t GetActualDataLength() const { return 3 * sizeof(uint16_t) + Strnlen(pinName, sizeof(pinName)/sizeof(pinName[0])); }
+	size_t GetActualDataLength() const { return CanAdjustedLength(3 * sizeof(uint16_t) + sizeof(RemoteInputHandle) + Strnlen(pinName, sizeof(pinName)/sizeof(pinName[0]))); }
+	size_t GetMaxPinNameLength(size_t dataLength) const { return dataLength - (3 * sizeof(uint16_t) + sizeof(RemoteInputHandle)); }
 };
 
 struct __attribute__((packed)) CanMessageChangeInputMonitor
@@ -315,9 +325,10 @@ struct __attribute__((packed)) CanMessageChangeInputMonitor
 	uint16_t requestId : 12,
 			 spare : 4;
 	RemoteInputHandle handle;
+	uint16_t param;
 	uint8_t action;
 
-	static constexpr uint8_t actionDontMonitor = 0, actionDoMonitor = 1, actionDelete = 2;
+	static constexpr uint8_t actionDontMonitor = 0, actionDoMonitor = 1, actionDelete = 2, actionChangeThreshold = 3, actionChangeMinInterval = 4;
 	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 

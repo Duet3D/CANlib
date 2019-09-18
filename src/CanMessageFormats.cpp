@@ -11,6 +11,15 @@
 
 extern "C" void debugPrintf(const char* fmt, ...) __attribute__ ((format (printf, 1, 2)));
 
+// Round up a message length to the size that will actually be sent. Used to ensure that we include trailing null terminators.
+size_t CanAdjustedLength(size_t rawLength)
+{
+	return (rawLength <= 8) ? rawLength
+			: (rawLength <= 24) ? (rawLength + 3) & ~3
+				: (rawLength < 64) ? (rawLength + 15) & ~15
+					: 64;
+}
+
 void CanMessageMovement::DebugPrint() const
 {
 	debugPrintf("Can: %08" PRIx32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %.2f %.2f:",
