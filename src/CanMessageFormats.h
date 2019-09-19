@@ -22,6 +22,7 @@ size_t CanAdjustedLength(size_t rawLength);
 struct __attribute__((packed)) RemoteInputHandle
 {
 	void Set(uint8_t p_type, uint8_t p_major, uint8_t p_minor) { u.parts.type = p_type; u.parts.major = p_major; u.parts.minor = p_minor; }
+	void Set(uint16_t p_all) { u.all = p_all; }
 	uint16_t asU16() const { return u.all; }
 
 	union
@@ -611,8 +612,33 @@ struct __attribute__((packed)) CanMessageInputChanged
 {
 	static constexpr CanMessageType messageType = CanMessageType::inputStateChanged;
 
-	RemoteInputHandle handle;
-	uint8_t state;
+	uint32_t states;						// 1 bit per reported handle
+	uint8_t numHandles;
+	uint8_t spare;
+	RemoteInputHandle handles[29];			// the handles reported
+
+	void SetRequestId(CanRequestId rid) { }	// we don't have or need request IDs in this message type
+
+	// Add an entry. 'states' and 'numHandles' must be cleared to zero before adding the first one.
+	bool AddEntry(uint16_t h, bool state)
+	{
+		if (numHandles < sizeof(handles)/sizeof(handles[0]))
+		{
+			if (state)
+			{
+				states |= 1ul << numHandles;
+			}
+			handles[numHandles].Set(h);
+			++numHandles;
+			return true;
+		}
+		return false;
+	}
+
+	size_t GetActualDataLength() const
+	{
+		return sizeof(states) + sizeof(numHandles) + sizeof(spare) + numHandles * sizeof(handles[0]);
+	}
 };
 
 union CanMessage
