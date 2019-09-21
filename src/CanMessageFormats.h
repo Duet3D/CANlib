@@ -46,9 +46,9 @@ struct __attribute__((packed)) CanMessageTimeSync
 {
 	static constexpr CanMessageType messageType = CanMessageType::timeSync;
 
-	uint32_t timeSent;									// when this message was sent
-	uint32_t lastTimeSent;								// when we tried to send the previous message
-	uint32_t lastTimeAcknowledged;						// when the previous message was acknowledged
+	uint32_t timeSent;								// when this message was sent
+	uint32_t lastTimeSent;							// when we tried to send the previous message
+	uint32_t lastTimeAcknowledged;					// when the previous message was acknowledged
 };
 
 // Emergency stop message
@@ -57,12 +57,14 @@ struct __attribute__((packed)) CanMessageEmergencyStop
 	static constexpr CanMessageType messageType = CanMessageType::emergencyStop;
 };
 
-// Stop movement on specific drives
+// Stop movement on specific drives or all drives
 struct __attribute__((packed)) CanMessageStopMovement
 {
 	static constexpr CanMessageType messageType = CanMessageType::stopMovement;
 
-	uint16_t whichDrives;
+	uint16_t whichDrives;							// 0xFFFF if all drives on board to be stopped
+
+	void SetRequestId(CanRequestId rid) { }			// these messages don't need RIDs
 };
 
 // Movement message
@@ -75,26 +77,26 @@ struct __attribute__((packed)) CanMessageMovement
 	uint32_t steadyClocks;
 	uint32_t decelClocks;
 
-	uint32_t deltaDrives : 4,				// which drivers are doing delta movement
-			 pressureAdvanceDrives : 4,		// which drivers have pressure advance applied
-			 endStopsToCheck : 4,			// which drivers have endstop checks applied
-			 stopAllDrivesOnEndstopHit : 1;	// whether to stop all drivers when one endstop is hit
+	uint32_t deltaDrives : 4,						// which drivers are doing delta movement
+			 pressureAdvanceDrives : 4,				// which drivers have pressure advance applied
+			 endStopsToCheck : 4,					// which drivers have endstop checks applied
+			 stopAllDrivesOnEndstopHit : 1;			// whether to stop all drivers when one endstop is hit
 
 	float initialSpeedFraction;
 	float finalSpeedFraction;
 
-	float initialX;						// needed only for delta movement
-	float initialY;						// needed only for delta movement
-	float finalX;						// needed only for delta movement
-	float finalY;						// needed only for delta movement
-	float zMovement;					// needed only for delta movement
+	float initialX;									// needed only for delta movement
+	float initialY;									// needed only for delta movement
+	float finalX;									// needed only for delta movement
+	float finalY;									// needed only for delta movement
+	float zMovement;								// needed only for delta movement
 
 	struct
 	{
-		int32_t steps;					// net steps moved
+		int32_t steps;								// net steps moved
 	} perDrive[MaxDriversPerCanSlave];
 
-	void SetRequestId(CanRequestId rid) { }		// these messages don't have RIDs yet
+	void SetRequestId(CanRequestId rid) { }			// these messages don't have RIDs, use the whenToExecute field to avoid duplication
 	void DebugPrint() const;
 };
 

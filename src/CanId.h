@@ -20,6 +20,7 @@ enum class CanMessageType : uint16_t
 	timeSync = 30,
 	powerFailing = 40,
 	stopMovement = 45,
+	insertHiccup = 46,
 	movement = 50,
 
 	m42 = 4012,
