@@ -610,6 +610,16 @@ struct __attribute__((packed)) CanMessageHeatersStatus
 	size_t GetActualDataLength(unsigned int numHeaters) const { return numHeaters * sizeof(CanHeaterReport) + sizeof(uint64_t); }
 };
 
+struct __attribute__((packed)) CanMessageFanRpms
+{
+	static constexpr CanMessageType messageType = CanMessageType::fanRpmReport;
+
+	uint64_t whichFans;					// which fan numbers we are reporting
+	int32_t fanRpms[14];				// the RPM readings of the fans, or -1 if no tacho configured
+
+	size_t GetActualDataLength(unsigned int numReported) const { return numReported * sizeof(fanRpms[0]) + sizeof(uint64_t); }
+};
+
 struct __attribute__((packed)) CanMessageInputChanged
 {
 	static constexpr CanMessageType messageType = CanMessageType::inputStateChanged;
@@ -618,8 +628,6 @@ struct __attribute__((packed)) CanMessageInputChanged
 	uint8_t numHandles;
 	uint8_t spare;
 	RemoteInputHandle handles[29];			// the handles reported
-
-	void SetRequestId(CanRequestId rid) { }	// we don't have or need request IDs in this message type
 
 	// Add an entry. 'states' and 'numHandles' must be cleared to zero before adding the first one.
 	bool AddEntry(uint16_t h, bool state)
@@ -672,6 +680,7 @@ union CanMessage
 	CanMessageCreateInputMonitor createInputMonitor;
 	CanMessageChangeInputMonitor changeInputMonitor;
 	CanMessageInputChanged inputChanged;
+	CanMessageFanRpms fanRpms;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
