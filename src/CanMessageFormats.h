@@ -21,6 +21,7 @@ size_t CanAdjustedLength(size_t rawLength);
 // Type used to represent a handle to a remote input
 struct __attribute__((packed)) RemoteInputHandle
 {
+	RemoteInputHandle(uint8_t p_type, uint8_t p_major, uint8_t p_minor) { Set(p_type, p_major, p_minor); }
 	void Set(uint8_t p_type, uint8_t p_major, uint8_t p_minor) { u.parts.type = p_type; u.parts.major = p_major; u.parts.minor = p_minor; }
 	void Set(uint16_t p_all) { u.all = p_all; }
 	uint16_t asU16() const { return u.all; }
@@ -333,7 +334,7 @@ struct __attribute__((packed)) CanMessageChangeInputMonitor
 	uint16_t param;
 	uint8_t action;
 
-	static constexpr uint8_t actionDontMonitor = 0, actionDoMonitor = 1, actionDelete = 2, actionChangeThreshold = 3, actionChangeMinInterval = 4;
+	static constexpr uint8_t actionDontMonitor = 0, actionDoMonitor = 1, actionDelete = 2, actionChangeThreshold = 3, actionChangeMinInterval = 4, actionReturnPinName = 5;
 	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
 
@@ -653,6 +654,8 @@ struct __attribute__((packed)) CanMessageInputChanged
 
 union CanMessage
 {
+	CanMessage() { }
+
 	uint8_t raw[64];
 	CanMessageGeneric generic;
 	CanMessageTimeSync sync;
