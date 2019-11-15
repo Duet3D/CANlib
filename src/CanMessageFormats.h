@@ -126,8 +126,7 @@ struct __attribute__((packed)) CanMessageReturnInfo
 	static constexpr uint8_t typeBoardName = 1;
 	static constexpr uint8_t typePressureAdvance = 2;
 	static constexpr uint8_t typeDiagnosticsPart0 = 100;
-	static constexpr uint8_t typeDiagnosticsPart1 = 101;
-	static constexpr uint8_t typeDiagnosticsPart2 = 102;
+	// Other parts of the diagnostics reply use 101, 102 etc. so keep these free
 
 	uint16_t requestId : 12,
 			 spare : 4;
