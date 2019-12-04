@@ -125,12 +125,13 @@ struct __attribute__((packed)) CanMessageReturnInfo
 	static constexpr uint8_t typeFirmwareVersion = 0;
 	static constexpr uint8_t typeBoardName = 1;
 	static constexpr uint8_t typePressureAdvance = 2;
+	static constexpr uint8_t typeM408 = 3;
 	static constexpr uint8_t typeDiagnosticsPart0 = 100;
 	// Other parts of the diagnostics reply use 101, 102 etc. so keep these free
 
 	uint16_t requestId : 12,
-			 spare : 4;
-	uint8_t type;									// type of diagnostics requested, not currently used
+			 param : 4;								// M408 S parameter or M122 P parameter
+	uint8_t type;									// type of info requested
 
 	void SetRequestId(CanRequestId rid) { requestId = rid; }
 };
