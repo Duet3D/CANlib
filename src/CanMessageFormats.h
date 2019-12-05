@@ -116,7 +116,7 @@ struct __attribute__((packed)) CanMessageMultipleDrivesRequest
 	static constexpr uint16_t driverDisabled = 0, driverIdle = 1, driverActive = 2;
 
 	size_t GetActualDataLength(size_t numDrivers) const { return sizeof(uint16_t) * 2 + numDrivers * sizeof(values[0]); }
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageReturnInfo
@@ -153,7 +153,7 @@ struct __attribute__((packed)) CanMessageSetHeaterTemperature
 	static constexpr uint8_t commandSuspend = 4;
 	static constexpr uint8_t commandUnsuspend = 5;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageM303
@@ -163,7 +163,7 @@ struct __attribute__((packed)) CanMessageM303
 	uint16_t heaterNumber;
 	float targetTemperature;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageUpdateHeaterModel
@@ -188,7 +188,7 @@ struct __attribute__((packed)) CanMessageUpdateHeaterModel
 	float recipTi;							// reciprocal of controller integral time
 	float tD;								// controller differential time
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageSetHeaterFaultDetectionParameters
@@ -201,7 +201,7 @@ struct __attribute__((packed)) CanMessageSetHeaterFaultDetectionParameters
 	float maxTempExcursion;
 	float maxFaultTime;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageUpdateYourFirmware
@@ -213,7 +213,7 @@ struct __attribute__((packed)) CanMessageUpdateYourFirmware
 	uint8_t boardId;
 	uint8_t invertedBoardId;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageFanParameters
@@ -230,7 +230,7 @@ struct __attribute__((packed)) CanMessageFanParameters
 	float triggerTemperatures[2];
 	uint64_t sensorsMonitored;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageSetFanSpeed
@@ -242,7 +242,7 @@ struct __attribute__((packed)) CanMessageSetFanSpeed
 	uint16_t fanNumber;
 	float pwm;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageCreateZProbe
@@ -255,7 +255,7 @@ struct __attribute__((packed)) CanMessageCreateZProbe
 	uint8_t probeType;
 	char pinNames[60];				// actually a null-terminated string
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
 	size_t GetActualDataLength() const { return CanAdjustedLength(sizeof(uint16_t) + 2 * sizeof(uint8_t) + Strnlen(pinNames, sizeof(pinNames)/sizeof(pinNames[0]))); }
 	size_t GetMaxPinNamesLength(size_t dataLength) const { return dataLength - (sizeof(uint16_t) + 2 * sizeof(uint8_t)); }
 };
@@ -271,7 +271,7 @@ struct __attribute__((packed)) CanMessageConfigureZProbe
 	int16_t adcValue;				// the target ADC value, after inversion if enabled
 	uint8_t invertReading;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageGetZProbePinNames
@@ -282,7 +282,7 @@ struct __attribute__((packed)) CanMessageGetZProbePinNames
 			 spare : 4;
 	uint8_t number;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageDestroyZProbe
@@ -293,7 +293,7 @@ struct __attribute__((packed)) CanMessageDestroyZProbe
 			 spare : 4;
 	uint8_t number;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageSetProbing
@@ -305,7 +305,7 @@ struct __attribute__((packed)) CanMessageSetProbing
 	uint8_t number;
 	uint8_t isProbing;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageCreateInputMonitor
@@ -319,7 +319,7 @@ struct __attribute__((packed)) CanMessageCreateInputMonitor
 	uint16_t minInterval;
 	char pinName[56];			// null terminated
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
 	size_t GetActualDataLength() const { return CanAdjustedLength(3 * sizeof(uint16_t) + sizeof(RemoteInputHandle) + Strnlen(pinName, sizeof(pinName)/sizeof(pinName[0]))); }
 	size_t GetMaxPinNameLength(size_t dataLength) const { return dataLength - (3 * sizeof(uint16_t) + sizeof(RemoteInputHandle)); }
 };
@@ -335,7 +335,21 @@ struct __attribute__((packed)) CanMessageChangeInputMonitor
 	uint8_t action;
 
 	static constexpr uint8_t actionDontMonitor = 0, actionDoMonitor = 1, actionDelete = 2, actionChangeThreshold = 3, actionChangeMinInterval = 4, actionReturnPinName = 5;
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
+};
+
+// M42 or M280
+struct __attribute__((packed)) CanMessageWriteGpio
+{
+	static constexpr CanMessageType messageType = CanMessageType::writeGpio;
+
+	uint16_t requestId : 12,
+			 isServo : 1,
+			 spare : 3;
+	float pwm;
+	uint8_t portNumber;
+
+	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0;}
 };
 
 // This struct describes a possible parameter in a CAN message.
@@ -396,7 +410,7 @@ struct ParamDescriptor
 // Firmware update request
 struct CanMessageFirmwareUpdateRequest
 {
-	static constexpr CanMessageType messageType = CanMessageType::FirmwareBlockRequest;
+	static constexpr CanMessageType messageType = CanMessageType::firmwareBlockRequest;
 
 	uint32_t fileOffset : 24,			// the offset in the file of the data we need
 			 bootloaderVersion: 8;		// the version of this bootloader
@@ -414,7 +428,7 @@ struct CanMessageFirmwareUpdateRequest
 // Firmware update response
 struct CanMessageFirmwareUpdateResponse
 {
-	static constexpr CanMessageType messageType = CanMessageType::FirmwareBlockResponse;
+	static constexpr CanMessageType messageType = CanMessageType::firmwareBlockResponse;
 
 	uint32_t fileOffset : 24,			// the offset in the file where this block starts
 			 dataLength : 6,			// the number of bytes of data that follow
@@ -547,6 +561,7 @@ constexpr ParamDescriptor M950GpioParams[] =
 {
 	UINT16_PARAM('P'),
 	PWM_FREQ_PARAM('Q'),
+	UINT8_PARAM('S'),			// 1 if servo, 0 if GPIO
 	REDUCED_STRING_PARAM('C'),
 	END_PARAMS
 };
@@ -684,6 +699,7 @@ union CanMessage
 	CanMessageChangeInputMonitor changeInputMonitor;
 	CanMessageInputChanged inputChanged;
 	CanMessageFanRpms fanRpms;
+	CanMessageWriteGpio writeGpio;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large

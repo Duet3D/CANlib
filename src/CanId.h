@@ -23,8 +23,7 @@ enum class CanMessageType : uint16_t
 	insertHiccup = 46,
 	movement = 50,
 
-	m42 = 4012,
-	m280 = 4013,
+	writeGpio = 4012,
 
 	unused = 6010,			// was m950
 	m308 = 6011,
@@ -67,8 +66,8 @@ enum class CanMessageType : uint16_t
 	fanRpmReport = 4516,
 
 	// Firmware updates
-	FirmwareBlockRequest = 5000,
-	FirmwareBlockResponse = 5001
+	firmwareBlockRequest = 5000,
+	firmwareBlockResponse = 5001
 };
 
 typedef uint16_t CanRequestId;
