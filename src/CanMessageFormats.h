@@ -16,15 +16,15 @@
 constexpr unsigned int MaxDriversPerCanSlave = 4;
 constexpr unsigned int MaxHeatersPerCanSlave = 6;
 
-size_t CanAdjustedLength(size_t rawLength);
+size_t CanAdjustedLength(size_t rawLength) noexcept;
 
 // Type used to represent a handle to a remote input
 struct __attribute__((packed)) RemoteInputHandle
 {
-	RemoteInputHandle(uint8_t p_type, uint8_t p_major, uint8_t p_minor) { Set(p_type, p_major, p_minor); }
-	void Set(uint8_t p_type, uint8_t p_major, uint8_t p_minor) { u.parts.type = p_type; u.parts.major = p_major; u.parts.minor = p_minor; }
-	void Set(uint16_t p_all) { u.all = p_all; }
-	uint16_t asU16() const { return u.all; }
+	RemoteInputHandle(uint8_t p_type, uint8_t p_major, uint8_t p_minor) noexcept { Set(p_type, p_major, p_minor); }
+	void Set(uint8_t p_type, uint8_t p_major, uint8_t p_minor) noexcept { u.parts.type = p_type; u.parts.major = p_major; u.parts.minor = p_minor; }
+	void Set(uint16_t p_all) noexcept { u.all = p_all; }
+	uint16_t asU16() const noexcept { return u.all; }
 
 	union
 	{
@@ -65,7 +65,7 @@ struct __attribute__((packed)) CanMessageStopMovement
 
 	uint16_t whichDrives;							// 0xFFFF if all drives on board to be stopped
 
-	void SetRequestId(CanRequestId rid) { }			// these messages don't need RIDs
+	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't need RIDs
 };
 
 // Movement message
@@ -97,8 +97,8 @@ struct __attribute__((packed)) CanMessageMovement
 		int32_t steps;								// net steps moved
 	} perDrive[MaxDriversPerCanSlave];
 
-	void SetRequestId(CanRequestId rid) { }			// these messages don't have RIDs, use the whenToExecute field to avoid duplication
-	void DebugPrint() const;
+	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't have RIDs, use the whenToExecute field to avoid duplication
+	void DebugPrint() const noexcept;
 };
 
 // This message is used to set the following parameters for multiple drivers:
@@ -115,8 +115,8 @@ struct __attribute__((packed)) CanMessageMultipleDrivesRequest
 
 	static constexpr uint16_t driverDisabled = 0, driverIdle = 1, driverActive = 2;
 
-	size_t GetActualDataLength(size_t numDrivers) const { return sizeof(uint16_t) * 2 + numDrivers * sizeof(values[0]); }
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
+	size_t GetActualDataLength(size_t numDrivers) const noexcept { return sizeof(uint16_t) * 2 + numDrivers * sizeof(values[0]); }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageReturnInfo
@@ -133,7 +133,7 @@ struct __attribute__((packed)) CanMessageReturnInfo
 			 param : 4;								// M408 S parameter or M122 P parameter
 	uint8_t type;									// type of info requested
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; }
 };
 
 struct __attribute__((packed)) CanMessageSetHeaterTemperature
@@ -153,7 +153,7 @@ struct __attribute__((packed)) CanMessageSetHeaterTemperature
 	static constexpr uint8_t commandSuspend = 4;
 	static constexpr uint8_t commandUnsuspend = 5;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageM303
@@ -163,7 +163,7 @@ struct __attribute__((packed)) CanMessageM303
 	uint16_t heaterNumber;
 	float targetTemperature;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageUpdateHeaterModel
@@ -188,7 +188,7 @@ struct __attribute__((packed)) CanMessageUpdateHeaterModel
 	float recipTi;							// reciprocal of controller integral time
 	float tD;								// controller differential time
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageSetHeaterFaultDetectionParameters
@@ -201,7 +201,7 @@ struct __attribute__((packed)) CanMessageSetHeaterFaultDetectionParameters
 	float maxTempExcursion;
 	float maxFaultTime;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageUpdateYourFirmware
@@ -213,7 +213,7 @@ struct __attribute__((packed)) CanMessageUpdateYourFirmware
 	uint8_t boardId;
 	uint8_t invertedBoardId;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageFanParameters
@@ -230,7 +230,7 @@ struct __attribute__((packed)) CanMessageFanParameters
 	float triggerTemperatures[2];
 	uint64_t sensorsMonitored;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageSetFanSpeed
@@ -242,7 +242,7 @@ struct __attribute__((packed)) CanMessageSetFanSpeed
 	uint16_t fanNumber;
 	float pwm;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageCreateZProbe
@@ -255,9 +255,9 @@ struct __attribute__((packed)) CanMessageCreateZProbe
 	uint8_t probeType;
 	char pinNames[60];				// actually a null-terminated string
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
-	size_t GetActualDataLength() const { return CanAdjustedLength(sizeof(uint16_t) + 2 * sizeof(uint8_t) + Strnlen(pinNames, sizeof(pinNames)/sizeof(pinNames[0]))); }
-	size_t GetMaxPinNamesLength(size_t dataLength) const { return dataLength - (sizeof(uint16_t) + 2 * sizeof(uint8_t)); }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
+	size_t GetActualDataLength() const noexcept { return CanAdjustedLength(sizeof(uint16_t) + 2 * sizeof(uint8_t) + Strnlen(pinNames, sizeof(pinNames)/sizeof(pinNames[0]))); }
+	size_t GetMaxPinNamesLength(size_t dataLength) const noexcept { return dataLength - (sizeof(uint16_t) + 2 * sizeof(uint8_t)); }
 };
 
 struct __attribute__((packed)) CanMessageConfigureZProbe
@@ -271,7 +271,7 @@ struct __attribute__((packed)) CanMessageConfigureZProbe
 	int16_t adcValue;				// the target ADC value, after inversion if enabled
 	uint8_t invertReading;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageGetZProbePinNames
@@ -282,7 +282,7 @@ struct __attribute__((packed)) CanMessageGetZProbePinNames
 			 spare : 4;
 	uint8_t number;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageDestroyZProbe
@@ -293,7 +293,7 @@ struct __attribute__((packed)) CanMessageDestroyZProbe
 			 spare : 4;
 	uint8_t number;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageSetProbing
@@ -305,7 +305,7 @@ struct __attribute__((packed)) CanMessageSetProbing
 	uint8_t number;
 	uint8_t isProbing;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
 struct __attribute__((packed)) CanMessageCreateInputMonitor
@@ -319,9 +319,9 @@ struct __attribute__((packed)) CanMessageCreateInputMonitor
 	uint16_t minInterval;
 	char pinName[56];			// null terminated
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
-	size_t GetActualDataLength() const { return CanAdjustedLength(3 * sizeof(uint16_t) + sizeof(RemoteInputHandle) + Strnlen(pinName, sizeof(pinName)/sizeof(pinName[0]))); }
-	size_t GetMaxPinNameLength(size_t dataLength) const { return dataLength - (3 * sizeof(uint16_t) + sizeof(RemoteInputHandle)); }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
+	size_t GetActualDataLength() const noexcept { return CanAdjustedLength(3 * sizeof(uint16_t) + sizeof(RemoteInputHandle) + Strnlen(pinName, sizeof(pinName)/sizeof(pinName[0]))); }
+	size_t GetMaxPinNameLength(size_t dataLength) const noexcept { return dataLength - (3 * sizeof(uint16_t) + sizeof(RemoteInputHandle)); }
 };
 
 struct __attribute__((packed)) CanMessageChangeInputMonitor
@@ -335,7 +335,7 @@ struct __attribute__((packed)) CanMessageChangeInputMonitor
 	uint8_t action;
 
 	static constexpr uint8_t actionDontMonitor = 0, actionDoMonitor = 1, actionDelete = 2, actionChangeThreshold = 3, actionChangeMinInterval = 4, actionReturnPinName = 5;
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
 // M42 or M280
@@ -349,7 +349,7 @@ struct __attribute__((packed)) CanMessageWriteGpio
 	float pwm;
 	uint8_t portNumber;
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; spare = 0;}
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0;}
 };
 
 // This struct describes a possible parameter in a CAN message.
@@ -404,7 +404,7 @@ struct ParamDescriptor
 	ParamType type;
 	uint8_t maxArrayLength;
 
-	size_t ItemSize() const { return (size_t)type & 0x0F; }		// only valid for some types
+	size_t ItemSize() const noexcept { return (size_t)type & 0x0F; }		// only valid for some types
 };
 
 // Firmware update request
@@ -420,9 +420,9 @@ struct CanMessageFirmwareUpdateRequest
 
 	static constexpr uint32_t BootloaderVersion0 = 0;
 
-	size_t GetActualDataLength() const { return 2 * sizeof(uint32_t) + Strnlen(boardType, sizeof(boardType)/sizeof(boardType[0])); }
-	size_t GetBoardTypeLength(size_t dataLength) const { return dataLength - 2 * sizeof(uint32_t); }
-	void SetRequestId(CanRequestId rid) { }		// these messages don't have RIDs
+	size_t GetActualDataLength() const noexcept { return 2 * sizeof(uint32_t) + Strnlen(boardType, sizeof(boardType)/sizeof(boardType[0])); }
+	size_t GetBoardTypeLength(size_t dataLength) const noexcept { return dataLength - 2 * sizeof(uint32_t); }
+	void SetRequestId(CanRequestId rid) noexcept { }		// these messages don't have RIDs
 };
 
 // Firmware update response
@@ -442,8 +442,8 @@ struct CanMessageFirmwareUpdateResponse
 	static constexpr uint32_t ErrBadOffset = 2;
 	static constexpr uint32_t ErrOther = 3;
 
-	size_t GetActualDataLength() const { return dataLength + 2 * sizeof(uint32_t); }
-	void SetRequestId(CanRequestId rid) { }	// we don't have or need request IDs in this message type
+	size_t GetActualDataLength() const noexcept { return dataLength + 2 * sizeof(uint32_t); }
+	void SetRequestId(CanRequestId rid) noexcept { }	// we don't have or need request IDs in this message type
 };
 
 // Generic message
@@ -453,10 +453,10 @@ struct CanMessageGeneric
 			 paramMap : 20;
 	uint8_t data[60];
 
-	void DebugPrint(const ParamDescriptor *pt = nullptr) const;
+	void DebugPrint(const ParamDescriptor *pt = nullptr) const noexcept;
 
-	static size_t GetActualDataLength(size_t paramLength) { return paramLength + sizeof(uint32_t); }
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	static size_t GetActualDataLength(size_t paramLength) noexcept { return paramLength + sizeof(uint32_t); }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; }
 };
 
 struct CanMessageStandardReply
@@ -472,18 +472,18 @@ struct CanMessageStandardReply
 
 	static constexpr size_t MaxTextLength = sizeof(text);
 
-	size_t GetTextLength(size_t dataLength) const
+	size_t GetTextLength(size_t dataLength) const noexcept
 	{
 		// can't use min<> here because it hasn't been moved to RRFLibraries yet
 		return Strnlen(text, (dataLength < sizeof(uint32_t) + sizeof(text)) ? dataLength - sizeof(uint32_t) : sizeof(text));
 	}
 
-	size_t GetActualDataLength(size_t textLength) const
+	size_t GetActualDataLength(size_t textLength) const noexcept
 	{
 		return textLength + sizeof(uint32_t);
 	}
 
-	void SetRequestId(CanRequestId rid) { requestId = rid; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; }
 };
 
 // Parameter tables for various messages that use the generic format.
@@ -606,7 +606,7 @@ struct __attribute__((packed)) CanMessageSensorTemperatures
 	uint64_t whichSensors;					// which sensor numbers we have
 	CanSensorReport temperatureReports[11];	// the error codes and temperatures of the ones we have, lowest sensor number first
 
-	size_t GetActualDataLength(unsigned int numSensors) const { return numSensors * sizeof(CanSensorReport) + sizeof(uint64_t); }
+	size_t GetActualDataLength(unsigned int numSensors) const noexcept { return numSensors * sizeof(CanSensorReport) + sizeof(uint64_t); }
 };
 
 struct __attribute__((packed)) CanHeaterReport
@@ -623,7 +623,7 @@ struct __attribute__((packed)) CanMessageHeatersStatus
 	uint64_t whichHeaters;					// which heater numbers we have
 	CanHeaterReport reports[9];				// the status and temperatures of the ones we have, lowest sensor number first
 
-	size_t GetActualDataLength(unsigned int numHeaters) const { return numHeaters * sizeof(CanHeaterReport) + sizeof(uint64_t); }
+	size_t GetActualDataLength(unsigned int numHeaters) const noexcept { return numHeaters * sizeof(CanHeaterReport) + sizeof(uint64_t); }
 };
 
 struct __attribute__((packed)) CanMessageFanRpms
@@ -633,7 +633,7 @@ struct __attribute__((packed)) CanMessageFanRpms
 	uint64_t whichFans;					// which fan numbers we are reporting
 	int32_t fanRpms[14];				// the RPM readings of the fans, or -1 if no tacho configured
 
-	size_t GetActualDataLength(unsigned int numReported) const { return numReported * sizeof(fanRpms[0]) + sizeof(uint64_t); }
+	size_t GetActualDataLength(unsigned int numReported) const noexcept { return numReported * sizeof(fanRpms[0]) + sizeof(uint64_t); }
 };
 
 struct __attribute__((packed)) CanMessageInputChanged
@@ -661,7 +661,7 @@ struct __attribute__((packed)) CanMessageInputChanged
 		return false;
 	}
 
-	size_t GetActualDataLength() const
+	size_t GetActualDataLength() const noexcept
 	{
 		return sizeof(states) + sizeof(numHandles) + sizeof(spare) + numHandles * sizeof(handles[0]);
 	}

@@ -30,3 +30,15 @@
 *.exe
 *.out
 *.app
+
+.settings/
+
+SAMC21_nonRTOS/
+SAMC21_RTOS/
+SAMC21_RTOS_Debug/
+SAME51_nonRTOS/
+SAME51_nonRTOS_Debug/
+SAME51_RTOS/
+SAME51_RTOS_Debug/
+SAME70_RTOS/
+SAME70_RTOS_Debug/
