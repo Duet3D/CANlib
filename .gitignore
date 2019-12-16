@@ -30,3 +30,4 @@
 *.exe
 *.out
 *.app
+/SAME70_RTOS/

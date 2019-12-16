@@ -20,14 +20,14 @@ class CanMessageBuffer
 public:
 	CanMessageBuffer(CanMessageBuffer *prev) : next(prev) { }
 
-	static void Init(unsigned int numCanBuffers);
-	static CanMessageBuffer *Allocate();
-	static void Free(CanMessageBuffer*& buf);
-	static unsigned int FreeBuffers() { return numFree; }
+	static void Init(unsigned int numCanBuffers) noexcept;
+	static CanMessageBuffer *Allocate() noexcept;
+	static void Free(CanMessageBuffer*& buf) noexcept;
+	static unsigned int FreeBuffers() noexcept { return numFree; }
 
 	// Set up a message buffer to carry a particular message type, setting the priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
-	CanMessageGeneric *SetupGenericRequestMessage(CanRequestId rid, CanAddress src, CanAddress dest, CanMessageType msgType, unsigned int dataLen)
+	CanMessageGeneric *SetupGenericRequestMessage(CanRequestId rid, CanAddress src, CanAddress dest, CanMessageType msgType, unsigned int dataLen) noexcept
 	{
 		id.SetRequest(msgType, src, dest);
 		dataLength = dataLen;
@@ -38,7 +38,7 @@ public:
 	// Set up a message buffer to carry a particular message type, setting the dataLength, priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
-	template<class T> T* SetupRequestMessage(CanRequestId rid, CanAddress src, CanAddress dest)
+	template<class T> T* SetupRequestMessage(CanRequestId rid, CanAddress src, CanAddress dest) noexcept
 	{
 		id.SetRequest(T::messageType, src, dest);
 		dataLength = sizeof(T);
@@ -50,7 +50,7 @@ public:
 	// Set up a message buffer to carry a particular message type, setting the dataLength, priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
-	template<class T> T* SetupRequestMessage(CanRequestId rid, CanAddress src, CanAddress dest, CanMessageType msgType)
+	template<class T> T* SetupRequestMessage(CanRequestId rid, CanAddress src, CanAddress dest, CanMessageType msgType) noexcept
 	{
 		id.SetRequest(msgType, src, dest);
 		dataLength = sizeof(T);
@@ -62,7 +62,7 @@ public:
 	// Set up a message buffer to carry a particular message type, setting the dataLength, priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
-	template<class T> T* SetupResponseMessage(CanRequestId rid, CanAddress src, CanAddress dest)
+	template<class T> T* SetupResponseMessage(CanRequestId rid, CanAddress src, CanAddress dest) noexcept
 	{
 		id.SetResponse(T::messageType, src, dest);
 		dataLength = sizeof(T);
@@ -74,7 +74,7 @@ public:
 	// Set up a message buffer to carry a particular broadcast message type, setting the dataLength, priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
-	template<class T> T* SetupBroadcastMessage(CanAddress src)
+	template<class T> T* SetupBroadcastMessage(CanAddress src) noexcept
 	{
 		id.SetBroadcast(T::messageType, src);
 		dataLength = sizeof(T);
@@ -84,14 +84,14 @@ public:
 	// Set up a message buffer to carry a particular non-broadcast status message type, setting the dataLength, priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
-	template<class T> T* SetupStatusMessage(CanAddress src, CanAddress dest)
+	template<class T> T* SetupStatusMessage(CanAddress src, CanAddress dest) noexcept
 	{
 		id.SetRequest(T::messageType, src, dest);
 		dataLength = sizeof(T);
 		return reinterpret_cast<T*>(&msg);
 	}
 
-	void DebugPrint(const char *prefix);
+	void DebugPrint(const char *prefix) noexcept;
 
 	CanMessageBuffer *next;
 	CanId id;

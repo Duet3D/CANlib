@@ -8,7 +8,7 @@
 #include "CanMessageGenericParser.h"
 #include <General/Portability.h>
 
-bool CanMessageGenericParser::GetStringParam(char c, const StringRef& v) const
+bool CanMessageGenericParser::GetStringParam(char c, const StringRef& v) const noexcept
 {
 	unsigned int pos;
 	const ParamDescriptor::ParamType type = FindParameter(c, pos);
@@ -21,7 +21,7 @@ bool CanMessageGenericParser::GetStringParam(char c, const StringRef& v) const
 }
 
 // Look for the specified parameter. If found, return its type and set the index of the corresponding data.
-ParamDescriptor::ParamType CanMessageGenericParser::FindParameter(char c, unsigned int& pos) const
+ParamDescriptor::ParamType CanMessageGenericParser::FindParameter(char c, unsigned int& pos) const noexcept
 {
 	pos = 0;
 	uint32_t paramMap = msg.paramMap;
@@ -58,7 +58,7 @@ ParamDescriptor::ParamType CanMessageGenericParser::FindParameter(char c, unsign
 	return ParamDescriptor::ParamType::none;
 }
 
-bool CanMessageGenericParser::GetUintParam(char c, uint32_t& v) const
+bool CanMessageGenericParser::GetUintParam(char c, uint32_t& v) const noexcept
 {
 	unsigned int pos;
 	const ParamDescriptor::ParamType type = FindParameter(c, pos);
@@ -83,7 +83,7 @@ bool CanMessageGenericParser::GetUintParam(char c, uint32_t& v) const
 	}
 }
 
-bool CanMessageGenericParser::GetUintParam(char c, uint16_t& v) const
+bool CanMessageGenericParser::GetUintParam(char c, uint16_t& v) const noexcept
 {
 	uint32_t v2;
 	const bool ret = GetUintParam(c, v2);
@@ -94,7 +94,7 @@ bool CanMessageGenericParser::GetUintParam(char c, uint16_t& v) const
 	return ret;
 }
 
-bool CanMessageGenericParser::GetUintParam(char c, uint8_t& v) const
+bool CanMessageGenericParser::GetUintParam(char c, uint8_t& v) const noexcept
 {
 	uint32_t v2;
 	const bool ret = GetUintParam(c, v2);
@@ -105,7 +105,7 @@ bool CanMessageGenericParser::GetUintParam(char c, uint8_t& v) const
 	return ret;
 }
 
-bool CanMessageGenericParser::GetIntParam(char c, int32_t& v) const
+bool CanMessageGenericParser::GetIntParam(char c, int32_t& v) const noexcept
 {
 	unsigned int pos;
 	const ParamDescriptor::ParamType type = FindParameter(c, pos);
@@ -128,7 +128,7 @@ bool CanMessageGenericParser::GetIntParam(char c, int32_t& v) const
 	}
 }
 
-bool CanMessageGenericParser::GetIntParam(char c, int16_t& v) const
+bool CanMessageGenericParser::GetIntParam(char c, int16_t& v) const noexcept
 {
 	int32_t v2;
 	const bool ret = GetIntParam(c, v2);
@@ -139,7 +139,7 @@ bool CanMessageGenericParser::GetIntParam(char c, int16_t& v) const
 	return ret;
 }
 
-bool CanMessageGenericParser::GetIntParam(char c, int8_t& v) const
+bool CanMessageGenericParser::GetIntParam(char c, int8_t& v) const noexcept
 {
 	int32_t v2;
 	const bool ret = GetIntParam(c, v2);
@@ -150,7 +150,7 @@ bool CanMessageGenericParser::GetIntParam(char c, int8_t& v) const
 	return ret;
 }
 
-bool CanMessageGenericParser::GetFloatParam(char c, float& v) const
+bool CanMessageGenericParser::GetFloatParam(char c, float& v) const noexcept
 {
 	unsigned int pos;
 	const ParamDescriptor::ParamType type = FindParameter(c, pos);
@@ -165,7 +165,7 @@ bool CanMessageGenericParser::GetFloatParam(char c, float& v) const
 	}
 }
 
-bool CanMessageGenericParser::GetCharParam(char c, char& v) const
+bool CanMessageGenericParser::GetCharParam(char c, char& v) const noexcept
 {
 	unsigned int pos;
 	const ParamDescriptor::ParamType type = FindParameter(c, pos);
@@ -180,7 +180,7 @@ bool CanMessageGenericParser::GetCharParam(char c, char& v) const
 	}
 }
 
-bool CanMessageGenericParser::GetBoolParam(char c, bool &v) const
+bool CanMessageGenericParser::GetBoolParam(char c, bool &v) const noexcept
 {
 	unsigned int pos;
 	const ParamDescriptor::ParamType type = FindParameter(c, pos);
@@ -215,7 +215,7 @@ bool CanMessageGenericParser::GetBoolParam(char c, bool &v) const
 	}
 }
 
-bool CanMessageGenericParser::GetUint8ArrayParam(char c, size_t& numValues, const uint8_t*& values)
+bool CanMessageGenericParser::GetUint8ArrayParam(char c, size_t& numValues, const uint8_t*& values) noexcept
 {
 	unsigned int pos;
 	const ParamDescriptor::ParamType type = FindParameter(c, pos);
@@ -228,7 +228,7 @@ bool CanMessageGenericParser::GetUint8ArrayParam(char c, size_t& numValues, cons
 	return false;
 }
 
-bool CanMessageGenericParser::GetFloatArrayParam(char c, size_t& numValues, const float*& values)
+bool CanMessageGenericParser::GetFloatArrayParam(char c, size_t& numValues, const float*& values) noexcept
 {
 	unsigned int pos;
 	const ParamDescriptor::ParamType type = FindParameter(c, pos);
@@ -241,11 +241,10 @@ bool CanMessageGenericParser::GetFloatArrayParam(char c, size_t& numValues, cons
 	return false;
 }
 
-bool CanMessageGenericParser::HasParameter(char c) const
+bool CanMessageGenericParser::HasParameter(char c) const noexcept
 {
 	unsigned int pos;
 	return FindParameter(c, pos) != ParamDescriptor::ParamType::none;
 }
 
 // End
-
