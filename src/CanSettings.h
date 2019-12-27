@@ -25,13 +25,13 @@ struct CanTiming
 	static constexpr uint16_t DefaultTseg1 = 26;
 	static constexpr uint16_t DefaultJumpWidth = 8;
 
-	bool IsValid() const
+	bool IsValid() const noexcept
 	{
 		return period >= 24 && period <= 4800
 			&& tseg1 != 0 && tseg1 <= period - 2;
 	}
 
-	void SetDefaults()
+	void SetDefaults() noexcept
 	{
 		period = DefaultPeriod;
 		tseg1 = DefaultTseg1;
@@ -43,31 +43,37 @@ struct CanTiming
 struct CanUserAreaData
 {
 	// Total 16 bytes
-	uint8_t canIdV1NotSet : 1,					// set if canAddress does not contain the CAN address to use
+	uint16_t canIdV1NotSet : 1,					// set if canAddress does not contain the CAN address to use
 			timingV1NotSet : 1,					// set if timing has not been set
-			spare : 6;							// spare bits, must be set to 1 for future compatibility
+			spare : 14;							// spare bits, must be set to 1 for future compatibility
 	uint8_t canAddress;							// the CAN address of this board, or 0xFF if it has not been set
+	uint8_t invertedCanAddress;					// the inverted CAN address of this board, or 0xFF if it has not been set
 	CanTiming timing;
-	uint16_t spare1, spare2, spare3, spare4;	// make up to 16 bytes for future expansion
+	uint16_t spare1, spare2, spare3;			// make up to 16 bytes for future expansion
 
-	void SetCanAddress(CanAddress address)
+	void SetCanAddress(CanAddress address) noexcept
 	{
-		if (address != CanId::MasterAddress && address < CanId::MaxNormalAddress)
+		if (address != CanId::MasterAddress && address <= CanId::MaxNormalAddress)
 		{
 			canAddress = address;
+			invertedCanAddress = ~canAddress;
 			canIdV1NotSet = false;
 		}
 	}
 
-	CanAddress GetCanAddress(CanAddress defaultAddress) const
+	bool AddressValid() const noexcept
 	{
-		const CanAddress ret = (canIdV1NotSet) ? defaultAddress : canAddress;
-		return (canAddress == CanId::MasterAddress || canAddress > CanId::MaxNormalAddress)
-			? CanId::FirmwareUpdateAddress
-				: ret;
+		return !canIdV1NotSet && canAddress == (uint8_t)(~invertedCanAddress) && canAddress != CanId::MasterAddress && canAddress <= CanId::MaxNormalAddress;
 	}
 
-	void SetTiming(const CanTiming& data)
+	CanAddress GetCanAddress(CanAddress defaultAddress) const noexcept
+	{
+		return (AddressValid()) ? canAddress
+				: (defaultAddress != CanId::MasterAddress && defaultAddress <= CanId::MaxNormalAddress) ? defaultAddress
+					: CanId::FirmwareUpdateAddress;
+	}
+
+	void SetTiming(const CanTiming& data) noexcept
 	{
 		if (data.IsValid())
 		{
@@ -76,7 +82,7 @@ struct CanUserAreaData
 		}
 	}
 
-	void GetTiming(CanTiming& data) const
+	void GetTiming(CanTiming& data) const noexcept
 	{
 		if (!timingV1NotSet && timing.IsValid())
 		{
