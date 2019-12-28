@@ -33,6 +33,7 @@ CanMessageBuffer *CanMessageBuffer::Allocate() noexcept
 	if (ret != nullptr)
 	{
 		freelist = ret->next;
+		ret->next = nullptr;
 		--numFree;
 	}
 	return ret;
