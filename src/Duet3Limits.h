@@ -13,7 +13,7 @@
 #include <cstdint>
 #include <cstddef>
 
-constexpr size_t MaxSensors = 64;
+constexpr size_t MaxSensors = 56;						// limited by the size of bitmap we can store in an ExpressionValue
 constexpr size_t MaxHeaters = 16;
 constexpr size_t MaxExtraHeaterProtections = 16;
 
