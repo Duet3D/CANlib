@@ -101,6 +101,35 @@ struct __attribute__((packed)) CanMessageMovement
 	void DebugPrint() const noexcept;
 };
 
+// Change CAN address message
+struct __attribute__((packed)) CanMessageChangeAddress
+{
+	static constexpr CanMessageType messageType = CanMessageType::changeAddress;
+
+	uint16_t requestId : 12,
+			 spare : 4;
+	uint8_t oldAddress;
+	uint8_t newAddress;
+	uint8_t newAddressInverted;
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
+};
+
+// Change CAN FD speed message
+struct __attribute__((packed)) CanMessageSetFastDataRate
+{
+	static constexpr CanMessageType messageType = CanMessageType::changeAddress;
+
+	uint16_t requestId : 12,
+			 spare : 4;
+	uint32_t bitsPerSecond;
+	uint16_t samplePoint;				// this is a fraction in 0..1. 0xFFFF means use default.
+	uint16_t jumpWidth;					// this is a fraction in 0..1. 0xFFFF means use default.
+	uint16_t delayCompensation;			// 0xFFFF means use default
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
+};
+
 // This message is used to set the following parameters for multiple drivers:
 //  Motor currents: values are currents in mA
 //  Microstepping:  values are microstepping (bits 0-8) and interpolation enable (bit 15)
@@ -700,6 +729,8 @@ union CanMessage
 	CanMessageInputChanged inputChanged;
 	CanMessageFanRpms fanRpms;
 	CanMessageWriteGpio writeGpio;
+	CanMessageSetFastDataRate setFastDataRate;
+	CanMessageChangeAddress changeAddress;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large

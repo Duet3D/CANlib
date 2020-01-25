@@ -13,7 +13,8 @@
 // CAN message types. This is a 13-bit field, so we can use numbers 0 to 8191. Low numbers have highest priority.
 enum class CanMessageType : uint16_t
 {
-	// Requests sent by the main board
+	//*** Requests sent by the main board
+	// High-priority messages
 	emergencyStop = 0,
 	startup = 10,
 	controlledStop = 20,
@@ -23,8 +24,14 @@ enum class CanMessageType : uint16_t
 	insertHiccup = 46,
 	movement = 50,
 
+	// Configuration messages
+	changeAddress = 2010,
+	setFastDataRate = 2011,
+
+	// Medium priority messages
 	writeGpio = 4012,
 
+	// Configuration messages
 	unused = 6010,			// was m950
 	m308 = 6011,
 	updateHeaterModel = 6012,
@@ -54,7 +61,7 @@ enum class CanMessageType : uint16_t
 	createInputMonitor = 6036,
 	changeInputMonitor = 6037,
 
-	// Responses sent by expansion boards and Smart Tools
+	//*** Responses sent by expansion boards and Smart Tools
 	inputStateChanged = 100,
 	motorStalled = 102,
 
