@@ -9,7 +9,7 @@
 #define SRC_CAN_CANMESSAGEFORMATS_H_
 
 #include "CanId.h"
-#include "General/BitMap.h"
+#include "General/Bitmap.h"
 #include "General/StringRef.h"
 #include "General/Strnlen.h"
 
