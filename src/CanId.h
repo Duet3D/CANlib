@@ -100,12 +100,13 @@ class CanId
 	uint32_t all;
 
 public:
-	static constexpr CanAddress MasterAddress = 0x00;			// the main board has address 0
-	static constexpr CanAddress MaxNormalAddress = 0x7D;		// maximum normal CAN address
-	static constexpr CanAddress FirmwareUpdateAddress = 0x7E;	// special address we use for backup firmware update system (board ID switches set to zero)
-	static constexpr CanAddress MaxCanAddress = 0x7E;			// maximum CAN address including the firmware update address
-	static constexpr CanAddress BroadcastAddress = 0x7F;
-	static constexpr CanAddress NoAddress = 0xFF;
+	static constexpr CanAddress MasterAddress = 0;							// the main board has address 0
+	static constexpr CanAddress MaxNormalAddress = 99;						// maximum normal CAN address
+	static constexpr CanAddress ToolBoardDefaultAddress = 121;				// default address for tool boards
+	static constexpr CanAddress ExpansionBoardFirmwareUpdateAddress = 126;	// special address we use for backup firmware update system (board ID switches set to zero)
+	static constexpr CanAddress MaxCanAddress = 126;						// maximum CAN address including the firmware update address
+	static constexpr CanAddress BroadcastAddress = 127;
+	static constexpr CanAddress NoAddress = 255;
 
 	static constexpr uint32_t BoardAddressMask = 0x7F;
 	static constexpr unsigned int DstAddressShift = 0;
