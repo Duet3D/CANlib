@@ -24,6 +24,7 @@ struct CanTiming
 	static constexpr uint16_t DefaultPeriod = 48;
 	static constexpr uint16_t DefaultTseg1 = 26;
 	static constexpr uint16_t DefaultJumpWidth = 8;
+	static constexpr uint32_t ClockFrequency = 48000000;
 
 	bool IsValid() const noexcept
 	{
