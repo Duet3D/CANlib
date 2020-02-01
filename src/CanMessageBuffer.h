@@ -105,4 +105,18 @@ private:
 	static unsigned int numFree;
 };
 
+// Helper class to manage CAN message buffer pointers, to ensure they get released if an exception occurs
+class CanMessageBufferHandle
+{
+public:
+	CanMessageBufferHandle(CanMessageBuffer *b) : buf(b) { }
+	~CanMessageBufferHandle() { if (buf != nullptr) { CanMessageBuffer::Free(buf); } }
+
+	CanMessageBuffer *Access() const { return buf; }
+	CanMessageBuffer *HandOver() { CanMessageBuffer *ret = buf; buf = nullptr; return ret; }
+
+private:
+	CanMessageBuffer *buf;
+};
+
 #endif /* SRC_CAN_CANMESSAGEBUFFER_H_ */

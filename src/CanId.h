@@ -25,8 +25,8 @@ enum class CanMessageType : uint16_t
 	movement = 50,
 
 	// Configuration messages
-	changeAddress = 2010,
-	setFastDataRate = 2011,
+	setAddressAndNormalTiming = 2010,
+	setFastTiming = 2011,
 
 	// Medium priority messages
 	writeGpio = 4012,

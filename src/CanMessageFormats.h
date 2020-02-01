@@ -9,6 +9,7 @@
 #define SRC_CAN_CANMESSAGEFORMATS_H_
 
 #include "CanId.h"
+#include "CanSettings.h"
 #include "General/Bitmap.h"
 #include "General/StringRef.h"
 #include "General/Strnlen.h"
@@ -101,31 +102,21 @@ struct __attribute__((packed)) CanMessageMovement
 	void DebugPrint() const noexcept;
 };
 
-// Change CAN address message
-struct __attribute__((packed)) CanMessageChangeAddress
+// Change CAN address and normal timing message
+struct __attribute__((packed)) CanMessageSetAddressAndNormalTiming
 {
-	static constexpr CanMessageType messageType = CanMessageType::changeAddress;
+	static constexpr CanMessageType messageType = CanMessageType::setAddressAndNormalTiming;
 
 	uint16_t requestId : 12,
 			 spare : 4;
 	uint8_t oldAddress;
 	uint8_t newAddress;
 	uint8_t newAddressInverted;
+	uint8_t doSetTiming;
+	CanTiming normalTiming;
 
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
-};
-
-// Change CAN FD speed message
-struct __attribute__((packed)) CanMessageSetFastDataRate
-{
-	static constexpr CanMessageType messageType = CanMessageType::changeAddress;
-
-	uint16_t requestId : 12,
-			 spare : 4;
-	uint32_t bitsPerSecond;
-	uint16_t samplePoint;				// this is a fraction in 0..1. 0xFFFF means use default.
-	uint16_t jumpWidth;					// this is a fraction in 0..1. 0xFFFF means use default.
-	uint16_t delayCompensation;			// 0xFFFF means use default
+	static constexpr uint8_t DoSetTimingYes = 0xB6;				// magic byte to indicate that we do want to write the timing data
+	static constexpr uint8_t DoSetTimingNo = 0;
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
@@ -729,8 +720,7 @@ union CanMessage
 	CanMessageInputChanged inputChanged;
 	CanMessageFanRpms fanRpms;
 	CanMessageWriteGpio writeGpio;
-	CanMessageSetFastDataRate setFastDataRate;
-	CanMessageChangeAddress changeAddress;
+	CanMessageSetAddressAndNormalTiming setAddressAndNormalTiming;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
