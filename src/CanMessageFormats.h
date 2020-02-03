@@ -57,6 +57,19 @@ struct __attribute__((packed)) CanMessageTimeSync
 struct __attribute__((packed)) CanMessageEmergencyStop
 {
 	static constexpr CanMessageType messageType = CanMessageType::emergencyStop;
+
+	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't need RIDs
+};
+
+// Reset message
+struct __attribute__((packed)) CanMessageReset
+{
+	static constexpr CanMessageType messageType = CanMessageType::reset;
+
+	uint16_t requestId : 12,
+			 spare : 4;
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
 // Stop movement on specific drives or all drives
@@ -696,6 +709,7 @@ union CanMessage
 	CanMessageTimeSync sync;
 	CanMessageEmergencyStop eStop;
 	CanMessageStopMovement stopMovement;
+	CanMessageReset reset;
 	CanMessageMovement move;
 	CanMessageReturnInfo getInfo;
 	CanMessageSetHeaterTemperature setTemp;
