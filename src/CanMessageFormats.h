@@ -61,6 +61,14 @@ struct __attribute__((packed)) CanMessageEmergencyStop
 	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't need RIDs
 };
 
+// Announce acknowledgement message
+struct __attribute__((packed)) CanMessageAcknowledgeAnnounce
+{
+	static constexpr CanMessageType messageType = CanMessageType::acknowledgeAnnounce;
+
+	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't need RIDs
+};
+
 // Reset message
 struct __attribute__((packed)) CanMessageReset
 {
@@ -659,12 +667,29 @@ struct __attribute__((packed)) CanMessageHeatersStatus
 	size_t GetActualDataLength(unsigned int numHeaters) const noexcept { return numHeaters * sizeof(CanHeaterReport) + sizeof(uint64_t); }
 };
 
+struct __attribute__((packed)) CanMessageAnnounce
+{
+	static constexpr CanMessageType messageType = CanMessageType::announce;
+
+	uint32_t timeSinceStarted;				// how long since we started up
+	uint32_t numDrivers: 8,					// the number of motor drivers on this board
+			 spare : 24;					// for future expansion, set to zero
+	char boardTypeAndFirmwareVersion[56];	// the type short name of this board followed by '|' and the firmware version
+
+	void SetRequestId(CanRequestId rid) noexcept { }	// these messages don't need RIDs
+
+	size_t GetActualDataLength() const noexcept
+			{ return Strnlen(boardTypeAndFirmwareVersion, sizeof(boardTypeAndFirmwareVersion)/sizeof(boardTypeAndFirmwareVersion[0])) + (2 * sizeof(uint32_t)); }
+
+	static size_t GetMaxTextLength(size_t dataLength) noexcept { return dataLength - (2 * sizeof(uint32_t)); }
+};
+
 struct __attribute__((packed)) CanMessageFanRpms
 {
 	static constexpr CanMessageType messageType = CanMessageType::fanRpmReport;
 
-	uint64_t whichFans;					// which fan numbers we are reporting
-	int32_t fanRpms[14];				// the RPM readings of the fans, or -1 if no tacho configured
+	uint64_t whichFans;						// which fan numbers we are reporting
+	int32_t fanRpms[14];					// the RPM readings of the fans, or -1 if no tacho configured
 
 	size_t GetActualDataLength(unsigned int numReported) const noexcept { return numReported * sizeof(fanRpms[0]) + sizeof(uint64_t); }
 };
@@ -735,6 +760,8 @@ union CanMessage
 	CanMessageFanRpms fanRpms;
 	CanMessageWriteGpio writeGpio;
 	CanMessageSetAddressAndNormalTiming setAddressAndNormalTiming;
+	CanMessageAnnounce announce;
+	CanMessageAcknowledgeAnnounce acknowledgeAnnounce;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
