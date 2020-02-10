@@ -104,7 +104,6 @@ class CanId
 
 public:
 	static constexpr CanAddress MasterAddress = 0;							// the main board has address 0
-	static constexpr CanAddress MaxNormalAddress = 99;						// maximum normal CAN address
 	static constexpr CanAddress ToolBoardDefaultAddress = 121;				// default address for tool boards
 	static constexpr CanAddress ExpansionBoardFirmwareUpdateAddress = 126;	// special address we use for backup firmware update system (board ID switches set to zero)
 	static constexpr CanAddress MaxCanAddress = 126;						// maximum CAN address including the firmware update address

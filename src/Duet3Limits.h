@@ -14,8 +14,8 @@
 #include <cstddef>
 
 constexpr size_t MaxSensors = 56;						// limited by the size of bitmap we can store in an ExpressionValue
-constexpr size_t MaxHeaters = 16;
-constexpr size_t MaxExtraHeaterProtections = 16;
+constexpr size_t MaxHeaters = 32;
+constexpr size_t MaxExtraHeaterProtections = 32;
 
 constexpr size_t MaxZProbes = 4;
 constexpr size_t MaxZProbeProgramBytes = 8;				// maximum number of bytes in a Z probe program

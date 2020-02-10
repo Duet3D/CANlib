@@ -37,7 +37,7 @@ void CanUserAreaData::Clear() noexcept
 
 void CanUserAreaData::SetCanAddress(CanAddress address) noexcept
 {
-	if (address != CanId::MasterAddress && address <= CanId::MaxNormalAddress)
+	if (address != CanId::MasterAddress && address <= CanId::MaxCanAddress)
 	{
 		if (!IsValid())
 		{
@@ -52,7 +52,7 @@ void CanUserAreaData::SetCanAddress(CanAddress address) noexcept
 
 bool CanUserAreaData::AddressValid() const noexcept
 {
-	return IsValid() && !canIdV1NotSet && canAddress == (uint8_t)(~invertedCanAddress) && canAddress != CanId::MasterAddress && canAddress <= CanId::MaxNormalAddress;
+	return IsValid() && !canIdV1NotSet && canAddress == (uint8_t)(~invertedCanAddress) && canAddress != CanId::MasterAddress && canAddress <= CanId::MaxCanAddress;
 }
 
 CanAddress CanUserAreaData::GetCanAddress(CanAddress defaultAddress) const noexcept
