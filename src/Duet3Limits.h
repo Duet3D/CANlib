@@ -20,7 +20,11 @@ constexpr size_t MaxExtraHeaterProtections = 32;
 constexpr size_t MaxZProbes = 4;
 constexpr size_t MaxZProbeProgramBytes = 8;				// maximum number of bytes in a Z probe program
 
-constexpr size_t MaxGpioPorts = 16;
 constexpr size_t MaxFans = 16;
+
+constexpr size_t MaxGpOutPorts = 16;
+
+// The following currently don't need to be know by expansion boards, but might in future
+constexpr size_t MaxGpInPorts = 16;
 
 #endif /* SRC_DUET3LIMITS_H_ */

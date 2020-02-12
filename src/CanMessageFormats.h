@@ -10,36 +10,15 @@
 
 #include "CanId.h"
 #include "CanSettings.h"
+#include "RemoteInputHandle.h"
+
 #include "General/Bitmap.h"
-#include "General/StringRef.h"
 #include "General/Strnlen.h"
 
 constexpr unsigned int MaxDriversPerCanSlave = 4;
 constexpr unsigned int MaxHeatersPerCanSlave = 6;
 
 size_t CanAdjustedLength(size_t rawLength) noexcept;
-
-// Type used to represent a handle to a remote input
-struct __attribute__((packed)) RemoteInputHandle
-{
-	RemoteInputHandle(uint8_t p_type, uint8_t p_major, uint8_t p_minor) noexcept { Set(p_type, p_major, p_minor); }
-	void Set(uint8_t p_type, uint8_t p_major, uint8_t p_minor) noexcept { u.parts.type = p_type; u.parts.major = p_major; u.parts.minor = p_minor; }
-	void Set(uint16_t p_all) noexcept { u.all = p_all; }
-	uint16_t asU16() const noexcept { return u.all; }
-
-	union
-	{
-		struct
-		{
-			uint16_t minor : 8,						// endstop switch number within axis (for endstops), or trigger handle (for triggers)
-					major : 4,						// axis number (for endstops)
-					type : 4;
-		} parts;
-		uint16_t all;
-	} u;
-
-	static constexpr uint16_t typeEndstop = 0, typeTrigger = 1;
-};
 
 // CAN message formats
 
@@ -310,7 +289,7 @@ struct __attribute__((packed)) CanMessageConfigureZProbe
 	uint8_t number;
 	uint8_t type;
 	int16_t adcValue;				// the target ADC value, after inversion if enabled
-	uint8_t invertReading;
+	uint8_t invertReading_obsolete;
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
@@ -704,7 +683,7 @@ struct __attribute__((packed)) CanMessageInputChanged
 	RemoteInputHandle handles[29];			// the handles reported
 
 	// Add an entry. 'states' and 'numHandles' must be cleared to zero before adding the first one.
-	bool AddEntry(uint16_t h, bool state)
+	bool AddEntry(uint16_t h, bool state) noexcept
 	{
 		if (numHandles < sizeof(handles)/sizeof(handles[0]))
 		{
@@ -727,7 +706,7 @@ struct __attribute__((packed)) CanMessageInputChanged
 
 union CanMessage
 {
-	CanMessage() { }
+	CanMessage() noexcept { }
 
 	uint8_t raw[64];
 	CanMessageGeneric generic;

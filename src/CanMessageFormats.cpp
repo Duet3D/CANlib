@@ -8,6 +8,7 @@
 #include "CanMessageFormats.h"
 #include "General/StringFunctions.h"
 #include <cinttypes>
+#include <cstring>
 
 extern "C" void debugPrintf(const char* fmt, ...) noexcept __attribute__ ((format (printf, 1, 2)));
 

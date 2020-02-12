@@ -10,6 +10,8 @@
 
 #include "CanMessageFormats.h"
 
+class StringRef;
+
 // Class to extract parameters from a generic CAN message
 class CanMessageGenericParser
 {

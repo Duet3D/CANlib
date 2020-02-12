@@ -7,6 +7,7 @@
 
 #include "CanMessageGenericParser.h"
 #include <General/Portability.h>
+#include <General/StringRef.h>
 
 bool CanMessageGenericParser::GetStringParam(char c, const StringRef& v) const noexcept
 {
