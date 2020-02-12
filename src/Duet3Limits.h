@@ -26,5 +26,6 @@ constexpr size_t MaxGpOutPorts = 16;
 
 // The following currently don't need to be know by expansion boards, but might in future
 constexpr size_t MaxGpInPorts = 16;
+constexpr size_t MaxSpindles = 2;					// Maximum number of configurable spindles
 
 #endif /* SRC_DUET3LIMITS_H_ */
