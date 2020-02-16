@@ -224,6 +224,28 @@ struct __attribute__((packed)) CanMessageSetHeaterFaultDetectionParameters
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
+struct __attribute__((packed)) CanMessageSetHeaterMonitors
+{
+	static constexpr CanMessageType messageType = CanMessageType::setHeaterMonitors;
+
+	uint16_t requestId : 12,
+			 numMonitors : 4;
+	uint16_t heater;
+	struct __attribute__((packed)) CanHeaterMonitor
+	{
+		float limit;
+		int8_t sensor;
+		uint8_t action;
+		int8_t trigger;
+		uint8_t spare;
+	};
+	CanHeaterMonitor monitors[7];
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; }
+
+	size_t GetActualDatalength() const noexcept { return (2 * sizeof(uint16_t)) + (numMonitors * sizeof(CanHeaterMonitor)); }
+};
+
 struct __attribute__((packed)) CanMessageUpdateYourFirmware
 {
 	static constexpr CanMessageType messageType = CanMessageType::updateFirmware;
@@ -728,6 +750,7 @@ union CanMessage
 	CanMessageFanParameters fanParameters;
 	CanMessageSetFanSpeed setFanSpeed;
 	CanMessageSetHeaterFaultDetectionParameters setHeaterFaultDetection;
+	CanMessageSetHeaterMonitors setHeaterMonitors;
 	CanMessageCreateZProbe createZProbe;
 	CanMessageConfigureZProbe configureZProbe;
 	CanMessageGetZProbePinNames getZProbePinNames;
