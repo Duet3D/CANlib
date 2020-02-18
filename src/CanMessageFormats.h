@@ -704,7 +704,7 @@ struct __attribute__((packed)) CanMessageInputChanged
 	uint8_t spare;
 	RemoteInputHandle handles[29];			// the handles reported
 
-	// Add an entry. 'states' and 'numHandles' must be cleared to zero before adding the first one.
+	// Add an entry. 'states' and 'numHandles' must be cleared to zero before adding the first one. Return true if successful, false if message is full.
 	bool AddEntry(uint16_t h, bool state) noexcept
 	{
 		if (numHandles < sizeof(handles)/sizeof(handles[0]))
