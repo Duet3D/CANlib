@@ -66,6 +66,7 @@ enum class CanMessageType : uint16_t
 	changeInputMonitor = 6037,
 	acknowledgeAnnounce = 6038,
 	setHeaterMonitors = 6039,
+	diagnosticTest = 6040,
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,

@@ -156,6 +156,18 @@ struct __attribute__((packed)) CanMessageReturnInfo
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; }
 };
 
+struct __attribute__((packed)) CanMessageDiagnosticTest
+{
+	static constexpr CanMessageType messageType = CanMessageType::diagnosticTest;
+
+	uint16_t requestId : 12,
+			 spare : 4;
+	uint16_t testType;								// the M122 P parameter
+	uint16_t invertedTestType;						// the complement of the M122 P parameter
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; }
+};
+
 struct __attribute__((packed)) CanMessageSetHeaterTemperature
 {
 	static constexpr CanMessageType messageType = CanMessageType::setHeaterTemperature;
@@ -764,6 +776,7 @@ union CanMessage
 	CanMessageSetAddressAndNormalTiming setAddressAndNormalTiming;
 	CanMessageAnnounce announce;
 	CanMessageAcknowledgeAnnounce acknowledgeAnnounce;
+	CanMessageDiagnosticTest diagnosticTest;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
