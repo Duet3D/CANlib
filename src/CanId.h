@@ -57,11 +57,13 @@ enum class CanMessageType : uint16_t
 	m950Gpio = 6028,
 	setFanSpeed = 6029,
 	setHeaterFaultDetection = 6030,
-	createZProbe = 6031,
-	configureZProbe = 6032,				// handles M558 but not creation of a Z probe
-	getZProbePinNames = 6033,
-	destroyZProbe = 6034,
-	setProbing = 6035,
+
+	unused_was_createZProbe = 6031,
+	unused_was_configureZProbe = 6032,
+	unused_was_getZProbePinNames = 6033,
+	unused_was_destroyZProbe = 6034,
+	unused_was_setProbing = 6035,
+
 	createInputMonitor = 6036,
 	changeInputMonitor = 6037,
 	acknowledgeAnnounce = 6038,

@@ -299,69 +299,6 @@ struct __attribute__((packed)) CanMessageSetFanSpeed
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
-struct __attribute__((packed)) CanMessageCreateZProbe
-{
-	static constexpr CanMessageType messageType = CanMessageType::createZProbe;
-
-	uint16_t requestId : 12,
-			 spare : 4;
-	uint8_t probeNumber;
-	uint8_t probeType;
-	char pinNames[60];				// actually a null-terminated string
-
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
-	size_t GetActualDataLength() const noexcept { return CanAdjustedLength(sizeof(uint16_t) + 2 * sizeof(uint8_t) + Strnlen(pinNames, sizeof(pinNames)/sizeof(pinNames[0]))); }
-	size_t GetMaxPinNamesLength(size_t dataLength) const noexcept { return dataLength - (sizeof(uint16_t) + 2 * sizeof(uint8_t)); }
-};
-
-struct __attribute__((packed)) CanMessageConfigureZProbe
-{
-	static constexpr CanMessageType messageType = CanMessageType::configureZProbe;
-
-	uint16_t requestId : 12,
-			 spare : 4;
-	uint8_t number;
-	uint8_t type;
-	int16_t adcValue;				// the target ADC value, after inversion if enabled
-	uint8_t invertReading_obsolete;
-
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
-};
-
-struct __attribute__((packed)) CanMessageGetZProbePinNames
-{
-	static constexpr CanMessageType messageType = CanMessageType::getZProbePinNames;
-
-	uint16_t requestId : 12,
-			 spare : 4;
-	uint8_t number;
-
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
-};
-
-struct __attribute__((packed)) CanMessageDestroyZProbe
-{
-	static constexpr CanMessageType messageType = CanMessageType::destroyZProbe;
-
-	uint16_t requestId : 12,
-			 spare : 4;
-	uint8_t number;
-
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
-};
-
-struct __attribute__((packed)) CanMessageSetProbing
-{
-	static constexpr CanMessageType messageType = CanMessageType::setProbing;
-
-	uint16_t requestId : 12,
-			 spare : 4;
-	uint8_t number;
-	uint8_t isProbing;
-
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
-};
-
 struct __attribute__((packed)) CanMessageCreateInputMonitor
 {
 	static constexpr CanMessageType messageType = CanMessageType::createInputMonitor;
@@ -763,11 +700,6 @@ union CanMessage
 	CanMessageSetFanSpeed setFanSpeed;
 	CanMessageSetHeaterFaultDetectionParameters setHeaterFaultDetection;
 	CanMessageSetHeaterMonitors setHeaterMonitors;
-	CanMessageCreateZProbe createZProbe;
-	CanMessageConfigureZProbe configureZProbe;
-	CanMessageGetZProbePinNames getZProbePinNames;
-	CanMessageDestroyZProbe destroyZProbe;
-	CanMessageSetProbing setProbing;
 	CanMessageCreateInputMonitor createInputMonitor;
 	CanMessageChangeInputMonitor changeInputMonitor;
 	CanMessageInputChanged inputChanged;
