@@ -634,14 +634,20 @@ struct __attribute__((packed)) CanMessageAnnounce
 	static size_t GetMaxTextLength(size_t dataLength) noexcept { return dataLength - (2 * sizeof(uint32_t)); }
 };
 
-struct __attribute__((packed)) CanMessageFanRpms
+struct FanReport
 {
-	static constexpr CanMessageType messageType = CanMessageType::fanRpmReport;
+	uint16_t actualPwm;						// actual PWM value, 0-65535
+	int16_t rpm;							// tacho reading, or -1 if no tacho configured
+};
+
+struct __attribute__((packed)) CanMessageFansReport
+{
+	static constexpr CanMessageType messageType = CanMessageType::fansReport;
 
 	uint64_t whichFans;						// which fan numbers we are reporting
-	int32_t fanRpms[14];					// the RPM readings of the fans, or -1 if no tacho configured
+	FanReport fanReports[14];				// the actual PWM and RPM readings of the fans
 
-	size_t GetActualDataLength(unsigned int numReported) const noexcept { return numReported * sizeof(fanRpms[0]) + sizeof(uint64_t); }
+	size_t GetActualDataLength(unsigned int numReported) const noexcept { return numReported * sizeof(fanReports[0]) + sizeof(uint64_t); }
 };
 
 struct __attribute__((packed)) CanMessageInputChanged
@@ -703,7 +709,7 @@ union CanMessage
 	CanMessageCreateInputMonitor createInputMonitor;
 	CanMessageChangeInputMonitor changeInputMonitor;
 	CanMessageInputChanged inputChanged;
-	CanMessageFanRpms fanRpms;
+	CanMessageFansReport fansReport;
 	CanMessageWriteGpio writeGpio;
 	CanMessageSetAddressAndNormalTiming setAddressAndNormalTiming;
 	CanMessageAnnounce announce;

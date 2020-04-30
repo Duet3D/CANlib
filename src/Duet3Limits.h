@@ -22,9 +22,9 @@ constexpr size_t MaxZProbeProgramBytes = 8;				// maximum number of bytes in a Z
 
 constexpr size_t MaxFans = 16;
 
-constexpr size_t MaxGpOutPorts = 16;
+constexpr size_t MaxGpOutPorts = 32;					// increased as requested by Jimmykc
 
-// The following currently don't need to be know by expansion boards, but might in future
+// The following currently don't need to be known by expansion boards, but might in future
 constexpr size_t MaxGpInPorts = 16;
 constexpr size_t MaxSpindles = 2;						// maximum number of configurable spindles
 
