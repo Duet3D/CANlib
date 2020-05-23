@@ -110,7 +110,10 @@ class CanId
 public:
 	static constexpr CanAddress MasterAddress = 0;							// the main board has address 0
 	static constexpr CanAddress ToolBoardDefaultAddress = 121;				// default address for tool boards
-	static constexpr CanAddress ExpansionBoardFirmwareUpdateAddress = 126;	// special address we use for backup firmware update system (board ID switches set to zero)
+	static constexpr CanAddress Exp1XDBoardDefaultAddress = 122;
+	static constexpr CanAddress Exp1HCEBoardDefaultAddress = 123;
+	static constexpr CanAddress SammyC21DefaultAddress = 124;
+	static constexpr CanAddress ExpansionBoardFirmwareUpdateAddress = 126;	// special address we use for backup firmware update system (board ID switches set to zero on 3HC)
 	static constexpr CanAddress MaxCanAddress = 126;						// maximum CAN address including the firmware update address
 	static constexpr CanAddress BroadcastAddress = 127;
 	static constexpr CanAddress NoAddress = 255;
