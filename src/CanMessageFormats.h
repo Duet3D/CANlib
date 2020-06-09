@@ -572,6 +572,17 @@ constexpr ParamDescriptor M569Params[] =
 	END_PARAMS
 };
 
+constexpr ParamDescriptor M569Point1Params[] =
+{
+	LOCAL_DRIVER_PARAM('P'),
+	UINT8_PARAM('S'),
+	FLOAT_PARAM('E'),
+	FLOAT_PARAM('R'),
+	FLOAT_PARAM('I'),
+	FLOAT_PARAM('D'),
+	END_PARAMS
+};
+
 constexpr ParamDescriptor M915Params[] =
 {
 	UINT16_PARAM('d'),					// this is the bitmap of driver numbers to change the parameters for

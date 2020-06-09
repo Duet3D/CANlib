@@ -70,6 +70,8 @@ enum class CanMessageType : uint16_t
 	setHeaterMonitors = 6039,
 	diagnosticTest = 6040,
 
+	m569p1 = 6041,
+
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,
 	statusReport = 4511,
