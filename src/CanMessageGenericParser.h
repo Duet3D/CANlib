@@ -31,7 +31,7 @@ public:
 	bool GetBoolParam(char c, bool &v) const noexcept;
 
 	bool GetUint8ArrayParam(char c, size_t& numValues, const uint8_t*& values) noexcept;
-	bool GetFloatArrayParam(char c, size_t& numValues, const float*& values) noexcept;
+	bool GetFloatArrayParam(char c, size_t& numValues, float *values) noexcept;
 
 	bool HasParameter(char c) const noexcept;
 

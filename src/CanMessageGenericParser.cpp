@@ -8,6 +8,7 @@
 #include "CanMessageGenericParser.h"
 #include <General/Portability.h>
 #include <General/StringRef.h>
+#include <General/SimpleMath.h>
 
 bool CanMessageGenericParser::GetStringParam(char c, const StringRef& v) const noexcept
 {
@@ -229,14 +230,24 @@ bool CanMessageGenericParser::GetUint8ArrayParam(char c, size_t& numValues, cons
 	return false;
 }
 
-bool CanMessageGenericParser::GetFloatArrayParam(char c, size_t& numValues, const float*& values) noexcept
+// Get a float array parameter. We copy the float array to a user array because the array in the message may be misaligned.
+// On entry, numValues is the size of the user array
+// On return, numValue is the number passed in the message
+bool CanMessageGenericParser::GetFloatArrayParam(char c, size_t& numValues, float *values) noexcept
 {
 	unsigned int pos;
 	const ParamDescriptor::ParamType type = FindParameter(c, pos);
 	if (type == ParamDescriptor::ParamType::float_array)
 	{
-		numValues = msg.data[pos++];
-		values = reinterpret_cast<const float*>(msg.data + pos);
+		const size_t numInMessage = msg.data[pos++];
+		size_t numToCopy = min<size_t>(numValues, numInMessage);
+		numValues = numInMessage;
+		while (numToCopy != 0)
+		{
+			*values++ = LoadLEFloat(msg.data + pos);
+			pos += sizeof(float);
+			--numToCopy;
+		}
 		return true;
 	}
 	return false;
