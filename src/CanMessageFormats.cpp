@@ -13,7 +13,7 @@
 extern "C" void debugPrintf(const char* fmt, ...) noexcept __attribute__ ((format (printf, 1, 2)));
 
 // Round up a message length to the size that will actually be sent. Used to ensure that we include trailing null terminators.
-size_t CanAdjustedLength(size_t rawLength)
+size_t CanAdjustedLength(size_t rawLength) noexcept
 {
 	return (rawLength <= 8) ? rawLength
 			: (rawLength <= 24) ? (rawLength + 3) & ~3
