@@ -98,11 +98,9 @@ public:
 	size_t dataLength;
 	CanMessage msg;
 
-	static constexpr uint16_t broadcastId = 63;
-
 private:
-	static CanMessageBuffer *freelist;
-	static unsigned int numFree;
+	static CanMessageBuffer * volatile freelist;
+	static volatile unsigned int numFree;
 };
 
 // Helper class to manage CAN message buffer pointers, to ensure they get released if an exception occurs

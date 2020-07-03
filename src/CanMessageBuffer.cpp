@@ -11,8 +11,8 @@
 
 extern "C" void debugPrintf(const char* fmt, ...) __attribute__ ((format (printf, 1, 2)));
 
-CanMessageBuffer *CanMessageBuffer::freelist = nullptr;
-unsigned int CanMessageBuffer::numFree = 0;
+CanMessageBuffer * volatile CanMessageBuffer::freelist = nullptr;
+volatile unsigned int CanMessageBuffer::numFree = 0;
 
 void CanMessageBuffer::Init(unsigned int numCanBuffers) noexcept
 {
