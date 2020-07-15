@@ -688,7 +688,7 @@ struct __attribute__((packed)) CanMessageInputChanged
 
 	size_t GetActualDataLength() const noexcept
 	{
-		return sizeof(states) + sizeof(numHandles) + sizeof(spare) + numHandles * sizeof(handles[0]);
+		return sizeof(states) + sizeof(numHandles) + sizeof(spare) + (numHandles * sizeof(handles[0]));
 	}
 };
 
