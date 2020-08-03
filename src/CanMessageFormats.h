@@ -21,6 +21,8 @@ constexpr unsigned int MaxHeatersPerCanSlave = 6;
 size_t CanAdjustedLength(size_t rawLength) noexcept;
 
 // CAN message formats
+// Some messages end in strings. For such messages, it is now safe to computing the message length without allowing for a null terminator.
+// This is because when our sending functions need to round up the message length to a supported CAN size, the additional data is now set to zeros.
 
 // Time sync message
 struct __attribute__((packed)) CanMessageTimeSync
@@ -311,7 +313,7 @@ struct __attribute__((packed)) CanMessageCreateInputMonitor
 	char pinName[56];			// null terminated
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
-	size_t GetActualDataLength() const noexcept { return CanAdjustedLength(3 * sizeof(uint16_t) + sizeof(RemoteInputHandle) + Strnlen(pinName, sizeof(pinName)/sizeof(pinName[0]))); }
+	size_t GetActualDataLength() const noexcept { return 3 * sizeof(uint16_t) + sizeof(RemoteInputHandle) + Strnlen(pinName, sizeof(pinName)/sizeof(pinName[0])); }
 	size_t GetMaxPinNameLength(size_t dataLength) const noexcept { return dataLength - (3 * sizeof(uint16_t) + sizeof(RemoteInputHandle)); }
 };
 
@@ -640,7 +642,7 @@ struct __attribute__((packed)) CanMessageAnnounce
 	void SetRequestId(CanRequestId rid) noexcept { }	// these messages don't need RIDs
 
 	size_t GetActualDataLength() const noexcept
-			{ return Strnlen(boardTypeAndFirmwareVersion, sizeof(boardTypeAndFirmwareVersion)/sizeof(boardTypeAndFirmwareVersion[0])) + (2 * sizeof(uint32_t)); }
+			{ return (2 * sizeof(uint32_t)) + Strnlen(boardTypeAndFirmwareVersion, sizeof(boardTypeAndFirmwareVersion)/sizeof(boardTypeAndFirmwareVersion[0])); }
 
 	static size_t GetMaxTextLength(size_t dataLength) noexcept { return dataLength - (2 * sizeof(uint32_t)); }
 };
