@@ -578,6 +578,7 @@ constexpr ParamDescriptor M569Point1Params[] =
 {
 	LOCAL_DRIVER_PARAM('P'),
 	UINT8_PARAM('S'),
+	UINT8_PARAM('T'),
 	FLOAT_PARAM('E'),
 	FLOAT_PARAM('R'),
 	FLOAT_PARAM('I'),
