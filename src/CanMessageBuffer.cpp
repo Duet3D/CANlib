@@ -13,6 +13,7 @@ extern "C" void debugPrintf(const char* fmt, ...) __attribute__ ((format (printf
 
 CanMessageBuffer * volatile CanMessageBuffer::freelist = nullptr;
 volatile unsigned int CanMessageBuffer::numFree = 0;
+volatile unsigned int CanMessageBuffer::minNumFree = 0;
 
 void CanMessageBuffer::Init(unsigned int numCanBuffers) noexcept
 {
@@ -23,6 +24,7 @@ void CanMessageBuffer::Init(unsigned int numCanBuffers) noexcept
 		--numCanBuffers;
 		++numFree;
 	}
+	minNumFree = numFree;
 }
 
 CanMessageBuffer *CanMessageBuffer::Allocate() noexcept
@@ -35,6 +37,10 @@ CanMessageBuffer *CanMessageBuffer::Allocate() noexcept
 		freelist = ret->next;
 		ret->next = nullptr;
 		--numFree;
+		if (numFree < minNumFree)
+		{
+			minNumFree = 0;
+		}
 	}
 	return ret;
 }

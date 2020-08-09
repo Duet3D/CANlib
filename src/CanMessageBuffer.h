@@ -24,6 +24,7 @@ public:
 	static CanMessageBuffer *Allocate() noexcept;
 	static void Free(CanMessageBuffer*& buf) noexcept;
 	static unsigned int FreeBuffers() noexcept { return numFree; }
+	static unsigned int MinFreeBuffers() noexcept { return minNumFree; }
 
 	// Set up a message buffer to carry a particular message type, setting the priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
@@ -101,6 +102,7 @@ public:
 private:
 	static CanMessageBuffer * volatile freelist;
 	static volatile unsigned int numFree;
+	static volatile unsigned int minNumFree;
 };
 
 // Helper class to manage CAN message buffer pointers, to ensure they get released if an exception occurs

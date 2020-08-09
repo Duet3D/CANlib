@@ -84,7 +84,8 @@ struct __attribute__((packed)) CanMessageMovement
 	uint32_t deltaDrives : 4,						// which drivers are doing delta movement
 			 pressureAdvanceDrives : 4,				// which drivers have pressure advance applied
 			 endStopsToCheck : 4,					// which drivers have endstop checks applied
-			 stopAllDrivesOnEndstopHit : 1;			// whether to stop all drivers when one endstop is hit
+			 stopAllDrivesOnEndstopHit : 1,			// whether to stop all drivers when one endstop is hit
+			 seq : 3;								// TEMP sequence number
 
 	float initialSpeedFraction;
 	float finalSpeedFraction;
@@ -95,10 +96,17 @@ struct __attribute__((packed)) CanMessageMovement
 	float finalY;									// needed only for delta movement
 	float zMovement;								// needed only for delta movement
 
-	struct
+	struct PerDriveValues
 	{
 		int32_t steps;								// net steps moved
-	} perDrive[MaxDriversPerCanSlave];
+
+		void Init() noexcept
+		{
+			steps = 0;
+		}
+	};
+
+	PerDriveValues perDrive[MaxDriversPerCanSlave];
 
 	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't have RIDs, use the whenToExecute field to avoid duplication
 	void DebugPrint() const noexcept;
