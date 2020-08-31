@@ -31,6 +31,12 @@ constexpr size_t MaxGpInPorts = 16;
 constexpr size_t MaxSpindles = 2;						// maximum number of configurable spindles
 
 // Other constants etc. that are common across Duet 3 main and expansion boards
+constexpr float DefaultThermistorR25 = 100000.0;
+constexpr float DefaultThermistorBeta = 4725.0;
+constexpr float DefaultThermistorC = 7.060e-8;
+
+constexpr float DefaultMinFanPwm = 0.1;					// minimum fan PWM
+constexpr uint32_t DefaultFanBlipTime = 100;			// fan blip time in milliseconds
 
 // The values of this enumeration must correspond to the meanings of the M569.1 S parameter
 NamedEnum(EncoderType, uint8_t, none, linearQuadrature, rotaryQuadrature, as5047, tli5012);
