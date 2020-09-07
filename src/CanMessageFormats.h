@@ -12,8 +12,9 @@
 #include "CanSettings.h"
 #include "RemoteInputHandle.h"
 
-#include "General/Bitmap.h"
-#include "General/Strnlen.h"
+#include <General/Bitmap.h>
+#include <General/Strnlen.h>
+#include <General/Portability.h>
 
 constexpr unsigned int MaxDriversPerCanSlave = 4;
 constexpr unsigned int MaxHeatersPerCanSlave = 6;
@@ -609,6 +610,10 @@ constexpr ParamDescriptor M915Params[] =
 struct __attribute__((packed)) CanSensorReport
 {
 	uint8_t errorCode;						// this holds a TemperatureError
+
+	float GetTemperature() const noexcept { return LoadLEFloat(&temperature); }
+	void SetTemperature(float t) noexcept { StoreLEFloat(&temperature, t); }
+private:									// make unaligned members private
 	float temperature;						// the last temperature we read
 };
 
