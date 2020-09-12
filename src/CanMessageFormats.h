@@ -25,7 +25,7 @@ size_t CanAdjustedLength(size_t rawLength) noexcept;
 // Some messages end in strings. For such messages, it is now safe to computing the message length without allowing for a null terminator.
 // This is because when our sending functions need to round up the message length to a supported CAN size, the additional data is now set to zeros.
 
-// Time sync message
+// Time sync message. The realTime field was added at RRF3.2 so it is not transmitted by main boards running 3.1.1 and earlier.
 struct __attribute__((packed)) CanMessageTimeSync
 {
 	static constexpr CanMessageType messageType = CanMessageType::timeSync;
@@ -33,6 +33,7 @@ struct __attribute__((packed)) CanMessageTimeSync
 	uint32_t timeSent;								// when this message was sent
 	uint32_t lastTimeSent;							// when we tried to send the previous message
 	uint32_t lastTimeAcknowledged;					// when the previous message was acknowledged
+	uint32_t realTime;								// seconds since 00:00:00 UTC on 1 January 1970, unsigned to avoid year 2038 problem
 };
 
 // Emergency stop message
