@@ -714,6 +714,7 @@ union CanMessage
 	CanMessage() noexcept { }
 
 	uint8_t raw[64];
+	uint32_t raw32[16];
 	CanMessageGeneric generic;
 	CanMessageTimeSync sync;
 	CanMessageEmergencyStop eStop;

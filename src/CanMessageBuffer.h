@@ -32,6 +32,10 @@ public:
 	{
 		id.SetRequest(msgType, src, dest);
 		dataLength = dataLen;
+		extId = 1;
+		fdMode = 1;
+		useBrs = 0;
+		remote = 0;
 		msg.generic.requestId = rid;
 		return &msg.generic;
 	}
@@ -43,6 +47,10 @@ public:
 	{
 		id.SetRequest(T::messageType, src, dest);
 		dataLength = sizeof(T);
+		extId = 1;
+		fdMode = 1;
+		useBrs = 0;
+		remote = 0;
 		T* rslt = reinterpret_cast<T*>(&msg);
 		rslt->SetRequestId(rid);
 		return rslt;
@@ -55,6 +63,10 @@ public:
 	{
 		id.SetRequest(msgType, src, dest);
 		dataLength = sizeof(T);
+		extId = 1;
+		fdMode = 1;
+		useBrs = 0;
+		remote = 0;
 		T* rslt = reinterpret_cast<T*>(&msg);
 		rslt->SetRequestId(rid);
 		return rslt;
@@ -67,6 +79,10 @@ public:
 	{
 		id.SetResponse(T::messageType, src, dest);
 		dataLength = sizeof(T);
+		extId = 1;
+		fdMode = 1;
+		useBrs = 0;
+		remote = 0;
 		T* rslt = reinterpret_cast<T*>(&msg);
 		rslt->SetRequestId(rid);
 		return rslt;
@@ -79,6 +95,10 @@ public:
 	{
 		id.SetBroadcast(T::messageType, src);
 		dataLength = sizeof(T);
+		extId = 1;
+		fdMode = 1;
+		useBrs = 0;
+		remote = 0;
 		return reinterpret_cast<T*>(&msg);
 	}
 
@@ -89,6 +109,10 @@ public:
 	{
 		id.SetRequest(T::messageType, src, dest);
 		dataLength = sizeof(T);
+		extId = 1;
+		fdMode = 1;
+		useBrs = 0;
+		remote = 0;
 		return reinterpret_cast<T*>(&msg);
 	}
 
@@ -97,6 +121,10 @@ public:
 	CanMessageBuffer *next;
 	CanId id;
 	size_t dataLength;
+	uint32_t extId : 1,
+			fdMode : 1,
+			useBrs : 1,
+			remote : 1;
 	CanMessage msg;
 
 private:
