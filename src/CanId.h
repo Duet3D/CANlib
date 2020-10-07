@@ -111,6 +111,8 @@ class CanId
 
 public:
 	static constexpr CanAddress MasterAddress = 0;							// the main board has address 0
+	static constexpr CanAddress ATECMBoardDefaultAddress = 118;
+	static constexpr CanAddress ATEIOBoardDefaultAddress = 119;
 	static constexpr CanAddress ToolBoardDefaultAddress = 121;				// default address for tool boards
 	static constexpr CanAddress Exp1XDBoardDefaultAddress = 122;
 	static constexpr CanAddress Exp1HCEBoardDefaultAddress = 123;
