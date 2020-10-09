@@ -341,6 +341,18 @@ struct __attribute__((packed)) CanMessageChangeInputMonitor
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; spare = 0; }
 };
 
+// Request to read inputs, including analog inputs
+struct __attribute__((packed)) CanMessageReadInputsRequest
+{
+	static constexpr CanMessageType messageType = CanMessageType::readInputsRequest;
+
+	uint32_t requestId : 12,				// the request ID of the message we are replying to
+			 zero : 20;
+	uint32_t handlesRequested;				// bitmap of input handle numbers reported, max 28 bits set
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
+};
+
 // M42 or M280
 struct __attribute__((packed)) CanMessageWriteGpio
 {
@@ -411,7 +423,7 @@ struct ParamDescriptor
 };
 
 // Firmware update request
-struct CanMessageFirmwareUpdateRequest
+struct __attribute__((packed)) CanMessageFirmwareUpdateRequest
 {
 	static constexpr CanMessageType messageType = CanMessageType::firmwareBlockRequest;
 
@@ -429,7 +441,7 @@ struct CanMessageFirmwareUpdateRequest
 };
 
 // Firmware update response
-struct CanMessageFirmwareUpdateResponse
+struct __attribute__((packed)) CanMessageFirmwareUpdateResponse
 {
 	static constexpr CanMessageType messageType = CanMessageType::firmwareBlockResponse;
 
@@ -450,7 +462,7 @@ struct CanMessageFirmwareUpdateResponse
 };
 
 // Generic message
-struct CanMessageGeneric
+struct __attribute__((packed)) CanMessageGeneric
 {
 	uint32_t requestId : 12,
 			 paramMap : 20;
@@ -462,7 +474,9 @@ struct CanMessageGeneric
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; }
 };
 
-struct CanMessageStandardReply
+// This is the standard reply used by many calls. It carries a GCodeResult, some text, and in some cases 8 bits of additional information.
+// It can be split into multiple fragments so that the text is no constrained to 64 characters.
+struct __attribute__((packed)) CanMessageStandardReply
 {
 	static constexpr CanMessageType messageType = CanMessageType::standardReply;
 
@@ -487,6 +501,26 @@ struct CanMessageStandardReply
 	}
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; }
+};
+
+// Response to the ReadInputsRequest
+struct __attribute__((packed)) CanMessageReadInputsReply
+{
+	static constexpr CanMessageType messageType = CanMessageType::readInputsReply;
+
+	uint32_t requestId : 12,				// the request ID of the message we are replying to
+			 resultCode : 4,				// normally a GCodeResult
+			 zero : 16;						// spare
+	uint32_t handlesReported;				// bitmap of input handle numbers reported, max 28 bits set
+	uint16_t results[28];					// the analog values of the GpIn pins reported, in increasing handle# order
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
+
+	static size_t GetActualDataLength(unsigned int count) noexcept
+	{
+		return 2 * sizeof(uint32_t) + count * sizeof(uint16_t);
+	}
+
 };
 
 // Parameter tables for various messages that use the generic format.
@@ -744,6 +778,8 @@ union CanMessage
 	CanMessageAnnounce announce;
 	CanMessageAcknowledgeAnnounce acknowledgeAnnounce;
 	CanMessageDiagnosticTest diagnosticTest;
+	CanMessageReadInputsRequest readInputsRequest;
+	CanMessageReadInputsReply readInputsReply;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large

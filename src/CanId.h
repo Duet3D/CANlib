@@ -34,9 +34,10 @@ enum class CanMessageType : uint16_t
 
 	// Medium priority messages sent by the main board
 	writeGpio = 4012,
+	readInputsRequest = 4013,
 
 	// Configuration messages sent by the main board
-	unused = 6010,			// was m950
+	//unused_was_m950 = 6010,
 	m308 = 6011,
 	updateHeaterModel = 6012,
 	setHeaterTemperature = 6013,
@@ -58,11 +59,11 @@ enum class CanMessageType : uint16_t
 	setFanSpeed = 6029,
 	setHeaterFaultDetection = 6030,
 
-	unused_was_createZProbe = 6031,
-	unused_was_configureZProbe = 6032,
-	unused_was_getZProbePinNames = 6033,
-	unused_was_destroyZProbe = 6034,
-	unused_was_setProbing = 6035,
+	//unused_was_createZProbe = 6031,
+	//unused_was_configureZProbe = 6032,
+	//unused_was_getZProbePinNames = 6033,
+	//unused_was_destroyZProbe = 6034,
+	//unused_was_setProbing = 6035,
 
 	createInputMonitor = 6036,
 	changeInputMonitor = 6037,
@@ -79,8 +80,9 @@ enum class CanMessageType : uint16_t
 	fanTachoReport = 4513,
 	sensorTemperaturesReport = 4514,
 	heatersStatusReport = 4515,
-	//fansRpmReport = 4516,			// replaced by fansReport
+	//unused_was_fansRpmReport = 4516,			// replaced by fansReport
 	fansReport = 4517,
+	readInputsReply = 4518,
 
 	// Firmware updates
 	firmwareBlockRequest = 5000,
