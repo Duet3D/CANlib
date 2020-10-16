@@ -177,6 +177,8 @@ struct __attribute__((packed)) CanMessageDiagnosticTest
 			 zero : 4;
 	uint16_t testType;								// the M122 P parameter
 	uint16_t invertedTestType;						// the complement of the M122 P parameter
+	uint16_t param16;								// possible 16-bit parameter
+	uint32_t param32[2];							// possible 32-bit parameters
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
