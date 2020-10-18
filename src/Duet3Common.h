@@ -60,4 +60,13 @@ enum class FirmwareFlashErrorCode : unsigned int
 	vinTooLow = 14
 };
 
+// Firmware module numbers
+enum class FirmwareModule : uint8_t
+{
+	main = 0,
+	wifi = 1,
+	reserved = 2,
+	bootloader = 3
+};
+
 #endif /* SRC_DUET3COMMON_H_ */
