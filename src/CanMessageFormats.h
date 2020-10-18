@@ -157,8 +157,9 @@ struct __attribute__((packed)) CanMessageReturnInfo
 	static constexpr CanMessageType messageType = CanMessageType::returnInfo;
 	static constexpr uint8_t typeFirmwareVersion = 0;
 	static constexpr uint8_t typeBoardName = 1;
-	static constexpr uint8_t typePressureAdvance = 2;
+	static constexpr uint8_t unused_was_typePressureAdvance = 2;
 	static constexpr uint8_t typeM408 = 3;
+	static constexpr uint8_t typeBootloaderName = 4;
 	static constexpr uint8_t typeDiagnosticsPart0 = 100;
 	// Other parts of the diagnostics reply use 101, 102 etc. so keep these free
 
@@ -278,7 +279,8 @@ struct __attribute__((packed)) CanMessageUpdateYourFirmware
 	static constexpr CanMessageType messageType = CanMessageType::updateFirmware;
 
 	uint16_t requestId : 12,
-			 zero : 4;
+			 module : 2,					// 0 = main firmware, 1 = bootloader, 2,3 reserved
+			 zero : 2;
 	uint8_t boardId;
 	uint8_t invertedBoardId;
 
@@ -425,16 +427,17 @@ struct ParamDescriptor
 	size_t ItemSize() const noexcept { return (size_t)type & 0x0F; }		// only valid for some types
 };
 
-// Firmware update request
+// Request to send a chunk of a firmware or bootloader file
 struct __attribute__((packed)) CanMessageFirmwareUpdateRequest
 {
 	static constexpr CanMessageType messageType = CanMessageType::firmwareBlockRequest;
 
 	uint32_t fileOffset : 24,			// the offset in the file of the data we need
-			 bootloaderVersion: 8;		// the version of this bootloader
+			 bootloaderVersion: 6,		// the protocol version of the bootloader or firmware making this request, currently 0
+			 fileWanted : 2;			// 0 = want firmware file, 1 = want bootloader, 2 and 3 reserved
 	uint32_t lengthRequested : 24,		// how much data we want
-			 boardVersion : 8;			// the hardware version of this board
-	char boardType[56];					// null-terminated board type name
+			 boardVersion : 8;			// the hardware version of this board, currently always 0 for production boards
+	char boardType[56];					// null-terminated board type name (firmware request) or bootloader class name (bootloader request)
 
 	static constexpr uint32_t BootloaderVersion0 = 0;
 

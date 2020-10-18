@@ -41,4 +41,23 @@ constexpr uint32_t DefaultFanBlipTime = 100;			// fan blip time in milliseconds
 // The values of this enumeration must correspond to the meanings of the M569.1 S parameter
 NamedEnum(EncoderType, uint8_t, none, linearQuadrature, rotaryQuadrature, as5047, tli5012);
 
+// Error codes, presented as a number of flashes of the DIAG LED, used by both the bootloader and by expansion boards
+enum class FirmwareFlashErrorCode : unsigned int
+{
+	ok = 0,
+	invalidFirmware = 2,
+	badCRC = 3,
+	blockReceiveTimeout = 4,
+	noFile = 5,
+	badOffset = 6,
+	hostOther = 7,
+	noBuffer = 8,
+	flashInitFailed = 9,
+	unlockFailed = 10,
+	eraseFailed = 11,
+	writeFailed = 12,
+	lockFailed = 13,
+	vinTooLow = 14
+};
+
 #endif /* SRC_DUET3COMMON_H_ */
