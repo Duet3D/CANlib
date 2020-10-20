@@ -41,15 +41,15 @@ enum class CanMessageType : uint16_t
 	m308 = 6011,
 	updateHeaterModel = 6012,
 	setHeaterTemperature = 6013,
-	setPressureAdvance = 6014,
+	//unused_was_setPressureAdvance = 6014,
 	setDateTime = 6015,
 	updateDeltaParameters = 6016,
-	setMotorCurrents = 6017,
+	//unused_was_setMotorCurrents = 6017,
 	m569 = 6018,
 	fanParameters = 6019,
 	m915 = 6020,
-	setMicrostepping = 6021,
-	setStandstillCurrentFactor = 6022,
+	//unused_was_setMicrostepping = 6021,
+	//unused_was_setStandstillCurrentFactor = 6022,
 	setDriverStates = 6023,
 	returnInfo = 6024,
 	updateFirmware = 6025,
@@ -72,10 +72,17 @@ enum class CanMessageType : uint16_t
 	diagnosticTest = 6040,
 
 	m569p1 = 6041,
+	setStepsPerMmAndMicrostepping = 6042,
+	setMotorCurrents = 6043,
+	setPressureAdvance = 6044,
+	setStandstillCurrentFactor = 6045,
+	createFilamentMonitor = 6046,
+	deleteFilamentMonitor = 6047,
+	configureFilamentMonitor = 6048,
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,
-	statusReport = 4511,
+	boardStatusReport = 4511,
 	announce = 4512,
 	fanTachoReport = 4513,
 	sensorTemperaturesReport = 4514,
@@ -83,6 +90,7 @@ enum class CanMessageType : uint16_t
 	//unused_was_fansRpmReport = 4516,			// replaced by fansReport
 	fansReport = 4517,
 	readInputsReply = 4518,
+	driversStatusReport = 4519,
 
 	// Firmware updates
 	firmwareBlockRequest = 5000,

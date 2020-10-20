@@ -16,6 +16,8 @@
 #include <General/Strnlen.h>
 #include <General/Portability.h>
 
+#include <cstring>
+
 constexpr unsigned int MaxDriversPerCanSlave = 4;
 constexpr unsigned int MaxHeatersPerCanSlave = 6;
 
@@ -139,17 +141,42 @@ struct __attribute__((packed)) CanMessageSetAddressAndNormalTiming
 //  Microstepping:  values are microstepping (bits 0-8) and interpolation enable (bit 15)
 //  Standstill current percentages:  values are the percentages
 //  Driver states: 0 = disabled, 1 = idle, 2 = active
-struct __attribute__((packed)) CanMessageMultipleDrivesRequest
+template<class T> struct __attribute__((packed)) CanMessageMultipleDrivesRequest
 {
 	uint16_t requestId : 12,
 			 zero : 4;
 	uint16_t driversToUpdate;
-	uint16_t values[MaxDriversPerCanSlave];			// bits 0-10 are microstepping, but 15 is interpolation enable
+	T values[MaxDriversPerCanSlave];			// bits 0-10 are microstepping, but 15 is interpolation enable
 
 	static constexpr uint16_t driverDisabled = 0, driverIdle = 1, driverActive = 2;
 
 	size_t GetActualDataLength(size_t numDrivers) const noexcept { return sizeof(uint16_t) * 2 + numDrivers * sizeof(values[0]); }
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
+};
+
+// Type of data used to send microstepping and steps/mm data in a CanMessageMultipleDrivesRequest
+struct __attribute__((packed)) StepsPerUnitAndMicrostepping
+{
+	float stepsPerUnit;
+	uint16_t microstepping;
+
+	StepsPerUnitAndMicrostepping(float spu, uint16_t ms) noexcept
+	{
+		StoreLEFloat(&stepsPerUnit, spu);
+		microstepping = ms;
+	}
+
+	StepsPerUnitAndMicrostepping() noexcept { }
+
+	float GetStepsPerUnit() const noexcept
+	{
+		return LoadLEFloat(&stepsPerUnit);
+	}
+
+	uint16_t GetMicrostepping() const noexcept
+	{
+		return microstepping;
+	}
 };
 
 struct __attribute__((packed)) CanMessageReturnInfo
@@ -372,6 +399,33 @@ struct __attribute__((packed)) CanMessageWriteGpio
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0;}
 };
 
+// Create filament monitor (M591). We use a separate message to configure the filament monitor.
+struct __attribute__((packed)) CanMessageCreateFilamentMonitor
+{
+	static constexpr CanMessageType messageType = CanMessageType::createFilamentMonitor;
+
+	uint16_t requestId : 12,
+			 zero : 4;
+	uint16_t driver : 8,
+			 zero2 : 4,
+			 type : 8;
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
+};
+
+// Create filament monitor (M591). We use a separate message to configure the filament monitor.
+struct __attribute__((packed)) CanMessageDeleteFilamentMonitor
+{
+	static constexpr CanMessageType messageType = CanMessageType::deleteFilamentMonitor;
+
+	uint16_t requestId : 12,
+			 zero : 4;
+	uint16_t driver : 8,
+			 zero2 : 12;
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
+};
+
 // This struct describes a possible parameter in a CAN message.
 // An array of these describes all the possible parameters. The list is terminated by a zero entry.
 struct ParamDescriptor
@@ -550,6 +604,8 @@ struct __attribute__((packed)) CanMessageReadInputsReply
 #define LOCAL_DRIVER_PARAM(_c) { _c, ParamDescriptor::localDriver, 0 }
 
 #define UINT8_ARRAY_PARAM(_c, _n) { _c, ParamDescriptor::uint8_array, _n }
+#define UINT16_ARRAY_PARAM(_c, _n) { _c, ParamDescriptor::uint16_array, _n }
+#define UINT32_ARRAY_PARAM(_c, _n) { _c, ParamDescriptor::uint32_array, _n }
 #define FLOAT_ARRAY_PARAM(_c, _n) { _c, ParamDescriptor::float_array, _n }
 
 #define END_PARAMS { 0 }
@@ -649,6 +705,19 @@ constexpr ParamDescriptor M915Params[] =
 	END_PARAMS
 };
 
+// This must cover all parameters used by any supported type of filament monitor, except for the type and extruder number
+constexpr ParamDescriptor ConfigureFilamentMonitorParams[] =
+{
+	UINT8_PARAM('d'),					// this is the driver number on the remote board
+	UINT8_PARAM('S'),
+	UINT8_PARAM('A'),
+	FLOAT_PARAM('L'),
+	FLOAT_PARAM('F'),
+	UINT16_ARRAY_PARAM('R', 2),
+	REDUCED_STRING_PARAM('C'),
+	END_PARAMS
+};
+
 // Messages sent from expansion boards to main board, or broadcast
 struct __attribute__((packed)) CanSensorReport
 {
@@ -660,6 +729,7 @@ private:									// make unaligned members private
 	float temperature;						// the last temperature we read
 };
 
+// Message broadcast by expansion boards and the main board to provide sensor tempoeratures
 struct __attribute__((packed)) CanMessageSensorTemperatures
 {
 	static constexpr CanMessageType messageType = CanMessageType::sensorTemperaturesReport;
@@ -670,6 +740,7 @@ struct __attribute__((packed)) CanMessageSensorTemperatures
 	size_t GetActualDataLength(unsigned int numSensors) const noexcept { return numSensors * sizeof(CanSensorReport) + sizeof(uint64_t); }
 };
 
+// Struct used in CanMessageHeaterStatus
 struct __attribute__((packed)) CanHeaterReport
 {
 	uint8_t mode;							// a HeaterMode value
@@ -677,6 +748,7 @@ struct __attribute__((packed)) CanHeaterReport
 	float temperature;						// the last temperature we read
 };
 
+// Message broadcast by expansion boards to send heater status to the main board
 struct __attribute__((packed)) CanMessageHeatersStatus
 {
 	static constexpr CanMessageType messageType = CanMessageType::heatersStatusReport;
@@ -687,6 +759,7 @@ struct __attribute__((packed)) CanMessageHeatersStatus
 	size_t GetActualDataLength(unsigned int numHeaters) const noexcept { return numHeaters * sizeof(CanHeaterReport) + sizeof(uint64_t); }
 };
 
+// Message used by expansion boards to announce their presence on the CAN bus to other boards
 struct __attribute__((packed)) CanMessageAnnounce
 {
 	static constexpr CanMessageType messageType = CanMessageType::announce;
@@ -704,12 +777,14 @@ struct __attribute__((packed)) CanMessageAnnounce
 	static size_t GetMaxTextLength(size_t dataLength) noexcept { return dataLength - (2 * sizeof(uint32_t)); }
 };
 
+// Struct used within the fans report message
 struct FanReport
 {
 	uint16_t actualPwm;						// actual PWM value, 0-65535
 	int16_t rpm;							// tacho reading, or -1 if no tacho configured
 };
 
+// Message used to broadcast the status of fans
 struct __attribute__((packed)) CanMessageFansReport
 {
 	static constexpr CanMessageType messageType = CanMessageType::fansReport;
@@ -720,6 +795,7 @@ struct __attribute__((packed)) CanMessageFansReport
 	size_t GetActualDataLength(unsigned int numReported) const noexcept { return numReported * sizeof(fanReports[0]) + sizeof(uint64_t); }
 };
 
+// Message sent by an expansion board when one of its monitored inputs has changed state
 struct __attribute__((packed)) CanMessageInputChanged
 {
 	static constexpr CanMessageType messageType = CanMessageType::inputStateChanged;
@@ -751,6 +827,71 @@ struct __attribute__((packed)) CanMessageInputChanged
 	}
 };
 
+// Message sent by expansion boards to report their general health
+struct __attribute__((packed)) CanMessageBoardStatus
+{
+	static constexpr CanMessageType messageType = CanMessageType::boardStatusReport;
+
+	struct MinCurMax
+	{
+		float minimum;
+		float current;
+		float maximum;
+	};
+
+	uint32_t hasVin : 1,
+			 hasV12 : 1,
+			 hasMcuTemp : 11,
+			 zero : 19;							// reserved for future use
+	MinCurMax values[3];
+};
+
+// Struct used to describe the status of an individual driver
+struct __attribute__((packed)) DriverStatus
+{
+	uint32_t driverStatus;
+	uint16_t filamentStatus : 4,				// see enum class FilamentSensorStatus in Duet3Common.h
+			 zero : 12;							// reserved for future use
+
+	DriverStatus(uint32_t dStat, uint8_t fStat) noexcept
+	{
+		StoreLE32(&driverStatus, dStat);
+		filamentStatus = fStat;
+		zero = 0;
+	}
+
+	DriverStatus() noexcept
+	{
+		memset(this, 0, sizeof(*this));
+	}
+
+	uint32_t GetDriveStat() const noexcept
+	{
+		return LoadLE32(&driverStatus);
+	}
+
+	uint8_t FilamentStatus() const noexcept
+	{
+		return filamentStatus;
+	}
+};
+
+// Message sent by expansion boards to report the status of their drivers and filament monitors
+struct __attribute__((packed)) CanMessageDriversStatus
+{
+	static constexpr CanMessageType messageType = CanMessageType::driversStatusReport;
+
+	uint16_t numDriversReported : 4,
+			 zero : 12;
+	DriverStatus drivers[10];
+
+	size_t GetActualDataLength() const noexcept
+	{
+		return sizeof(uint16_t ) + (numDriversReported * sizeof(drivers[0]));
+	}
+};
+
+// A union of all message types to allow the correct message format to be extracted form a message buffer
 union CanMessage
 {
 	CanMessage() noexcept { }
@@ -771,7 +912,9 @@ union CanMessage
 	CanMessageSensorTemperatures sensorTemperaturesBroadcast;
 	CanMessageHeatersStatus heatersStatusBroadcast;
 	CanMessageUpdateHeaterModel heaterModel;
-	CanMessageMultipleDrivesRequest multipleDrivesRequest;
+	CanMessageMultipleDrivesRequest<uint16_t> multipleDrivesRequestUint16;
+	CanMessageMultipleDrivesRequest<float> multipleDrivesRequestFloat;
+	CanMessageMultipleDrivesRequest<StepsPerUnitAndMicrostepping> multipleDrivesStepsPerUnitAndMicrostepping;
 	CanMessageUpdateYourFirmware updateYourFirmware;
 	CanMessageFanParameters fanParameters;
 	CanMessageSetFanSpeed setFanSpeed;
@@ -788,6 +931,10 @@ union CanMessage
 	CanMessageDiagnosticTest diagnosticTest;
 	CanMessageReadInputsRequest readInputsRequest;
 	CanMessageReadInputsReply readInputsReply;
+	CanMessageBoardStatus boardStatus;
+	CanMessageDriversStatus driversStatus;
+	CanMessageCreateFilamentMonitor createFilamentMonitor;
+	CanMessageDeleteFilamentMonitor deleteFilamentMonitor;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
