@@ -217,14 +217,32 @@ bool CanMessageGenericParser::GetBoolParam(char c, bool &v) const noexcept
 	}
 }
 
-bool CanMessageGenericParser::GetUint8ArrayParam(char c, size_t& numValues, const uint8_t*& values) noexcept
+bool CanMessageGenericParser::GetArrayParam(char c, ParamDescriptor::ParamType pt, size_t& numValues, const uint8_t*& values) const noexcept
 {
 	unsigned int pos;
 	const ParamDescriptor::ParamType type = FindParameter(c, pos);
-	if (type == ParamDescriptor::ParamType::uint8_array)
+	if (type == pt)
 	{
-		numValues = msg.data[pos++];
-		values = msg.data + pos;
+		if (numValues > msg.data[pos])
+		{
+			numValues = msg.data[pos];
+		}
+		values = msg.data + pos + 1;
+		return true;
+	}
+	return false;
+}
+
+bool CanMessageGenericParser::GetUint16ArrayParam(char c, size_t& numValues, uint16_t *values) const noexcept
+{
+	const uint8_t *p;
+	if (GetArrayParam(c, ParamDescriptor::ParamType::uint16_array, numValues, p))
+	{
+		for (size_t i = 0; i < numValues; ++i)
+		{
+			*values++ = LoadLE16(p);
+			p += sizeof(uint16_t);
+		}
 		return true;
 	}
 	return false;
@@ -233,20 +251,15 @@ bool CanMessageGenericParser::GetUint8ArrayParam(char c, size_t& numValues, cons
 // Get a float array parameter. We copy the float array to a user array because the array in the message may be misaligned.
 // On entry, numValues is the size of the user array
 // On return, numValue is the number passed in the message
-bool CanMessageGenericParser::GetFloatArrayParam(char c, size_t& numValues, float *values) noexcept
+bool CanMessageGenericParser::GetFloatArrayParam(char c, size_t& numValues, float *values) const noexcept
 {
-	unsigned int pos;
-	const ParamDescriptor::ParamType type = FindParameter(c, pos);
-	if (type == ParamDescriptor::ParamType::float_array)
+	const uint8_t *p;
+	if (GetArrayParam(c, ParamDescriptor::ParamType::float_array, numValues, p))
 	{
-		const size_t numInMessage = msg.data[pos++];
-		size_t numToCopy = min<size_t>(numValues, numInMessage);
-		numValues = numInMessage;
-		while (numToCopy != 0)
+		for (size_t i = 0; i < numValues; ++i)
 		{
-			*values++ = LoadLEFloat(msg.data + pos);
-			pos += sizeof(float);
-			--numToCopy;
+			*values++ = LoadLEFloat(p);
+			p += sizeof(float);
 		}
 		return true;
 	}
