@@ -69,14 +69,14 @@ enum class FirmwareModule : uint8_t
 	bootloader = 3
 };
 
-enum class FilamentSensorStatus : uint8_t
-{
-	noMonitor = 0,
+NamedEnum(FilamentSensorStatus, uint8_t,
+	noMonitor,
 	ok,
+	noDataReceived,
 	noFilament,
 	tooLittleMovement,
 	tooMuchMovement,
 	sensorError
-};
+);
 
 #endif /* SRC_DUET3COMMON_H_ */

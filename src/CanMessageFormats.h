@@ -846,48 +846,61 @@ struct __attribute__((packed)) CanMessageBoardStatus
 	MinCurMax values[3];
 };
 
-// Struct used to describe the status of an individual driver
-struct __attribute__((packed)) DriverStatus
-{
-	uint32_t driverStatus;
-	uint16_t filamentStatus : 4,				// see enum class FilamentSensorStatus in Duet3Common.h
-			 zero : 12;							// reserved for future use
-
-	DriverStatus(uint32_t dStat, uint8_t fStat) noexcept
-	{
-		StoreLE32(&driverStatus, dStat);
-		filamentStatus = fStat;
-		zero = 0;
-	}
-
-	DriverStatus() noexcept
-	{
-		memset(this, 0, sizeof(*this));
-	}
-
-	uint32_t GetDriveStat() const noexcept
-	{
-		return LoadLE32(&driverStatus);
-	}
-
-	uint8_t FilamentStatus() const noexcept
-	{
-		return filamentStatus;
-	}
-};
-
-// Message sent by expansion boards to report the status of their drivers and filament monitors
+// Message sent by expansion boards to report the status of their drivers
 struct __attribute__((packed)) CanMessageDriversStatus
 {
 	static constexpr CanMessageType messageType = CanMessageType::driversStatusReport;
 
 	uint16_t numDriversReported : 4,
 			 zero : 12;
-	DriverStatus drivers[10];
+	uint16_t zero2;						// for alignment
+	uint32_t data[15];
 
 	size_t GetActualDataLength() const noexcept
 	{
-		return sizeof(uint16_t ) + (numDriversReported * sizeof(drivers[0]));
+		return (2 * sizeof(uint16_t)) + (numDriversReported * sizeof(data[0]));
+	}
+
+	void SetStandardFields(unsigned int numReported) noexcept
+	{
+		numDriversReported = numReported;
+		zero = 0;
+		zero2 = 0;
+	}
+};
+
+// Message sent by expansion boards to report the status of their filament monitors
+struct __attribute__((packed)) CanMessageFilamentMonitorsStatus
+{
+	static constexpr CanMessageType messageType = CanMessageType::filamentMonitorsStatusReport;
+
+	struct FilamentMonitorData
+	{
+		uint32_t status : 4,
+				 zero : 28;
+
+		void Set(uint32_t stat) noexcept
+		{
+			status = stat;
+			zero = 0;
+		}
+	};
+
+	uint16_t numMonitorsReported : 4,
+			 zero : 12;
+	uint16_t zero2;						// for alignment
+	FilamentMonitorData data[10];
+
+	size_t GetActualDataLength() const noexcept
+	{
+		return (2 * sizeof(uint16_t)) + (numMonitorsReported * sizeof(data[0]));
+	}
+
+	void SetStandardFields(unsigned int numReported) noexcept
+	{
+		numMonitorsReported = numReported;
+		zero = 0;
+		zero2 = 0;
 	}
 };
 
@@ -933,6 +946,7 @@ union CanMessage
 	CanMessageReadInputsReply readInputsReply;
 	CanMessageBoardStatus boardStatus;
 	CanMessageDriversStatus driversStatus;
+	CanMessageFilamentMonitorsStatus filamentMonitorsStatus;
 	CanMessageCreateFilamentMonitor createFilamentMonitor;
 	CanMessageDeleteFilamentMonitor deleteFilamentMonitor;
 };

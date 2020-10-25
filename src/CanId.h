@@ -91,6 +91,7 @@ enum class CanMessageType : uint16_t
 	fansReport = 4517,
 	readInputsReply = 4518,
 	driversStatusReport = 4519,
+	filamentMonitorsStatusReport = 4520,
 
 	// Firmware updates
 	firmwareBlockRequest = 5000,

@@ -18,7 +18,7 @@
 class CanMessageBuffer
 {
 public:
-	CanMessageBuffer(CanMessageBuffer *prev) : next(prev) { }
+	CanMessageBuffer(CanMessageBuffer *prev) noexcept : next(prev) { }
 
 	static void Init(unsigned int numCanBuffers) noexcept;
 	static CanMessageBuffer *Allocate() noexcept;
