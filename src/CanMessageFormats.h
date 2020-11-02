@@ -88,8 +88,8 @@ struct __attribute__((packed)) CanMessageMovement
 
 	uint32_t deltaDrives : 4,						// which drivers are doing delta movement
 			 pressureAdvanceDrives : 4,				// which drivers have pressure advance applied
-			 endStopsToCheck : 4,					// which drivers have endstop checks applied
-			 stopAllDrivesOnEndstopHit : 1,			// whether to stop all drivers when one endstop is hit
+			 zero : 4,								// unused (was: which drivers have endstop checks applied)
+			 filamentMonitorsEnabled : 1,			// whether the filament monitors are enabled
 			 seq : 3;								// TEMP sequence number
 
 	float initialSpeedFraction;
