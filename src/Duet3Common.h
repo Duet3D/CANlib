@@ -51,7 +51,7 @@ enum class FirmwareFlashErrorCode : unsigned int
 	noFile = 5,
 	badOffset = 6,
 	hostOther = 7,
-	noBuffer = 8,
+	noMemory = 8,
 	flashInitFailed = 9,
 	unlockFailed = 10,
 	eraseFailed = 11,
