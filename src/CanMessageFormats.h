@@ -35,8 +35,10 @@ struct __attribute__((packed)) CanMessageTimeSync
 
 	uint32_t timeSent;								// when this message was sent
 	uint32_t lastTimeSent;							// when we tried to send the previous message
-	uint32_t lastTimeAcknowledged;					// when the previous message was acknowledged
-	uint32_t realTime;								// seconds since 00:00:00 UTC on 1 January 1970, unsigned to avoid year 2038 problem
+	uint32_t lastTimeAcknowledgeDelay : 16,			// the delay from that time before the previous message was acknowledged
+			 isPrinting : 1,						// set if we are printing and filament monitor should collect data
+			 zero : 15;								// unused
+	uint32_t realTime;								// seconds since 00:00:00 UTC on 1 January 1970, unsigned to avoid year 2038 problem. Not always present.
 };
 
 // Emergency stop message
@@ -86,10 +88,9 @@ struct __attribute__((packed)) CanMessageMovement
 	uint32_t steadyClocks;
 	uint32_t decelClocks;
 
-	uint32_t deltaDrives : 4,						// which drivers are doing delta movement
+	uint32_t deltaDrives : 4,						// which drivers are doing delta movement (not fully implemented yet, so may change)
 			 pressureAdvanceDrives : 4,				// which drivers have pressure advance applied
-			 zero : 4,								// unused (was: which drivers have endstop checks applied)
-			 filamentMonitorsEnabled : 1,			// whether the filament monitors are enabled
+			 zero : 5,								// unused (was: which drivers have endstop checks applied, and whether to stop all drives on endstop triggering)
 			 seq : 3;								// TEMP sequence number
 
 	float initialSpeedFraction;
