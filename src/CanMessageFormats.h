@@ -147,9 +147,7 @@ template<class T> struct __attribute__((packed)) CanMessageMultipleDrivesRequest
 	uint16_t requestId : 12,
 			 zero : 4;
 	uint16_t driversToUpdate;
-	T values[MaxDriversPerCanSlave];			// bits 0-10 are microstepping, but 15 is interpolation enable
-
-	static constexpr uint16_t driverDisabled = 0, driverIdle = 1, driverActive = 2;
+	T values[MaxDriversPerCanSlave];
 
 	size_t GetActualDataLength(size_t numDrivers) const noexcept { return sizeof(uint16_t) * 2 + numDrivers * sizeof(values[0]); }
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
@@ -178,6 +176,19 @@ struct __attribute__((packed)) StepsPerUnitAndMicrostepping
 	{
 		return microstepping;
 	}
+};
+
+// Type of data used to send driver status
+struct __attribute__((packed)) DriverStateControl
+{
+	uint16_t mode : 2,				// see value below
+			 zero : 6,
+			 idlePercent : 8;		// only used when the mode is 'idle'
+
+	DriverStateControl(uint16_t m) noexcept : mode(m), zero(0), idlePercent(0) { }
+	DriverStateControl(uint16_t m, uint8_t idlePc) noexcept : mode(m), zero(0), idlePercent(idlePc) { }
+
+	static constexpr uint16_t driverDisabled = 0, driverIdle = 1, driverActive = 2;		// values for 'mode'
 };
 
 struct __attribute__((packed)) CanMessageReturnInfo
@@ -929,6 +940,7 @@ union CanMessage
 	CanMessageMultipleDrivesRequest<uint16_t> multipleDrivesRequestUint16;
 	CanMessageMultipleDrivesRequest<float> multipleDrivesRequestFloat;
 	CanMessageMultipleDrivesRequest<StepsPerUnitAndMicrostepping> multipleDrivesStepsPerUnitAndMicrostepping;
+	CanMessageMultipleDrivesRequest<DriverStateControl> multipleDrivesRequestDriverState;
 	CanMessageUpdateYourFirmware updateYourFirmware;
 	CanMessageFanParameters fanParameters;
 	CanMessageSetFanSpeed setFanSpeed;
