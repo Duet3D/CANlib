@@ -39,7 +39,7 @@ enum class CanMessageType : uint16_t
 	// Configuration messages sent by the main board
 	//unused_was_m950 = 6010,
 	m308 = 6011,
-	updateHeaterModel = 6012,
+	updateHeaterModelOld = 6012,
 	setHeaterTemperature = 6013,
 	//unused_was_setPressureAdvance = 6014,
 	setDateTime = 6015,
@@ -79,6 +79,8 @@ enum class CanMessageType : uint16_t
 	createFilamentMonitor = 6046,
 	deleteFilamentMonitor = 6047,
 	configureFilamentMonitor = 6048,
+
+	updateHeaterModelNew = 6049,
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,

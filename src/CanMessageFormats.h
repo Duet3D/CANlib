@@ -253,15 +253,43 @@ struct __attribute__((packed)) CanMessageM303
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
-struct __attribute__((packed)) CanMessageUpdateHeaterModel
+struct __attribute__((packed)) CanMessageUpdateHeaterModelOld
 {
-	static constexpr CanMessageType messageType = CanMessageType::updateHeaterModel;
+	static constexpr CanMessageType messageType = CanMessageType::updateHeaterModelOld;
 
 	uint16_t requestId : 12,
 			 zero : 4;
 	uint16_t heater;
 	float gain;
 	float timeConstant;
+	float deadTime;
+	float maxPwm;
+	float standardVoltage;					// power voltage reading at which tuning was done, or 0 if unknown
+	bool enabled;
+	bool usePid;
+	bool inverted;
+	bool pidParametersOverridden;
+
+	// The next 3 are used only if pidParametersOverridden is true
+	float kP;								// controller (not model) gain
+	float recipTi;							// reciprocal of controller integral time
+	float tD;								// controller differential time
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
+};
+
+struct __attribute__((packed)) CanMessageUpdateHeaterModelNew
+{
+	static constexpr CanMessageType messageType = CanMessageType::updateHeaterModelNew;
+
+	uint16_t requestId : 12,
+			 zero : 4;
+	uint16_t heater;
+	float heatingRate;
+	float coolingRate;
+	float coolingRateChangeFanOn;
+	float coolingRateChangeExtruding;
+	float zero2;
 	float deadTime;
 	float maxPwm;
 	float standardVoltage;					// power voltage reading at which tuning was done, or 0 if unknown
@@ -936,7 +964,8 @@ union CanMessage
 	CanMessageFirmwareUpdateResponse firmwareUpdateResponse;
 	CanMessageSensorTemperatures sensorTemperaturesBroadcast;
 	CanMessageHeatersStatus heatersStatusBroadcast;
-	CanMessageUpdateHeaterModel heaterModel;
+	CanMessageUpdateHeaterModelOld heaterModelOld;
+	CanMessageUpdateHeaterModelNew heaterModelNew;
 	CanMessageMultipleDrivesRequest<uint16_t> multipleDrivesRequestUint16;
 	CanMessageMultipleDrivesRequest<float> multipleDrivesRequestFloat;
 	CanMessageMultipleDrivesRequest<StepsPerUnitAndMicrostepping> multipleDrivesStepsPerUnitAndMicrostepping;
