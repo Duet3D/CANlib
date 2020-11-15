@@ -29,7 +29,7 @@ struct __attribute__((packed)) RemoteInputHandle
 		uint16_t all;
 	} u;
 
-	static constexpr uint16_t typeUnset = 0, typeEndstop = 1, typeGpIn = 2, typeZprobe = 3, lowestBadType = 4;
+	static constexpr uint16_t typeUnset = 0, typeEndstop = 1, typeGpIn = 2, typeZprobe = 3, typeAte = 4, lowestBadType = 5;
 };
 
 #endif /* SRC_REMOTEINPUTHANDLE_H_ */

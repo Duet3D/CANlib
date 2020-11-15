@@ -420,7 +420,8 @@ struct __attribute__((packed)) CanMessageReadInputsRequest
 
 	uint32_t requestId : 12,				// the request ID of the message we are replying to
 			 zero : 20;
-	uint32_t handlesRequested;				// bitmap of input handle numbers reported, max 28 bits set
+	RemoteInputHandle mask;					// the mask we use when matching handles
+	RemoteInputHandle pattern;				// the handle pattern to match
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
@@ -578,6 +579,7 @@ struct __attribute__((packed)) CanMessageGeneric
 
 // This is the standard reply used by many calls. It carries a GCodeResult, some text, and in some cases 8 bits of additional information.
 // It can be split into multiple fragments so that the text is no constrained to 64 characters.
+// The layout of requestId and resultCode are common to more than one reply type
 struct __attribute__((packed)) CanMessageStandardReply
 {
 	static constexpr CanMessageType messageType = CanMessageType::standardReply;
@@ -605,24 +607,27 @@ struct __attribute__((packed)) CanMessageStandardReply
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; }
 };
 
-// Response to the ReadInputsRequest
+// Response to the ReadInputsRequest. The requestID and resultCode must be in the same place as for a standard reply.
 struct __attribute__((packed)) CanMessageReadInputsReply
 {
 	static constexpr CanMessageType messageType = CanMessageType::readInputsReply;
 
 	uint32_t requestId : 12,				// the request ID of the message we are replying to
 			 resultCode : 4,				// normally a GCodeResult
-			 zero : 16;						// spare
-	uint32_t handlesReported;				// bitmap of input handle numbers reported, max 28 bits set
-	uint16_t results[28];					// the analog values of the GpIn pins reported, in increasing handle# order
+			 numReported : 4,				// number of input handles reported
+			 zero : 12;						// spare
+	struct __attribute__((packed))
+	{
+		RemoteInputHandle handle;
+		uint16_t value;
+	} results[15];
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 
-	static size_t GetActualDataLength(unsigned int count) noexcept
+	size_t GetActualDataLength() noexcept
 	{
-		return 2 * sizeof(uint32_t) + count * sizeof(uint16_t);
+		return sizeof(uint32_t) + numReported * sizeof(results[0]);
 	}
-
 };
 
 // Parameter tables for various messages that use the generic format.
