@@ -97,7 +97,9 @@ enum class CanMessageType : uint16_t
 
 	// Firmware updates
 	firmwareBlockRequest = 5000,
-	firmwareBlockResponse = 5001
+	firmwareBlockResponse = 5001,
+
+	unusedMessageType = 0xFFFF
 };
 
 typedef uint16_t CanRequestId;
