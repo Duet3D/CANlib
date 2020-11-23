@@ -149,7 +149,7 @@ template<class T> struct __attribute__((packed)) CanMessageMultipleDrivesRequest
 	uint16_t driversToUpdate;
 	T values[MaxDriversPerCanSlave];
 
-	size_t GetActualDataLength(size_t numDrivers) const noexcept { return sizeof(uint16_t) * 2 + numDrivers * sizeof(values[0]); }
+	size_t GetActualDataLength(size_t numDrivers) const noexcept { return sizeof(uint16_t) * 2 + numDrivers * sizeof(T); }
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
@@ -669,20 +669,20 @@ constexpr ParamDescriptor M280Params[] =
 	END_PARAMS
 };
 
-constexpr ParamDescriptor M308Params[] =
+constexpr ParamDescriptor M308NewParams[] =
 {
 	FLOAT_PARAM('T'),
 	FLOAT_PARAM('B'),
 	FLOAT_PARAM('C'),
 	FLOAT_PARAM('R'),
-	INT8_PARAM('L'),
-	INT8_PARAM('H'),
+	INT16_PARAM('L'),
+	INT16_PARAM('H'),
 	UINT8_PARAM('F'),
 	UINT8_PARAM('S'),
 	UINT8_PARAM('W'),
+	CHAR_PARAM('K'),
 	REDUCED_STRING_PARAM('Y'),
 	REDUCED_STRING_PARAM('P'),
-	CHAR_PARAM('K'),
 	END_PARAMS
 };
 

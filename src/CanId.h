@@ -38,7 +38,7 @@ enum class CanMessageType : uint16_t
 
 	// Configuration messages sent by the main board
 	//unused_was_m950 = 6010,
-	m308 = 6011,
+	//unused_was_m308 = 6011,
 	updateHeaterModelOld = 6012,
 	setHeaterTemperature = 6013,
 	//unused_was_setPressureAdvance = 6014,
@@ -58,6 +58,8 @@ enum class CanMessageType : uint16_t
 	m950Gpio = 6028,
 	setFanSpeed = 6029,
 	setHeaterFaultDetection = 6030,
+	m308New = 6031,
+
 
 	//unused_was_createZProbe = 6031,
 	//unused_was_configureZProbe = 6032,
