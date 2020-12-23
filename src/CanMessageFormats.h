@@ -49,6 +49,19 @@ struct __attribute__((packed)) CanMessageEmergencyStop
 	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't need RIDs
 };
 
+// Enter test mode message, used to force a main board to behave like a CAN expansion board
+struct __attribute__((packed)) CanMessageEnterTestMode
+{
+	static constexpr CanMessageType messageType = CanMessageType::enterTestMode;
+
+	uint32_t passwd;											// integrity check
+	uint32_t parameter;											// reserved for future use
+
+	static constexpr uint32_t Passwd = 0x57a82fd1;				// value in password field that must match
+
+	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't need RIDs
+};
+
 // Announce acknowledgement message
 struct __attribute__((packed)) CanMessageAcknowledgeAnnounce
 {
@@ -959,6 +972,7 @@ union CanMessage
 	CanMessageGeneric generic;
 	CanMessageTimeSync sync;
 	CanMessageEmergencyStop eStop;
+	CanMessageEnterTestMode enterTestMode;
 	CanMessageStopMovement stopMovement;
 	CanMessageReset reset;
 	CanMessageMovement move;

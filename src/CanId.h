@@ -26,6 +26,7 @@ enum class CanMessageType : uint16_t
 	// High priority responses sent by expansion boards and Smart Tools
 	inputStateChanged = 100,
 	motorStalled = 102,
+	enterTestMode = 104,						// send by the ATE to the main board
 
 	// Configuration messages sent by the main board
 	setAddressAndNormalTiming = 2010,
@@ -60,8 +61,6 @@ enum class CanMessageType : uint16_t
 	setHeaterFaultDetection = 6030,
 	m308New = 6031,
 
-
-	//unused_was_createZProbe = 6031,
 	//unused_was_configureZProbe = 6032,
 	//unused_was_getZProbePinNames = 6033,
 	//unused_was_destroyZProbe = 6034,
@@ -127,13 +126,16 @@ class CanId
 	uint32_t all;
 
 public:
-	static constexpr CanAddress MasterAddress = 0;							// the main board has address 0
+	static constexpr CanAddress MasterAddress = 0;							// main boards (except ATE main boards) have address 0
+	static constexpr CanAddress ATECMBoardFirstAddress = 90;
+	static constexpr CanAddress ATEIOBoardFirstAddress = 95;
 	static constexpr CanAddress ATECMBoardDefaultAddress = 118;
 	static constexpr CanAddress ATEIOBoardDefaultAddress = 119;
 	static constexpr CanAddress ToolBoardDefaultAddress = 121;				// default address for tool boards
 	static constexpr CanAddress Exp1XDBoardDefaultAddress = 122;
 	static constexpr CanAddress Exp1HCEBoardDefaultAddress = 123;
 	static constexpr CanAddress SammyC21DefaultAddress = 124;
+	static constexpr CanAddress ATEMasterAddress = 125;						// the address of the ATE main board
 	static constexpr CanAddress ExpansionBoardFirmwareUpdateAddress = 126;	// special address we use for backup firmware update system (board ID switches set to zero on 3HC)
 	static constexpr CanAddress MaxCanAddress = 126;						// maximum CAN address including the firmware update address
 	static constexpr CanAddress BroadcastAddress = 127;
