@@ -55,7 +55,8 @@ struct __attribute__((packed)) CanMessageEnterTestMode
 	static constexpr CanMessageType messageType = CanMessageType::enterTestMode;
 
 	uint32_t passwd;											// integrity check
-	uint32_t parameter;											// reserved for future use
+	uint32_t address : 7,										// CAN address to use
+			 zero : 25;											// reserved for future use
 
 	static constexpr uint32_t Passwd = 0x57a82fd1;				// value in password field that must match
 
