@@ -18,7 +18,11 @@
 
 #include <cstring>
 
+#if 0	// this was used by the original movement message
 constexpr unsigned int MaxDriversPerCanSlave = 4;
+#endif
+
+constexpr unsigned int MaxLinearDriversPerCanSlave = 8;
 constexpr unsigned int MaxHeatersPerCanSlave = 6;
 
 size_t CanAdjustedLength(size_t rawLength) noexcept;
@@ -92,6 +96,8 @@ struct __attribute__((packed)) CanMessageStopMovement
 	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't need RIDs
 };
 
+#if 0	// this message is no longer used
+
 // Movement message
 struct __attribute__((packed)) CanMessageMovement
 {
@@ -132,6 +138,42 @@ struct __attribute__((packed)) CanMessageMovement
 	void DebugPrint() const noexcept;
 };
 
+#endif
+
+// Movement message
+struct __attribute__((packed)) CanMessageMovementLinear
+{
+	static constexpr CanMessageType messageType = CanMessageType::movementLinear;
+
+	uint32_t whenToExecute;
+	uint32_t accelerationClocks;
+	uint32_t steadyClocks;
+	uint32_t decelClocks;
+
+	uint32_t pressureAdvanceDrives : 8,				// which drivers have pressure advance applied
+			 numDrivers : 4,						// how many drivers we included
+			 seq : 3,								// TEMP sequence number
+			 zero : 17;								// unused
+
+	float initialSpeedFraction;
+	float finalSpeedFraction;
+
+	struct PerDriveValues
+	{
+		int32_t steps;								// net steps moved
+
+		void Init() noexcept
+		{
+			steps = 0;
+		}
+	};
+
+	PerDriveValues perDrive[MaxLinearDriversPerCanSlave];
+
+	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't have RIDs, use the whenToExecute field to avoid duplication
+	void DebugPrint() const noexcept;
+};
+
 // Change CAN address and normal timing message
 struct __attribute__((packed)) CanMessageSetAddressAndNormalTiming
 {
@@ -161,7 +203,7 @@ template<class T> struct __attribute__((packed)) CanMessageMultipleDrivesRequest
 	uint16_t requestId : 12,
 			 zero : 4;
 	uint16_t driversToUpdate;
-	T values[MaxDriversPerCanSlave];
+	T values[MaxLinearDriversPerCanSlave];
 
 	size_t GetActualDataLength(size_t numDrivers) const noexcept { return sizeof(uint16_t) * 2 + numDrivers * sizeof(T); }
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
@@ -976,7 +1018,10 @@ union CanMessage
 	CanMessageEnterTestMode enterTestMode;
 	CanMessageStopMovement stopMovement;
 	CanMessageReset reset;
+#if 0	// this message is no longer used
 	CanMessageMovement move;
+#endif
+	CanMessageMovementLinear moveLinear;
 	CanMessageReturnInfo getInfo;
 	CanMessageSetHeaterTemperature setTemp;
 	CanMessageStandardReply standardReply;

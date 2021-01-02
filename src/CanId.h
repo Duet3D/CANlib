@@ -21,7 +21,8 @@ enum class CanMessageType : uint16_t
 	powerFailing = 40,
 	stopMovement = 45,
 	insertHiccup = 46,
-	movement = 50,
+	//unused_was_movement = 50,
+	movementLinear = 51,
 
 	// High priority responses sent by expansion boards and Smart Tools
 	inputStateChanged = 100,
