@@ -121,7 +121,8 @@ public:
 	CanMessageBuffer *next;
 	CanId id;
 	size_t dataLength;
-	uint32_t extId : 1,
+	uint16_t timeStamp;
+	uint16_t extId : 1,
 			fdMode : 1,
 			useBrs : 1,
 			remote : 1;
