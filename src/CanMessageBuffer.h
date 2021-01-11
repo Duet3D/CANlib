@@ -32,6 +32,7 @@ public:
 	{
 		id.SetRequest(msgType, src, dest);
 		dataLength = dataLen;
+		marker = 0;
 		extId = 1;
 		fdMode = 1;
 		useBrs = 0;
@@ -47,6 +48,7 @@ public:
 	{
 		id.SetRequest(T::messageType, src, dest);
 		dataLength = sizeof(T);
+		marker = 0;
 		extId = 1;
 		fdMode = 1;
 		useBrs = 0;
@@ -63,6 +65,7 @@ public:
 	{
 		id.SetRequest(msgType, src, dest);
 		dataLength = sizeof(T);
+		marker = 0;
 		extId = 1;
 		fdMode = 1;
 		useBrs = 0;
@@ -79,6 +82,7 @@ public:
 	{
 		id.SetResponse(T::messageType, src, dest);
 		dataLength = sizeof(T);
+		marker = 0;
 		extId = 1;
 		fdMode = 1;
 		useBrs = 0;
@@ -95,6 +99,7 @@ public:
 	{
 		id.SetBroadcast(T::messageType, src);
 		dataLength = sizeof(T);
+		marker = 0;
 		extId = 1;
 		fdMode = 1;
 		useBrs = 0;
@@ -109,6 +114,7 @@ public:
 	{
 		id.SetRequest(T::messageType, src, dest);
 		dataLength = sizeof(T);
+		marker = 0;
 		extId = 1;
 		fdMode = 1;
 		useBrs = 0;
@@ -122,7 +128,8 @@ public:
 	CanId id;
 	size_t dataLength;
 	uint16_t timeStamp;
-	uint16_t extId : 1,
+	uint16_t marker : 8,			// message marker for transmit messages
+			extId : 1,
 			fdMode : 1,
 			useBrs : 1,
 			remote : 1;

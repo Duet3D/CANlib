@@ -172,6 +172,11 @@ struct __attribute__((packed)) CanMessageMovementLinear
 
 	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't have RIDs, use the whenToExecute field to avoid duplication
 	void DebugPrint() const noexcept;
+
+	size_t GetActualDataLength() const noexcept
+	{
+		return (sizeof(*this) - sizeof(perDrive)) + (numDrivers * sizeof(perDrive[0]));
+	}
 };
 
 // Change CAN address and normal timing message
