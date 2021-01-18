@@ -10,15 +10,26 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <new>
 
 #include "CanId.h"
 #include "CanMessageFormats.h"
+
+// The client project must provide function MessageBufferAlloc and MessageBufferDelete
+void *MessageBufferAlloc(size_t sz, std::align_val_t align) noexcept;
+void MessageBufferDelete(void *ptr, std::align_val_t align) noexcept;
 
 // Can message buffer management
 class CanMessageBuffer
 {
 public:
 	CanMessageBuffer(CanMessageBuffer *prev) noexcept : next(prev) { }
+
+	// Replacement new/delete functions, to allocate the memory permanently and avoid the additional RAM needed by malloc
+	void* operator new(size_t count) { return MessageBufferAlloc(count, static_cast<std::align_val_t>(alignof(CanMessageBuffer))); }
+	void* operator new(size_t count, std::align_val_t align) { return MessageBufferAlloc(count, align); }
+	void operator delete(void* ptr) noexcept { MessageBufferDelete(ptr, static_cast<std::align_val_t>(alignof(CanMessageBuffer))); }
+	void operator delete(void* ptr, std::align_val_t align) noexcept { MessageBufferDelete(ptr, align); }
 
 	static void Init(unsigned int numCanBuffers) noexcept;
 	static CanMessageBuffer *Allocate() noexcept;
