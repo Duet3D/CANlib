@@ -15,6 +15,8 @@
 #include "CanId.h"
 #include "CanMessageFormats.h"
 
+class TaskBase;
+
 // The client project must provide function MessageBufferAlloc and MessageBufferDelete
 void *MessageBufferAlloc(size_t sz, std::align_val_t align) noexcept;
 void MessageBufferDelete(void *ptr, std::align_val_t align) noexcept;
@@ -33,6 +35,12 @@ public:
 
 	static void Init(unsigned int numCanBuffers) noexcept;
 	static CanMessageBuffer *Allocate() noexcept;
+
+#ifdef RTOS
+	// Wait for a buffer until one is available. Only one task may call this!
+	static CanMessageBuffer *BlockingAllocate() noexcept;
+#endif
+
 	static void Free(CanMessageBuffer*& buf) noexcept;
 	static unsigned int FreeBuffers() noexcept { return numFree; }
 	static unsigned int MinFreeBuffers() noexcept { return minNumFree; }
@@ -150,6 +158,10 @@ private:
 	static CanMessageBuffer * volatile freelist;
 	static volatile unsigned int numFree;
 	static volatile unsigned int minNumFree;
+
+#ifdef RTOS
+	static TaskBase * volatile bufferWaitingTask;
+#endif
 };
 
 // Helper class to manage CAN message buffer pointers, to ensure they get released if an exception occurs
