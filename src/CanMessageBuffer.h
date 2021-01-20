@@ -42,8 +42,13 @@ public:
 #endif
 
 	static void Free(CanMessageBuffer*& buf) noexcept;
-	static unsigned int FreeBuffers() noexcept { return numFree; }
-	static unsigned int MinFreeBuffers() noexcept { return minNumFree; }
+	static unsigned int GetFreeBuffers() noexcept { return numFree; }
+	static unsigned int GetAndClearMinFreeBuffers() noexcept
+	{
+		const unsigned int ret = minNumFree;
+		minNumFree = numFree;
+		return ret;
+	}
 
 	// Set up a message buffer to carry a particular message type, setting the priority and code fields.
 	// Return a pointer to the message data cast to the requested type.

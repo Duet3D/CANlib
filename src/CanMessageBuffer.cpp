@@ -43,7 +43,7 @@ CanMessageBuffer *CanMessageBuffer::Allocate() noexcept
 		--numFree;
 		if (numFree < minNumFree)
 		{
-			minNumFree = 0;
+			minNumFree = numFree;
 		}
 	}
 	return ret;
@@ -67,14 +67,21 @@ CanMessageBuffer *CanMessageBuffer::BlockingAllocate() noexcept
 				--numFree;
 				if (numFree < minNumFree)
 				{
-					minNumFree = 0;
+					minNumFree = numFree;
 				}
 				return ret;
 			}
 
 			bufferWaitingTask = TaskBase::GetCallerTaskHandle();
 		}
+#if 0	//DEBUG
+		if (!TaskBase::Take(1000) && freelist != nullptr)
+		{
+			minNumFree = 9999;
+		}
+#else
 		TaskBase::Take();
+#endif
 	}
 }
 
@@ -93,7 +100,7 @@ void CanMessageBuffer::Free(CanMessageBuffer*& buf) noexcept
 		if (waitingTask != nullptr)
 		{
 			bufferWaitingTask = nullptr;
-			waitingTask->Give();
+			waitingTask->GiveFromISR();
 		}
 	}
 }
