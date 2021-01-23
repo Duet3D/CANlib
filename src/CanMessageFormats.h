@@ -531,6 +531,23 @@ struct __attribute__((packed)) CanMessageDeleteFilamentMonitor
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
 };
 
+// Enter tuning mode (used by M303). This causes the heater to cycle between two temperatures, reporting data at the end of each cycle.
+struct __attribute__((packed)) CanMessageHeaterTuningCommand
+{
+	static constexpr CanMessageType messageType = CanMessageType::heaterTuningCommand;
+
+	uint16_t requestId : 12,
+			 zero : 4;
+	uint32_t heaterNumber : 8,
+			 on : 1,
+			 zero2 : 23;
+	float pwm;
+	float lowTemp;
+	float highTemp;
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
+};
+
 // This struct describes a possible parameter in a CAN message.
 // An array of these describes all the possible parameters. The list is terminated by a zero entry.
 struct ParamDescriptor
@@ -1013,7 +1030,23 @@ struct __attribute__((packed)) CanMessageFilamentMonitorsStatus
 	}
 };
 
-// A union of all message types to allow the correct message format to be extracted form a message buffer
+// Message used by expansion boards to report the results of one heater tuning cycle
+struct __attribute__((packed)) CanMessageHeaterTuningReport
+{
+	static constexpr CanMessageType messageType = CanMessageType::heaterTuningReport;
+
+	uint32_t heater : 8,
+			 zero : 24;
+	float ton;
+	float toff;
+	float dlow;
+	float dhigh;
+	float heatingRate;
+	float coolingRate;
+	float tuningStartTemperature;
+};
+
+// A union of all message types to allow the correct message format to be extracted from a message buffer
 union CanMessage
 {
 	CanMessage() noexcept { }
@@ -1064,6 +1097,8 @@ union CanMessage
 	CanMessageFilamentMonitorsStatus filamentMonitorsStatus;
 	CanMessageCreateFilamentMonitor createFilamentMonitor;
 	CanMessageDeleteFilamentMonitor deleteFilamentMonitor;
+	CanMessageHeaterTuningCommand heaterTuningCommand;
+	CanMessageHeaterTuningReport heaterTuningReport;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large

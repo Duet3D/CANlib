@@ -61,6 +61,7 @@ enum class CanMessageType : uint16_t
 	setFanSpeed = 6029,
 	setHeaterFaultDetection = 6030,
 	m308New = 6031,
+	heaterTuningCommand = 6032,
 
 	//unused_was_configureZProbe = 6032,
 	//unused_was_getZProbePinNames = 6033,
@@ -96,6 +97,7 @@ enum class CanMessageType : uint16_t
 	readInputsReply = 4518,
 	driversStatusReport = 4519,
 	filamentMonitorsStatusReport = 4520,
+	heaterTuningReport = 4521,
 
 	// Firmware updates
 	firmwareBlockRequest = 5000,
