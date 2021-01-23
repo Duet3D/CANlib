@@ -303,6 +303,7 @@ struct __attribute__((packed)) CanMessageSetHeaterTemperature
 	static constexpr uint8_t commandResetFault = 3;
 	static constexpr uint8_t commandSuspend = 4;
 	static constexpr uint8_t commandUnsuspend = 5;
+	static constexpr uint8_t commandReset = 6;				// reset the heater after a failed model update
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
