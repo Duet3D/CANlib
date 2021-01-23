@@ -544,6 +544,7 @@ struct __attribute__((packed)) CanMessageHeaterTuningCommand
 	float pwm;
 	float lowTemp;
 	float highTemp;
+	float peakTempDrop;
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
 };
@@ -1036,14 +1037,22 @@ struct __attribute__((packed)) CanMessageHeaterTuningReport
 	static constexpr CanMessageType messageType = CanMessageType::heaterTuningReport;
 
 	uint32_t heater : 8,
-			 zero : 24;
-	float ton;
-	float toff;
-	float dlow;
-	float dhigh;
+			 zero : 8,
+			 cyclesDone : 16;
+	uint32_t ton;
+	uint32_t toff;
+	uint32_t dlow;
+	uint32_t dhigh;
 	float heatingRate;
 	float coolingRate;
-	float tuningStartTemperature;
+
+	void SetRequestId(CanRequestId rid) noexcept { }
+
+	void SetStandardFields(unsigned int heaterNumber) noexcept
+	{
+		heater = heaterNumber;
+		zero = 0;
+	}
 };
 
 // A union of all message types to allow the correct message format to be extracted from a message buffer
