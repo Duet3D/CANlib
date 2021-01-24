@@ -62,6 +62,7 @@ enum class CanMessageType : uint16_t
 	setHeaterFaultDetection = 6030,
 	m308New = 6031,
 	heaterTuningCommand = 6032,
+	heaterFeedForward = 6033,
 
 	//unused_was_configureZProbe = 6032,
 	//unused_was_getZProbePinNames = 6033,

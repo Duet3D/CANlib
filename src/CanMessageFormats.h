@@ -550,6 +550,20 @@ struct __attribute__((packed)) CanMessageHeaterTuningCommand
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
 };
 
+struct __attribute__((packed)) CanMessageHeaterFeedForward
+{
+	static constexpr CanMessageType messageType = CanMessageType::heaterFeedForward;
+
+	uint16_t requestId : 12,
+			 zero : 4;
+	uint32_t heaterNumber : 8,
+			 zero2 : 24;
+	float fanPwmAdjustment;
+	float extrusionAdjustment;
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
+};
+
 // This struct describes a possible parameter in a CAN message.
 // An array of these describes all the possible parameters. The list is terminated by a zero entry.
 struct ParamDescriptor
@@ -1046,8 +1060,7 @@ struct __attribute__((packed)) CanMessageHeaterTuningReport
 	uint32_t dhigh;
 	float heatingRate;
 	float coolingRate;
-
-	void SetRequestId(CanRequestId rid) noexcept { }
+	float voltage;
 
 	void SetStandardFields(unsigned int heaterNumber) noexcept
 	{
@@ -1109,6 +1122,7 @@ union CanMessage
 	CanMessageDeleteFilamentMonitor deleteFilamentMonitor;
 	CanMessageHeaterTuningCommand heaterTuningCommand;
 	CanMessageHeaterTuningReport heaterTuningReport;
+	CanMessageHeaterFeedForward heaterFeedForward;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
