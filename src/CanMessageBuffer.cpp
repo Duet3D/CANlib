@@ -96,12 +96,14 @@ void CanMessageBuffer::Free(CanMessageBuffer*& buf) noexcept
 		freelist = buf;
 		buf = nullptr;
 		++numFree;
+#ifdef RTOS
 		TaskBase * const waitingTask = bufferWaitingTask;
 		if (waitingTask != nullptr)
 		{
 			bufferWaitingTask = nullptr;
 			waitingTask->GiveFromISR();
 		}
+#endif
 	}
 }
 
