@@ -51,7 +51,7 @@ void CanMessageGeneric::DebugPrint(const ParamDescriptor *pt) const noexcept
 {
 	if (pt == nullptr)
 	{
-		debugPrintf("CanG PT: %" PRIu32 " D: %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 "\n",
+		debugPrintf("CanG PT: %u D: %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 "\n",
 			paramMap, *reinterpret_cast<const uint32_t*>(data + 4), *reinterpret_cast<const uint32_t*>(data + 8), *reinterpret_cast<const uint32_t*>(data + 12),
 			*reinterpret_cast<const uint32_t*>(data + 16), *reinterpret_cast<const uint32_t*>(data + 20), *reinterpret_cast<const uint32_t*>(data + 24),
 			*reinterpret_cast<const uint32_t*>(data + 28));
