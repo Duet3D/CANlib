@@ -61,13 +61,15 @@ struct __attribute__((packed)) CanMessageEnterTestMode
 {
 	static constexpr CanMessageType messageType = CanMessageType::enterTestMode;
 
+	uint16_t requestId : 12,
+			 zero1 : 4;
+	uint16_t address : 7,										// CAN address to use
+			 zero2 : 9;											// reserved for future use
 	uint32_t passwd;											// integrity check
-	uint32_t address : 7,										// CAN address to use
-			 zero : 25;											// reserved for future use
 
 	static constexpr uint32_t Passwd = 0x57a82fd1;				// value in password field that must match
 
-	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't need RIDs
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero1 = 0; zero2 = 0; }
 };
 
 // Announce acknowledgement message
@@ -519,7 +521,7 @@ struct __attribute__((packed)) CanMessageCreateFilamentMonitor
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
 };
 
-// Create filament monitor (M591). We use a separate message to configure the filament monitor.
+// Delete a filament monitor (M591)
 struct __attribute__((packed)) CanMessageDeleteFilamentMonitor
 {
 	static constexpr CanMessageType messageType = CanMessageType::deleteFilamentMonitor;
@@ -854,7 +856,7 @@ constexpr ParamDescriptor ConfigureFilamentMonitorParams[] =
 	UINT8_PARAM('S'),
 	UINT8_PARAM('A'),
 	FLOAT_PARAM('L'),
-	FLOAT_PARAM('F'),
+	FLOAT_PARAM('E'),
 	UINT16_ARRAY_PARAM('R', 2),
 	REDUCED_STRING_PARAM('C'),
 	END_PARAMS
