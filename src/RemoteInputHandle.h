@@ -17,6 +17,7 @@ struct __attribute__((packed)) RemoteInputHandle
 	void Set(uint16_t p_all) noexcept { u.all = p_all; }
 	uint16_t asU16() const noexcept { return u.all; }
 	bool IsValid() const noexcept { return u.parts.type > typeUnset && u.parts.type < lowestBadType; }
+	bool operator==(RemoteInputHandle other) const noexcept { return u.all == other.u.all; }
 
 	union
 	{
