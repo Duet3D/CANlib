@@ -757,7 +757,7 @@ constexpr ParamDescriptor ConfigureFilamentMonitorParams[] =
 	UINT8_PARAM('S'),
 	UINT8_PARAM('A'),
 	FLOAT_PARAM('L'),
-	FLOAT_PARAM('F'),
+	FLOAT_PARAM('E'),
 	UINT16_ARRAY_PARAM('R', 2),
 	REDUCED_STRING_PARAM('C'),
 	END_PARAMS
