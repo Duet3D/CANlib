@@ -184,6 +184,53 @@ struct __attribute__((packed)) CanMessageMovementLinear
 	}
 };
 
+// Movement message
+struct __attribute__((packed)) CanMessageMovementLinearShaped
+{
+	static constexpr CanMessageType messageType = CanMessageType::movementLinearShaped;
+
+	uint32_t whenToExecute;
+	uint32_t accelerationClocks;
+	uint32_t steadyClocks;
+	uint32_t decelClocks;
+
+	uint32_t pressureAdvanceDrives : 8,				// which drivers have pressure advance applied
+			 numDriversMinusOne : 3,				// how many drivers we included, minus one
+			 seq : 3,								// TEMP sequence number
+			 shaperType : 2,						// what type of input shaping we use
+			 zero : 16;								// unused
+
+	uint16_t initialSpeedFraction;					// range 0 to 2^15 where 2^15 means 1.0
+	uint16_t finalSpeedFraction;					// range 0 to 2^15 where 2^15 means 1.0
+	uint16_t shaperHalfPeriod;						// half the period of the input shaper in step clocks, allowing for base frequencies down to 5.7Hz
+	uint16_t shaperDampingFactor;					// the A parameter of the input shaper
+
+	struct PerDriveValues
+	{
+		int32_t steps;								// net steps moved
+
+		void Init() noexcept
+		{
+			steps = 0;
+		}
+	};
+
+	PerDriveValues perDrive[MaxLinearDriversPerCanSlave];
+
+	static constexpr uint8_t ShaperTypeNone = 0;
+	static constexpr uint8_t ShaperTypeZVD = 1;
+	static constexpr uint8_t ShaperTypeZVDD = 2;
+	static constexpr uint8_t ShaperTypeEI2 = 3;
+
+	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't have RIDs, use the whenToExecute field to avoid duplication
+	void DebugPrint() const noexcept;
+
+	size_t GetActualDataLength() const noexcept
+	{
+		return (sizeof(*this) - sizeof(perDrive)) + ((numDriversMinusOne + 1) * sizeof(perDrive[0]));
+	}
+};
+
 // Change CAN address and normal timing message
 struct __attribute__((packed)) CanMessageSetAddressAndNormalTiming
 {
