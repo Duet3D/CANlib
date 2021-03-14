@@ -23,8 +23,8 @@ struct __attribute__((packed)) RemoteInputHandle
 	{
 		struct
 		{
-			uint16_t minor : 8,						// endstop switch number within axis (for endstops)
-					major : 4,						// axis number (for endstops), or GPIn number, or Z probe number
+			uint16_t minor : 6,						// endstop switch number within axis (for endstops)
+					major : 6,						// axis number (for endstops), or GPIn number, or Z probe number
 					type : 4;
 		} parts;
 		uint16_t all;
