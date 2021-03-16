@@ -38,6 +38,7 @@ enum class CanMessageType : uint16_t
 	// Medium priority messages sent by the main board
 	writeGpio = 4012,
 	readInputsRequest = 4013,
+	accelerometerSettings = 4014,
 
 	// Configuration messages sent by the main board
 	//unused_was_m950 = 6010,
@@ -100,6 +101,7 @@ enum class CanMessageType : uint16_t
 	driversStatusReport = 4519,
 	filamentMonitorsStatusReport = 4520,
 	heaterTuningReport = 4521,
+	accelerometerData = 4522,
 
 	// Firmware updates
 	firmwareBlockRequest = 5000,

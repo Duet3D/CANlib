@@ -498,6 +498,7 @@ struct __attribute__((packed)) CanMessageSetFanSpeed
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
+// Request to create an input monitor
 struct __attribute__((packed)) CanMessageCreateInputMonitor
 {
 	static constexpr CanMessageType messageType = CanMessageType::createInputMonitor;
@@ -514,6 +515,7 @@ struct __attribute__((packed)) CanMessageCreateInputMonitor
 	size_t GetMaxPinNameLength(size_t dataLength) const noexcept { return dataLength - (3 * sizeof(uint16_t) + sizeof(RemoteInputHandle)); }
 };
 
+// Request to reconfigure an input monitor
 struct __attribute__((packed)) CanMessageChangeInputMonitor
 {
 	static constexpr CanMessageType messageType = CanMessageType::changeInputMonitor;
@@ -539,6 +541,22 @@ struct __attribute__((packed)) CanMessageReadInputsRequest
 	RemoteInputHandle pattern;				// the handle pattern to match
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
+};
+
+// Request to configure sending accelerometer data, or stop sending data
+struct __attribute__((packed)) CanMessageAccelerometerSettings
+{
+	static constexpr CanMessageType messageType = CanMessageType::accelerometerSettings;
+
+	uint16_t requestId : 12,
+			 zero1 : 4;
+	uint16_t sampleRate;
+	uint16_t numSamples;
+	uint16_t axes : 3,
+			 resolutionBits : 4,
+			 zero2 : 9;
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero1 = 0; zero2 = 0; }
 };
 
 // M42 or M280
@@ -614,6 +632,99 @@ struct __attribute__((packed)) CanMessageHeaterFeedForward
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
 };
 
+// Request to send a chunk of a firmware or bootloader file
+struct __attribute__((packed)) CanMessageFirmwareUpdateRequest
+{
+	static constexpr CanMessageType messageType = CanMessageType::firmwareBlockRequest;
+
+	uint32_t fileOffset : 24,			// the offset in the file of the data we need
+			 bootloaderVersion: 6,		// the protocol version of the bootloader or firmware making this request, currently 0
+			 fileWanted : 2;			// 0 = want firmware file, 1 = want bootloader, 2 and 3 reserved
+	uint32_t lengthRequested : 24,		// how much data we want
+			 boardVersion : 8;			// the hardware version of this board, currently always 0 for production boards
+	char boardType[56];					// null-terminated board type name (firmware request) or bootloader class name (bootloader request)
+
+	static constexpr uint32_t BootloaderVersion0 = 0;
+
+	size_t GetActualDataLength() const noexcept { return 2 * sizeof(uint32_t) + Strnlen(boardType, sizeof(boardType)/sizeof(boardType[0])); }
+	size_t GetBoardTypeLength(size_t dataLength) const noexcept { return dataLength - 2 * sizeof(uint32_t); }
+	void SetRequestId(CanRequestId rid) noexcept { }		// these messages don't have RIDs
+};
+
+// Firmware update response
+struct __attribute__((packed)) CanMessageFirmwareUpdateResponse
+{
+	static constexpr CanMessageType messageType = CanMessageType::firmwareBlockResponse;
+
+	uint32_t fileOffset : 24,			// the offset in the file where this block starts
+			 dataLength : 6,			// the number of bytes of data that follow
+			 err : 2;					// the error code
+	uint32_t fileLength : 24,			// the total size of the firmware file
+			 zero : 8;
+	uint8_t data[56];					// up to 56 bytes of data
+
+	static constexpr uint32_t ErrNone = 0;
+	static constexpr uint32_t ErrNoFile = 1;
+	static constexpr uint32_t ErrBadOffset = 2;
+	static constexpr uint32_t ErrOther = 3;
+
+	size_t GetActualDataLength() const noexcept { return dataLength + 2 * sizeof(uint32_t); }
+	void SetRequestId(CanRequestId rid) noexcept { zero = 0; }	// we don't have or need request IDs in this message type
+};
+
+// This is the standard reply used by many calls. It carries a GCodeResult, some text, and in some cases 8 bits of additional information.
+// It can be split into multiple fragments so that the text is no constrained to 64 characters.
+// The layout of requestId and resultCode are common to more than one reply type
+struct __attribute__((packed)) CanMessageStandardReply
+{
+	static constexpr CanMessageType messageType = CanMessageType::standardReply;
+
+	uint32_t requestId : 12,				// the request ID of the message we are replying to
+			 resultCode : 4,				// normally a GCodeResult
+			 fragmentNumber : 7,			// the fragment number of this message
+			 moreFollows : 1,				// set if this is not the last fragment of the reply
+			 extra : 8;						// normally unused, but occasionally carries extra data
+	char text[60];
+
+	static constexpr size_t MaxTextLength = sizeof(text);
+
+	size_t GetTextLength(size_t dataLength) const noexcept
+	{
+		// can't use min<> here because it hasn't been moved to RRFLibraries yet
+		return Strnlen(text, (dataLength < sizeof(uint32_t) + sizeof(text)) ? dataLength - sizeof(uint32_t) : sizeof(text));
+	}
+
+	size_t GetActualDataLength(size_t textLength) const noexcept
+	{
+		return textLength + sizeof(uint32_t);
+	}
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; }
+};
+
+// Response to the ReadInputsRequest. The requestID and resultCode must be in the same place as for a standard reply.
+struct __attribute__((packed)) CanMessageReadInputsReply
+{
+	static constexpr CanMessageType messageType = CanMessageType::readInputsReply;
+
+	uint32_t requestId : 12,				// the request ID of the message we are replying to
+			 resultCode : 4,				// normally a GCodeResult
+			 numReported : 4,				// number of input handles reported
+			 zero : 12;						// spare
+	struct __attribute__((packed))
+	{
+		RemoteInputHandle handle;
+		uint16_t value;
+	} results[15];
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
+
+	size_t GetActualDataLength() noexcept
+	{
+		return sizeof(uint32_t) + numReported * sizeof(results[0]);
+	}
+};
+
 // This struct describes a possible parameter in a CAN message.
 // An array of these describes all the possible parameters. The list is terminated by a zero entry.
 struct ParamDescriptor
@@ -669,46 +780,6 @@ struct ParamDescriptor
 	size_t ItemSize() const noexcept { return (size_t)type & 0x0F; }		// only valid for some types
 };
 
-// Request to send a chunk of a firmware or bootloader file
-struct __attribute__((packed)) CanMessageFirmwareUpdateRequest
-{
-	static constexpr CanMessageType messageType = CanMessageType::firmwareBlockRequest;
-
-	uint32_t fileOffset : 24,			// the offset in the file of the data we need
-			 bootloaderVersion: 6,		// the protocol version of the bootloader or firmware making this request, currently 0
-			 fileWanted : 2;			// 0 = want firmware file, 1 = want bootloader, 2 and 3 reserved
-	uint32_t lengthRequested : 24,		// how much data we want
-			 boardVersion : 8;			// the hardware version of this board, currently always 0 for production boards
-	char boardType[56];					// null-terminated board type name (firmware request) or bootloader class name (bootloader request)
-
-	static constexpr uint32_t BootloaderVersion0 = 0;
-
-	size_t GetActualDataLength() const noexcept { return 2 * sizeof(uint32_t) + Strnlen(boardType, sizeof(boardType)/sizeof(boardType[0])); }
-	size_t GetBoardTypeLength(size_t dataLength) const noexcept { return dataLength - 2 * sizeof(uint32_t); }
-	void SetRequestId(CanRequestId rid) noexcept { }		// these messages don't have RIDs
-};
-
-// Firmware update response
-struct __attribute__((packed)) CanMessageFirmwareUpdateResponse
-{
-	static constexpr CanMessageType messageType = CanMessageType::firmwareBlockResponse;
-
-	uint32_t fileOffset : 24,			// the offset in the file where this block starts
-			 dataLength : 6,			// the number of bytes of data that follow
-			 err : 2;					// the error code
-	uint32_t fileLength : 24,			// the total size of the firmware file
-			 zero : 8;
-	uint8_t data[56];					// up to 56 bytes of data
-
-	static constexpr uint32_t ErrNone = 0;
-	static constexpr uint32_t ErrNoFile = 1;
-	static constexpr uint32_t ErrBadOffset = 2;
-	static constexpr uint32_t ErrOther = 3;
-
-	size_t GetActualDataLength() const noexcept { return dataLength + 2 * sizeof(uint32_t); }
-	void SetRequestId(CanRequestId rid) noexcept { zero = 0; }	// we don't have or need request IDs in this message type
-};
-
 // Generic message. These are always used in conjunction with a ParamTable that is know to both sender and receiver.
 // The table lists the parameters, each one defined by the parameter letter and the type of parameter.
 // The paramMap bitmap indicates which parameters are present in the data. They are provided in the same order as in the ParamTable.
@@ -722,59 +793,6 @@ struct __attribute__((packed)) CanMessageGeneric
 
 	static size_t GetActualDataLength(size_t paramLength) noexcept { return paramLength + sizeof(uint32_t); }
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; }
-};
-
-// This is the standard reply used by many calls. It carries a GCodeResult, some text, and in some cases 8 bits of additional information.
-// It can be split into multiple fragments so that the text is no constrained to 64 characters.
-// The layout of requestId and resultCode are common to more than one reply type
-struct __attribute__((packed)) CanMessageStandardReply
-{
-	static constexpr CanMessageType messageType = CanMessageType::standardReply;
-
-	uint32_t requestId : 12,				// the request ID of the message we are replying to
-			 resultCode : 4,				// normally a GCodeResult
-			 fragmentNumber : 7,			// the fragment number of this message
-			 moreFollows : 1,				// set if this is not the last fragment of the reply
-			 extra : 8;						// normally unused, but occasionally carries extra data
-	char text[60];
-
-	static constexpr size_t MaxTextLength = sizeof(text);
-
-	size_t GetTextLength(size_t dataLength) const noexcept
-	{
-		// can't use min<> here because it hasn't been moved to RRFLibraries yet
-		return Strnlen(text, (dataLength < sizeof(uint32_t) + sizeof(text)) ? dataLength - sizeof(uint32_t) : sizeof(text));
-	}
-
-	size_t GetActualDataLength(size_t textLength) const noexcept
-	{
-		return textLength + sizeof(uint32_t);
-	}
-
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; }
-};
-
-// Response to the ReadInputsRequest. The requestID and resultCode must be in the same place as for a standard reply.
-struct __attribute__((packed)) CanMessageReadInputsReply
-{
-	static constexpr CanMessageType messageType = CanMessageType::readInputsReply;
-
-	uint32_t requestId : 12,				// the request ID of the message we are replying to
-			 resultCode : 4,				// normally a GCodeResult
-			 numReported : 4,				// number of input handles reported
-			 zero : 12;						// spare
-	struct __attribute__((packed))
-	{
-		RemoteInputHandle handle;
-		uint16_t value;
-	} results[15];
-
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
-
-	size_t GetActualDataLength() noexcept
-	{
-		return sizeof(uint32_t) + numReported * sizeof(results[0]);
-	}
 };
 
 // Parameter tables for various messages that use the generic format.
@@ -1119,6 +1137,24 @@ struct __attribute__((packed)) CanMessageHeaterTuningReport
 	}
 };
 
+// Message used to send accelerometer data from an expansion board to the master
+struct __attribute__((packed)) CanMessageAccelerometerData
+{
+	static constexpr CanMessageType messageType = CanMessageType::accelerometerData;
+
+	uint32_t firstSampleNumber : 12,	// how many samples we already sent
+			 actualSampleRate : 12,		// measured sample rate, or zero if not measured yet
+			 numSamples : 6,			// number of samples in this buffer
+			 twelveBit : 1,				// true if 12-bit packed, false if 8-bit packed
+			 overflowed : 1;			// true if the accelerometer detected overflow
+	uint8_t data[60];
+
+	size_t GetActualDataLength() const noexcept
+	{
+		return sizeof(uint32_t) + ((twelveBit) ? (numSamples * 3 + 1)/2 : numSamples);
+	}
+};
+
 // A union of all message types to allow the correct message format to be extracted from a message buffer
 union CanMessage
 {
@@ -1173,6 +1209,8 @@ union CanMessage
 	CanMessageHeaterTuningCommand heaterTuningCommand;
 	CanMessageHeaterTuningReport heaterTuningReport;
 	CanMessageHeaterFeedForward heaterFeedForward;
+	CanMessageAccelerometerSettings accelerometerSettings;
+	CanMessageAccelerometerData accelerometerData;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
