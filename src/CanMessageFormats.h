@@ -543,18 +543,19 @@ struct __attribute__((packed)) CanMessageReadInputsRequest
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
-// Request to configure sending accelerometer data, or stop sending data
-struct __attribute__((packed)) CanMessageAccelerometerSettings
+// Request to start sending accelerometer data
+struct __attribute__((packed)) CanMessageStartAccelerometer
 {
-	static constexpr CanMessageType messageType = CanMessageType::accelerometerSettings;
+	static constexpr CanMessageType messageType = CanMessageType::startAccelerometer;
 
 	uint16_t requestId : 12,
 			 zero1 : 4;
-	uint16_t sampleRate;
-	uint16_t numSamples;
-	uint16_t axes : 3,
-			 resolutionBits : 4,
-			 zero2 : 9;
+	uint8_t  deviceNumber;
+	uint8_t  axes : 3,						// bitmap of axes to collect
+			 delayedStart : 1,				// true to delay starting until startTime
+			 zero2 : 4;
+	uint16_t numSamples;					// how many samples to collect
+	uint32_t startTime;						// step timer ticks at which to start collecting, if delayedStart is set
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero1 = 0; zero2 = 0; }
 };
@@ -928,6 +929,16 @@ constexpr ParamDescriptor ConfigureFilamentMonitorParams[] =
 	END_PARAMS
 };
 
+// Accelerometer settings
+constexpr ParamDescriptor M955Params[] =
+{
+	LOCAL_DRIVER_PARAM('P'),			// accelerometer number
+	UINT8_PARAM('I'),					// orientation
+	UINT8_PARAM('R'),					// resolution (bits)
+	UINT16_PARAM('S'),					// sampling rate
+	END_PARAMS
+};
+
 // Messages sent from expansion boards to main board, or broadcast
 struct __attribute__((packed)) CanSensorReport
 {
@@ -939,7 +950,7 @@ private:									// make unaligned members private
 	float temperature;						// the last temperature we read
 };
 
-// Message broadcast by expansion boards and the main board to provide sensor tempoeratures
+// Message broadcast by expansion boards and the main board to provide sensor temperatures
 struct __attribute__((packed)) CanMessageSensorTemperatures
 {
 	static constexpr CanMessageType messageType = CanMessageType::sensorTemperaturesReport;
@@ -1142,16 +1153,30 @@ struct __attribute__((packed)) CanMessageAccelerometerData
 {
 	static constexpr CanMessageType messageType = CanMessageType::accelerometerData;
 
-	uint32_t firstSampleNumber : 12,	// how many samples we already sent
-			 actualSampleRate : 12,		// measured sample rate, or zero if not measured yet
-			 numSamples : 6,			// number of samples in this buffer
-			 twelveBit : 1,				// true if 12-bit packed, false if 8-bit packed
-			 overflowed : 1;			// true if the accelerometer detected overflow
-	uint8_t data[60];
+	uint32_t actualSampleRate : 14,			// measured sample rate, or zero if not measured yet
+			 numSamples : 6,				// number of samples in this buffer, each sample has data for each requested axis
+			 overflowed : 1,				// true if the accelerometer detected overflow
+			 axes : 3,						// which axes are returned in this data
+			 bitsPerSampleMinusOne : 4,		// how many bits each sample takes up, minus one
+			 lastPacket : 1,				// set if this is the last packet
+			 zero : 3;
+	uint16_t firstSampleNumber;				// the number of the first sample
+	uint16_t data[29];
 
+	// Get the actual amount of data
 	size_t GetActualDataLength() const noexcept
 	{
-		return sizeof(uint32_t) + ((twelveBit) ? (numSamples * 3 + 1)/2 : numSamples);
+		const unsigned int numAxes = (axes & 1u) + ((axes >> 1) & 1u) + ((axes >> 2) & 1u);
+		return sizeof(uint32_t) + sizeof(uint16_t) + (numSamples * (bitsPerSampleMinusOne + 1) * numAxes + 15)/16;
+	}
+
+	// Set the resolution and axes bits, and return the maximum number of samples that one message can accommodate
+	size_t SetAxesAndResolution(uint8_t p_axes, uint8_t bitsPerSample) noexcept
+	{
+		bitsPerSampleMinusOne = bitsPerSample - 1;
+		axes = p_axes & 0x07;
+		const unsigned int numAxes = (axes & 1u) + ((axes >> 1) & 1u) + ((axes >> 2) & 1u);
+		return (numAxes * bitsPerSample == 0) ? 0xFFFF : (sizeof(data) * CHAR_BIT)/(numAxes * bitsPerSample);
 	}
 };
 
@@ -1209,7 +1234,7 @@ union CanMessage
 	CanMessageHeaterTuningCommand heaterTuningCommand;
 	CanMessageHeaterTuningReport heaterTuningReport;
 	CanMessageHeaterFeedForward heaterFeedForward;
-	CanMessageAccelerometerSettings accelerometerSettings;
+	CanMessageStartAccelerometer startAccelerometer;
 	CanMessageAccelerometerData accelerometerData;
 };
 

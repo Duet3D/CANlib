@@ -38,7 +38,7 @@ enum class CanMessageType : uint16_t
 	// Medium priority messages sent by the main board
 	writeGpio = 4012,
 	readInputsRequest = 4013,
-	accelerometerSettings = 4014,
+	startAccelerometer = 4014,
 
 	// Configuration messages sent by the main board
 	//unused_was_m950 = 6010,
@@ -65,6 +65,7 @@ enum class CanMessageType : uint16_t
 	m308New = 6031,
 	heaterTuningCommand = 6032,
 	heaterFeedForward = 6033,
+	accelerometerConfig = 6034,
 
 	//unused_was_configureZProbe = 6032,
 	//unused_was_getZProbePinNames = 6033,
