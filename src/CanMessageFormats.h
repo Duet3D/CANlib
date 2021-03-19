@@ -1167,7 +1167,7 @@ struct __attribute__((packed)) CanMessageAccelerometerData
 	size_t GetActualDataLength() const noexcept
 	{
 		const unsigned int numAxes = (axes & 1u) + ((axes >> 1) & 1u) + ((axes >> 2) & 1u);
-		return sizeof(uint32_t) + sizeof(uint16_t) + (numSamples * (bitsPerSampleMinusOne + 1) * numAxes + 15)/16;
+		return sizeof(uint32_t) + sizeof(uint16_t) + ((numSamples * (bitsPerSampleMinusOne + 1) * numAxes + 15)/16) * sizeof(uint16_t);
 	}
 
 	// Set the resolution and axes bits, and return the maximum number of samples that one message can accommodate
