@@ -82,7 +82,7 @@ void CanUserAreaData::GetTiming(CanTiming& data) const noexcept
 	}
 	else
 	{
-		data.SetDefaults();
+		data.SetDefaults_1Mb();
 	}
 }
 

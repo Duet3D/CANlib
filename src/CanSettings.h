@@ -21,9 +21,16 @@ struct CanTiming
 	uint16_t tseg1;					// now far into the period the sample point is, minimum 1, maximum period-2
 	uint16_t jumpWidth;				// the (re)synchronisation jump width
 
-	static constexpr uint16_t DefaultPeriod = 48;
-	static constexpr uint16_t DefaultTseg1 = 26;
-	static constexpr uint16_t DefaultJumpWidth = 8;
+	// Defaults for Duet boards, CAN-FD at 1Mbit/sec
+	static constexpr uint16_t DefaultPeriod_1M = 48;
+	static constexpr uint16_t DefaultTseg1_1M = 26;
+	static constexpr uint16_t DefaultJumpWidth_1M = 8;
+
+	// Defaults for secondary port, plain CAN at 250kbit/sec
+	static constexpr uint16_t DefaultPeriod_250k = 192;
+	static constexpr uint16_t DefaultTseg1_250k = 104;
+	static constexpr uint16_t DefaultJumpWidth_250k = 32;
+
 	static constexpr uint32_t ClockFrequency = 48000000;
 
 	bool IsValid() const noexcept
@@ -32,11 +39,18 @@ struct CanTiming
 			&& tseg1 != 0 && tseg1 <= period - 2;
 	}
 
-	void SetDefaults() noexcept
+	void SetDefaults_1Mb() noexcept
 	{
-		period = DefaultPeriod;
-		tseg1 = DefaultTseg1;
-		jumpWidth = DefaultJumpWidth;
+		period = DefaultPeriod_1M;
+		tseg1 = DefaultTseg1_1M;
+		jumpWidth = DefaultJumpWidth_1M;
+	}
+
+	void SetDefaults_250kb() noexcept
+	{
+		period = DefaultPeriod_250k;
+		tseg1 = DefaultTseg1_250k;
+		jumpWidth = DefaultJumpWidth_250k;
 	}
 };
 
