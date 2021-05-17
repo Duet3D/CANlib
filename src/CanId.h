@@ -113,6 +113,7 @@ enum class CanMessageType : uint16_t
 
 typedef uint16_t CanRequestId;
 constexpr uint16_t CanRequestIdMask = 0x07FF;					// only the lower 12 bits used
+constexpr CanRequestId CanRequestIdNoReplyNeeded = 0x0FFE;		// special ID means we don't want a reply
 constexpr CanRequestId CanRequestIdAcceptAlways = 0x0FFF;		// special ID means always accept this
 
 typedef uint8_t CanAddress;										// only the lower 7 bits are available
