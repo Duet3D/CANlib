@@ -61,6 +61,7 @@ public:
 		fdMode = 1;
 		useBrs = 0;
 		remote = 0;
+		reportInFifo = 0;
 		msg.generic.requestId = rid;
 		return &msg.generic;
 	}
@@ -77,6 +78,7 @@ public:
 		fdMode = 1;
 		useBrs = 0;
 		remote = 0;
+		reportInFifo = 0;
 		T* rslt = reinterpret_cast<T*>(&msg);
 		rslt->SetRequestId(rid);
 		return rslt;
@@ -94,6 +96,7 @@ public:
 		fdMode = 1;
 		useBrs = 0;
 		remote = 0;
+		reportInFifo = 0;
 		T* rslt = reinterpret_cast<T*>(&msg);
 		rslt->SetRequestId(rid);
 		return rslt;
@@ -111,6 +114,7 @@ public:
 		fdMode = 1;
 		useBrs = 0;
 		remote = 0;
+		reportInFifo = 0;
 		T* rslt = reinterpret_cast<T*>(&msg);
 		rslt->SetRequestId(rid);
 		return rslt;
@@ -128,6 +132,7 @@ public:
 		fdMode = 1;
 		useBrs = 0;
 		remote = 0;
+		reportInFifo = 0;
 		return reinterpret_cast<T*>(&msg);
 	}
 
@@ -143,6 +148,7 @@ public:
 		fdMode = 1;
 		useBrs = 0;
 		remote = 0;
+		reportInFifo = 0;
 		return reinterpret_cast<T*>(&msg);
 	}
 
@@ -156,7 +162,8 @@ public:
 			extId : 1,
 			fdMode : 1,
 			useBrs : 1,
-			remote : 1;
+			remote : 1,
+			reportInFifo : 1;		// true to report transmission complete via TxEventFifo
 	CanMessage msg;
 
 private:
