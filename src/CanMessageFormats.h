@@ -157,8 +157,8 @@ struct __attribute__((packed)) CanMessageMovementLinear
 
 	uint32_t pressureAdvanceDrives : 8,				// which drivers have pressure advance applied
 			 numDrivers : 4,						// how many drivers we included
-			 seq : 3,								// TEMP sequence number
-			 zero : 17;								// unused
+			 seq : 7,								// sequence number
+			 zero : 13;								// unused
 
 	float initialSpeedFraction;
 	float finalSpeedFraction;
