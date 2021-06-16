@@ -17,13 +17,14 @@ struct __attribute__((packed)) RemoteInputHandle
 	void Set(uint16_t p_all) noexcept { u.all = p_all; }
 	uint16_t asU16() const noexcept { return u.all; }
 	bool IsValid() const noexcept { return u.parts.type > typeUnset && u.parts.type < lowestBadType; }
+	bool operator==(RemoteInputHandle other) const noexcept { return u.all == other.u.all; }
 
 	union
 	{
 		struct
 		{
-			uint16_t minor : 8,						// endstop switch number within axis (for endstops)
-					major : 4,						// axis number (for endstops), or GPIn number, or Z probe number
+			uint16_t minor : 6,						// endstop switch number within axis (for endstops)
+					major : 6,						// axis number (for endstops), or GPIn number, or Z probe number
 					type : 4;
 		} parts;
 		uint16_t all;

@@ -15,6 +15,10 @@ CanMessageBuffer * volatile CanMessageBuffer::freelist = nullptr;
 volatile unsigned int CanMessageBuffer::numFree = 0;
 volatile unsigned int CanMessageBuffer::minNumFree = 0;
 
+#ifdef RTOS
+TaskBase * volatile CanMessageBuffer::bufferWaitingTask = nullptr;
+#endif
+
 void CanMessageBuffer::Init(unsigned int numCanBuffers) noexcept
 {
 	freelist = nullptr;
@@ -39,11 +43,49 @@ CanMessageBuffer *CanMessageBuffer::Allocate() noexcept
 		--numFree;
 		if (numFree < minNumFree)
 		{
-			minNumFree = 0;
+			minNumFree = numFree;
 		}
 	}
 	return ret;
 }
+
+#ifdef RTOS
+
+// Wait for a buffer until one is available. Only one task may call this!
+CanMessageBuffer *CanMessageBuffer::BlockingAllocate() noexcept
+{
+	while (true)
+	{
+		{
+			TaskCriticalSectionLocker lock;
+
+			CanMessageBuffer *ret = freelist;
+			if (ret != nullptr)
+			{
+				freelist = ret->next;
+				ret->next = nullptr;
+				--numFree;
+				if (numFree < minNumFree)
+				{
+					minNumFree = numFree;
+				}
+				return ret;
+			}
+
+			bufferWaitingTask = TaskBase::GetCallerTaskHandle();
+		}
+#if 0	//DEBUG
+		if (!TaskBase::Take(1000) && freelist != nullptr)
+		{
+			minNumFree = 9999;
+		}
+#else
+		TaskBase::Take();
+#endif
+	}
+}
+
+#endif
 
 void CanMessageBuffer::Free(CanMessageBuffer*& buf) noexcept
 {
@@ -54,6 +96,14 @@ void CanMessageBuffer::Free(CanMessageBuffer*& buf) noexcept
 		freelist = buf;
 		buf = nullptr;
 		++numFree;
+#ifdef RTOS
+		TaskBase * const waitingTask = bufferWaitingTask;
+		if (waitingTask != nullptr)
+		{
+			bufferWaitingTask = nullptr;
+			waitingTask->GiveFromISR();
+		}
+#endif
 	}
 }
 

@@ -21,11 +21,26 @@ size_t CanAdjustedLength(size_t rawLength)
 					: 64;
 }
 
+#if 0	// this message is no longer used
+
 void CanMessageMovement::DebugPrint() const noexcept
 {
-	debugPrintf("Can: %08" PRIx32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %.2f %.2f:",
+	debugPrintf("Can: %08" PRIx32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %f %f:",
 		whenToExecute, accelerationClocks, steadyClocks, decelClocks, (double)initialSpeedFraction, (double)finalSpeedFraction);
 	for (size_t i = 0; i < MaxDriversPerCanSlave; ++i)
+	{
+		debugPrintf(" %" PRIi32, perDrive[i].steps);
+	}
+	debugPrintf("\n");
+}
+
+#endif
+
+void CanMessageMovementLinear::DebugPrint() const noexcept
+{
+	debugPrintf("Can: %08" PRIx32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %f %f:",
+		whenToExecute, accelerationClocks, steadyClocks, decelClocks, (double)initialSpeedFraction, (double)finalSpeedFraction);
+	for (size_t i = 0; i < numDrivers; ++i)
 	{
 		debugPrintf(" %" PRIi32, perDrive[i].steps);
 	}
@@ -36,7 +51,7 @@ void CanMessageGeneric::DebugPrint(const ParamDescriptor *pt) const noexcept
 {
 	if (pt == nullptr)
 	{
-		debugPrintf("CanG PT: %" PRIx32 " D: %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 "\n",
+		debugPrintf("CanG PT: %u D: %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 " %" PRIx32 "\n",
 			paramMap, *reinterpret_cast<const uint32_t*>(data + 4), *reinterpret_cast<const uint32_t*>(data + 8), *reinterpret_cast<const uint32_t*>(data + 12),
 			*reinterpret_cast<const uint32_t*>(data + 16), *reinterpret_cast<const uint32_t*>(data + 20), *reinterpret_cast<const uint32_t*>(data + 24),
 			*reinterpret_cast<const uint32_t*>(data + 28));

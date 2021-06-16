@@ -21,11 +21,14 @@ enum class CanMessageType : uint16_t
 	powerFailing = 40,
 	stopMovement = 45,
 	insertHiccup = 46,
-	movement = 50,
+	//unused_was_movement = 50,
+	movementLinear = 51,
+	movementLinearShaped = 52,
 
 	// High priority responses sent by expansion boards and Smart Tools
 	inputStateChanged = 100,
 	motorStalled = 102,
+	enterTestMode = 104,						// sent by the ATE to the main board
 
 	// Configuration messages sent by the main board
 	setAddressAndNormalTiming = 2010,
@@ -35,6 +38,7 @@ enum class CanMessageType : uint16_t
 	// Medium priority messages sent by the main board
 	writeGpio = 4012,
 	readInputsRequest = 4013,
+	startAccelerometer = 4014,
 
 	// Configuration messages sent by the main board
 	//unused_was_m950 = 6010,
@@ -59,9 +63,10 @@ enum class CanMessageType : uint16_t
 	setFanSpeed = 6029,
 	setHeaterFaultDetection = 6030,
 	m308New = 6031,
+	heaterTuningCommand = 6032,
+	heaterFeedForward = 6033,
+	accelerometerConfig = 6034,
 
-
-	//unused_was_createZProbe = 6031,
 	//unused_was_configureZProbe = 6032,
 	//unused_was_getZProbePinNames = 6033,
 	//unused_was_destroyZProbe = 6034,
@@ -96,6 +101,8 @@ enum class CanMessageType : uint16_t
 	readInputsReply = 4518,
 	driversStatusReport = 4519,
 	filamentMonitorsStatusReport = 4520,
+	heaterTuningReport = 4521,
+	accelerometerData = 4522,
 
 	// Firmware updates
 	firmwareBlockRequest = 5000,
@@ -106,6 +113,7 @@ enum class CanMessageType : uint16_t
 
 typedef uint16_t CanRequestId;
 constexpr uint16_t CanRequestIdMask = 0x07FF;					// only the lower 12 bits used
+constexpr CanRequestId CanRequestIdNoReplyNeeded = 0x0FFE;		// special ID means we don't want a reply
 constexpr CanRequestId CanRequestIdAcceptAlways = 0x0FFF;		// special ID means always accept this
 
 typedef uint8_t CanAddress;										// only the lower 7 bits are available
@@ -127,13 +135,16 @@ class CanId
 	uint32_t all;
 
 public:
-	static constexpr CanAddress MasterAddress = 0;							// the main board has address 0
+	static constexpr CanAddress MasterAddress = 0;							// main boards (except ATE main boards) have address 0
+	static constexpr CanAddress ATECMBoardFirstAddress = 90;
+	static constexpr CanAddress ATEIOBoardFirstAddress = 95;
 	static constexpr CanAddress ATECMBoardDefaultAddress = 118;
 	static constexpr CanAddress ATEIOBoardDefaultAddress = 119;
 	static constexpr CanAddress ToolBoardDefaultAddress = 121;				// default address for tool boards
 	static constexpr CanAddress Exp1XDBoardDefaultAddress = 122;
 	static constexpr CanAddress Exp1HCEBoardDefaultAddress = 123;
 	static constexpr CanAddress SammyC21DefaultAddress = 124;
+	static constexpr CanAddress ATEMasterAddress = 125;						// the address of the ATE main board
 	static constexpr CanAddress ExpansionBoardFirmwareUpdateAddress = 126;	// special address we use for backup firmware update system (board ID switches set to zero on 3HC)
 	static constexpr CanAddress MaxCanAddress = 126;						// maximum CAN address including the firmware update address
 	static constexpr CanAddress BroadcastAddress = 127;
