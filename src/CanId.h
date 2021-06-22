@@ -183,6 +183,16 @@ public:
 	uint32_t GetWholeId() const { return all; }
 	bool IsRequest() const { return (all & ResponseBit) == 0; }
 	bool IsResponse() const { return (all & ResponseBit) != 0; }
+
+	bool operator==(CanId const& other) const
+	{
+		return all == other.all;
+	}
+
+	bool operator!=(CanId const& other) const
+	{
+		return not(*this == other);
+	}
 };
 
 #endif /* SRC_CAN_CANID_H_ */
