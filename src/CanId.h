@@ -157,41 +157,41 @@ public:
 	static constexpr unsigned int MessageTypeShift = 16;
 	static constexpr uint32_t MessageTypeMask = 0x1FFF;
 
-	void SetRequest(CanMessageType msgType, CanAddress src, CanAddress dst)
+	void SetRequest(CanMessageType msgType, CanAddress src, CanAddress dst) noexcept
 	{
 		all = ((uint32_t)msgType << MessageTypeShift) | ((uint32_t)src << SrcAddressShift) | ((uint32_t)dst << DstAddressShift);
 	}
 
-	void SetResponse(CanMessageType msgType, CanAddress src, CanAddress dst)
+	void SetResponse(CanMessageType msgType, CanAddress src, CanAddress dst) noexcept
 	{
 		all = ((uint32_t)msgType << MessageTypeShift) | ((uint32_t)src << SrcAddressShift) | ((uint32_t)dst << DstAddressShift) | ResponseBit;
 	}
 
-	void SetBroadcast(CanMessageType msgType, CanAddress src)
+	void SetBroadcast(CanMessageType msgType, CanAddress src) noexcept
 	{
 		all = ((uint32_t)msgType << MessageTypeShift) | ((uint32_t)src << SrcAddressShift) | ((uint32_t)BroadcastAddress << DstAddressShift);
 	}
 
-	void SetReceivedId(uint32_t id)
+	void SetReceivedId(uint32_t id) noexcept
 	{
 		all = id;
 	}
 
-	uint8_t Src() const { return (all >> SrcAddressShift) & BoardAddressMask; }
-	uint8_t Dst() const { return (all >> DstAddressShift) & BoardAddressMask; }
-	CanMessageType MsgType() const { return (CanMessageType)((all >> MessageTypeShift) & MessageTypeMask); }
-	uint32_t GetWholeId() const { return all; }
-	bool IsRequest() const { return (all & ResponseBit) == 0; }
-	bool IsResponse() const { return (all & ResponseBit) != 0; }
+	uint8_t Src() const noexcept { return (all >> SrcAddressShift) & BoardAddressMask; }
+	uint8_t Dst() const noexcept { return (all >> DstAddressShift) & BoardAddressMask; }
+	CanMessageType MsgType() const noexcept { return (CanMessageType)((all >> MessageTypeShift) & MessageTypeMask); }
+	uint32_t GetWholeId() const noexcept { return all; }
+	bool IsRequest() const noexcept { return (all & ResponseBit) == 0; }
+	bool IsResponse() const noexcept { return (all & ResponseBit) != 0; }
 
-	bool operator==(CanId const& other) const
+	bool operator==(CanId const& other) const noexcept
 	{
 		return all == other.all;
 	}
 
-	bool operator!=(CanId const& other) const
+	bool operator!=(CanId const& other) const noexcept
 	{
-		return not(*this == other);
+		return !(*this == other);
 	}
 };
 
