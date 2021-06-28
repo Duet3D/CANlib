@@ -57,7 +57,8 @@ enum class FirmwareFlashErrorCode : unsigned int
 	eraseFailed = 11,
 	writeFailed = 12,
 	lockFailed = 13,
-	vinTooLow = 14
+	vinTooLow = 14,
+	unknownBoard = 15
 };
 
 // Firmware module numbers
