@@ -25,7 +25,7 @@ size_t CanAdjustedLength(size_t rawLength)
 
 void CanMessageMovement::DebugPrint() const noexcept
 {
-	debugPrintf("Can: %08" PRIx32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %f %f:",
+	debugPrintf("Can: %08" PRIx32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %f %f",
 		whenToExecute, accelerationClocks, steadyClocks, decelClocks, (double)initialSpeedFraction, (double)finalSpeedFraction);
 	for (size_t i = 0; i < MaxDriversPerCanSlave; ++i)
 	{
@@ -38,7 +38,7 @@ void CanMessageMovement::DebugPrint() const noexcept
 
 void CanMessageMovementLinear::DebugPrint() const noexcept
 {
-	debugPrintf("Can: %08" PRIx32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %f %f:",
+	debugPrintf("Can: %08" PRIx32 " %" PRIu32 " %" PRIu32 " %" PRIu32 " %f %f",
 		whenToExecute, accelerationClocks, steadyClocks, decelClocks, (double)initialSpeedFraction, (double)finalSpeedFraction);
 	for (size_t i = 0; i < numDrivers; ++i)
 	{
