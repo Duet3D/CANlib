@@ -560,6 +560,22 @@ struct __attribute__((packed)) CanMessageStartAccelerometer
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero1 = 0; zero2 = 0; }
 };
 
+// Request to start sending closed loop data
+struct __attribute__((packed)) CanMessageStartClosedLoopDataCollection
+{
+	static constexpr CanMessageType messageType = CanMessageType::startClosedLoopDataCollection;
+
+	uint16_t requestId : 12,
+			 zero1 : 4;
+	uint8_t  deviceNumber;
+	uint8_t  delayedStart : 1,				// true to delay starting until startTime
+			 zero2 : 4;
+	uint16_t numSamples;					// how many samples to collect
+	uint32_t startTime;						// step timer ticks at which to start collecting, if delayedStart is set
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero1 = 0; zero2 = 0; }
+};
+
 // M42 or M280
 struct __attribute__((packed)) CanMessageWriteGpio
 {
@@ -1180,6 +1196,42 @@ struct __attribute__((packed)) CanMessageAccelerometerData
 	}
 };
 
+// Message used to send closed loop data from an expansion board to the master
+struct __attribute__((packed)) CanMessageClosedLoopData
+{
+	static constexpr CanMessageType messageType = CanMessageType::closedLoopData;
+
+	uint32_t actualSampleRate : 14,			// measured sample rate, or zero if not measured yet
+			 numSamples : 6,				// number of samples in this buffer, each sample has data for each requested axis
+			 bitsPerSampleMinusOne : 4,		// how many bits each sample takes up, minus one
+			 lastPacket : 1;				// set if this is the last packet
+	uint16_t firstSampleNumber;				// the number of the first sample
+	int32_t encoderData[1];
+	int32_t targetData[1];
+	int32_t controlData[1];
+
+	// Get the actual amount of data
+	size_t GetActualDataLength() const noexcept
+	{
+		return sizeof(uint32_t) + sizeof(uint16_t) + numSamples * sizeof(int32_t) * 3;
+		// TODO
+		return sizeof(uint32_t);
+//		const unsigned int numAxes = (axes & 1u) + ((axes >> 1) & 1u) + ((axes >> 2) & 1u);
+//		return sizeof(uint32_t) + sizeof(uint16_t) + ((numSamples * (bitsPerSampleMinusOne + 1) * numAxes + 15)/16) * sizeof(uint16_t);
+	}
+
+	// Set the resolution and axes bits, and return the maximum number of samples that one message can accommodate
+	size_t SetAxesAndResolution(uint8_t p_axes, uint8_t bitsPerSample) noexcept
+	{
+		// TODO This should return the maximum number of samples one message can accommodate
+		return 1;
+//		bitsPerSampleMinusOne = bitsPerSample - 1;
+//		axes = p_axes & 0x07;
+//		const unsigned int numAxes = (axes & 1u) + ((axes >> 1) & 1u) + ((axes >> 2) & 1u);
+//		return (numAxes * bitsPerSample == 0) ? 0xFFFF : (sizeof(data) * CHAR_BIT)/(numAxes * bitsPerSample);
+	}
+};
+
 // A union of all message types to allow the correct message format to be extracted from a message buffer
 union CanMessage
 {
@@ -1236,6 +1288,8 @@ union CanMessage
 	CanMessageHeaterFeedForward heaterFeedForward;
 	CanMessageStartAccelerometer startAccelerometer;
 	CanMessageAccelerometerData accelerometerData;
+	CanMessageStartClosedLoopDataCollection startClosedLoopDataCollection;
+	CanMessageClosedLoopData closedLoopData;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large

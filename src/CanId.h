@@ -39,6 +39,7 @@ enum class CanMessageType : uint16_t
 	writeGpio = 4012,
 	readInputsRequest = 4013,
 	startAccelerometer = 4014,
+	startClosedLoopDataCollection = 4015,
 
 	// Configuration messages sent by the main board
 	//unused_was_m950 = 6010,
@@ -103,6 +104,7 @@ enum class CanMessageType : uint16_t
 	filamentMonitorsStatusReport = 4520,
 	heaterTuningReport = 4521,
 	accelerometerData = 4522,
+	closedLoopData = 4523,
 
 	// Firmware updates
 	firmwareBlockRequest = 5000,
