@@ -567,13 +567,12 @@ struct __attribute__((packed)) CanMessageStartClosedLoopDataCollection
 
 	uint16_t requestId : 12,
 			 zero1 : 4;
-	uint8_t  deviceNumber;
-	uint8_t  delayedStart : 1,				// true to delay starting until startTime
-			 zero2 : 4;
+	uint16_t filter;						// what variables to collect;
+	uint8_t  deviceNumber;					// The device to collect data for
+	uint8_t  mode;							// the mode to collect in
 	uint16_t numSamples;					// how many samples to collect
-	uint32_t startTime;						// step timer ticks at which to start collecting, if delayedStart is set
 
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero1 = 0; zero2 = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero1 = 0;}
 };
 
 // M42 or M280
@@ -1201,34 +1200,26 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 {
 	static constexpr CanMessageType messageType = CanMessageType::closedLoopData;
 
-	uint32_t actualSampleRate : 14,			// measured sample rate, or zero if not measured yet
-			 numSamples : 6,				// number of samples in this buffer, each sample has data for each requested axis
-			 bitsPerSampleMinusOne : 4,		// how many bits each sample takes up, minus one
-			 lastPacket : 1;				// set if this is the last packet
+	uint32_t numSamples : 5,				// number of samples in this data packet (max 29)
+			 lastPacket : 1,				// set if this is the last packet
+			 filter : 16,					// which variables are present in the data packet
+			 zero : 10;
 	uint16_t firstSampleNumber;				// the number of the first sample
-	int32_t encoderData[1];
-	int32_t targetData[1];
-	int32_t controlData[1];
+	int16_t data[29];
 
 	// Get the actual amount of data
 	size_t GetActualDataLength() const noexcept
 	{
-		return sizeof(uint32_t) + sizeof(uint16_t) + numSamples * sizeof(int32_t) * 3;
-		// TODO
-		return sizeof(uint32_t);
-//		const unsigned int numAxes = (axes & 1u) + ((axes >> 1) & 1u) + ((axes >> 2) & 1u);
-//		return sizeof(uint32_t) + sizeof(uint16_t) + ((numSamples * (bitsPerSampleMinusOne + 1) * numAxes + 15)/16) * sizeof(uint16_t);
-	}
+		// Count how many bits are set in 'filter'
+		// TODO: Look into a more efficient way of doing this
+		int variableCount = 0;
+		int tmpFilter = filter;
+		while (tmpFilter != 0) {
+			variableCount += tmpFilter & 0x1;
+			tmpFilter >>= 1;
+		}
 
-	// Set the resolution and axes bits, and return the maximum number of samples that one message can accommodate
-	size_t SetAxesAndResolution(uint8_t p_axes, uint8_t bitsPerSample) noexcept
-	{
-		// TODO This should return the maximum number of samples one message can accommodate
-		return 1;
-//		bitsPerSampleMinusOne = bitsPerSample - 1;
-//		axes = p_axes & 0x07;
-//		const unsigned int numAxes = (axes & 1u) + ((axes >> 1) & 1u) + ((axes >> 2) & 1u);
-//		return (numAxes * bitsPerSample == 0) ? 0xFFFF : (sizeof(data) * CHAR_BIT)/(numAxes * bitsPerSample);
+		return sizeof(uint32_t) + sizeof(uint16_t) + numSamples * variableCount * sizeof(int16_t);
 	}
 };
 
