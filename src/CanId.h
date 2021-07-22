@@ -105,6 +105,7 @@ enum class CanMessageType : uint16_t
 	heaterTuningReport = 4521,
 	accelerometerData = 4522,
 	closedLoopData = 4523,
+	logMessage = 4524,
 
 	// Firmware updates
 	firmwareBlockRequest = 5000,

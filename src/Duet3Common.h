@@ -80,4 +80,6 @@ NamedEnum(FilamentSensorStatus, uint8_t,
 	sensorError
 );
 
+NamedEnum(LogLevel, uint8_t, off, warn, info, debug);
+
 #endif /* SRC_DUET3COMMON_H_ */

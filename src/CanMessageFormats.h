@@ -9,6 +9,7 @@
 #define SRC_CAN_CANMESSAGEFORMATS_H_
 
 #include "CanId.h"
+#include "Duet3Common.h"
 #include "CanSettings.h"
 #include "RemoteInputHandle.h"
 
@@ -16,6 +17,7 @@
 #include <General/Strnlen.h>
 #include <General/Portability.h>
 
+#include <ctime>
 #include <cstring>
 
 #if 0	// this was used by the original movement message
@@ -567,6 +569,7 @@ struct __attribute__((packed)) CanMessageStartClosedLoopDataCollection
 
 	uint16_t requestId : 12,
 			 zero1 : 4;
+	uint16_t rate;							// The sample rate at which to collect
 	uint16_t filter;						// what variables to collect;
 	uint8_t  deviceNumber;					// The device to collect data for
 	uint8_t  mode;							// the mode to collect in
@@ -1223,6 +1226,24 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 	}
 };
 
+// Message used to send logging data from an expansion board to the master
+struct __attribute__((packed)) CanMessageLogMessage
+{
+	static constexpr CanMessageType messageType = CanMessageType::logMessage;
+
+	bool lastPacket;		// Are there more packets to come?
+	time_t time;			// Time of the message
+	uint8_t type;			// The type of logging message
+	uint16_t packetLength;	// Character count of the message
+	char message[50];		// The message
+
+	// Get the actual amount of data
+	size_t GetActualDataLength() const noexcept
+	{
+		return sizeof(bool) + sizeof(time_t) + sizeof(uint8_t) + sizeof(uint16_t) + packetLength * sizeof(char);
+	}
+};
+
 // A union of all message types to allow the correct message format to be extracted from a message buffer
 union CanMessage
 {
@@ -1281,6 +1302,7 @@ union CanMessage
 	CanMessageAccelerometerData accelerometerData;
 	CanMessageStartClosedLoopDataCollection startClosedLoopDataCollection;
 	CanMessageClosedLoopData closedLoopData;
+	CanMessageLogMessage canMessageLogMessage;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
