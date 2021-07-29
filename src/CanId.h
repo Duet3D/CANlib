@@ -86,8 +86,8 @@ enum class CanMessageType : uint16_t
 	createFilamentMonitor = 6046,
 	deleteFilamentMonitor = 6047,
 	configureFilamentMonitor = 6048,
-
 	updateHeaterModelNew = 6049,
+	m569p2 = 6050,
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,
