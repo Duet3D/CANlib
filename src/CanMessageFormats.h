@@ -913,6 +913,7 @@ constexpr ParamDescriptor M569Point1Params[] =
 	FLOAT_PARAM('R'),
 	FLOAT_PARAM('I'),
 	FLOAT_PARAM('D'),
+	FLOAT_PARAM('F'),
 	END_PARAMS
 };
 
