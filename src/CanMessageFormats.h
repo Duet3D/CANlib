@@ -18,7 +18,7 @@
 
 #include <cstring>
 
-#if 0	// this was used by the original movement message
+#if 0	// this was used by the original movement message, which is no longer supported
 constexpr unsigned int MaxDriversPerCanSlave = 4;
 #endif
 
@@ -189,38 +189,49 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped
 {
 	static constexpr CanMessageType messageType = CanMessageType::movementLinearShaped;
 
+	enum MoveType : uint32_t
+	{
+		shapedAxis = 0,								// normal axis movement with input shaping. Must be zero because we default to this.
+		shapedDelta,								// delta axis movement with input shaping
+		extruderNoPa,								// extruder movement without pressure advance
+		extruderWithPa								// extruder movement with pressure advance
+	};
+
 	uint32_t whenToExecute;
 	uint32_t accelerationClocks;
 	uint32_t steadyClocks;
 	uint32_t decelClocks;
 
-	uint32_t pressureAdvanceDrives : 8,				// which drivers have pressure advance applied
+	uint32_t moveTypes : 16,						// the movement type (2 bits) for each possible driver
 			 numDriversMinusOne : 3,				// how many drivers we included, minus one
-			 seq : 3,								// TEMP sequence number
-			 shaperType : 2,						// what type of input shaping we use
-			 zero : 16;								// unused
+			 seq : 7,								// move sequence number
+			 shaperAccelPhasesMinusOne : 3,			// the number of phases of input shaping during acceleration
+			 shaperDecelPhasesMinusOne : 3;			// the number of phases of input shaping during deceleration
 
 	uint16_t initialSpeedFraction;					// range 0 to 2^15 where 2^15 means 1.0
 	uint16_t finalSpeedFraction;					// range 0 to 2^15 where 2^15 means 1.0
-	uint16_t shaperHalfPeriod;						// half the period of the input shaper in step clocks, allowing for base frequencies down to 5.7Hz
-	uint16_t shaperDampingFactor;					// the A parameter of the input shaper
 
 	struct PerDriveValues
 	{
-		int32_t steps;								// net steps moved
+		union
+		{
+			int32_t iSteps;							// net steps to move, for axes
+			float fDist;							// distance to move before applying pressure advance, for extruders
+		};
 
 		void Init() noexcept
 		{
-			steps = 0;
+			iSteps = 0;
 		}
 	};
 
 	PerDriveValues perDrive[MaxLinearDriversPerCanSlave];
 
-	static constexpr uint8_t ShaperTypeNone = 0;
-	static constexpr uint8_t ShaperTypeZVD = 1;
-	static constexpr uint8_t ShaperTypeZVDD = 2;
-	static constexpr uint8_t ShaperTypeEI2 = 3;
+	// Get the move type for a particular drive
+	MoveType GetMoveType(unsigned int drive) const noexcept { return (MoveType)((moveTypes >> (2 * drive)) & 3); }
+
+	// Set the move type for a drive, assuming it is currently set to type 0
+	void ChangeMoveTypeFromDefault(unsigned int drive, MoveType mt) noexcept { (moveTypes |= ((uint32_t)mt) << (2 * drive)); }
 
 	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't have RIDs, use the whenToExecute field to avoid duplication
 	void DebugPrint() const noexcept;
@@ -1197,6 +1208,7 @@ union CanMessage
 	CanMessageMovement move;
 #endif
 	CanMessageMovementLinear moveLinear;
+	CanMessageMovementLinearShaped moveLinearShaped;
 	CanMessageReturnInfo getInfo;
 	CanMessageSetHeaterTemperature setTemp;
 	CanMessageStandardReply standardReply;
