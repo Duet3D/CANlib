@@ -574,6 +574,7 @@ struct __attribute__((packed)) CanMessageStartClosedLoopDataCollection
 	uint8_t  deviceNumber;					// The device to collect data for
 	uint8_t  mode;							// the mode to collect in
 	uint16_t numSamples;					// how many samples to collect
+	uint8_t  movement;						// Which (if any) movement was requested
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero1 = 0;}
 };
@@ -914,12 +915,18 @@ constexpr ParamDescriptor M569Params[] =
 constexpr ParamDescriptor M569Point1Params[] =
 {
 	LOCAL_DRIVER_PARAM('P'),
-	UINT8_PARAM('S'),
 	UINT8_PARAM('T'),
 	FLOAT_PARAM('E'),
 	FLOAT_PARAM('R'),
 	FLOAT_PARAM('I'),
 	FLOAT_PARAM('D'),
+	END_PARAMS
+};
+
+constexpr ParamDescriptor M569Point6Params[] =
+{
+	LOCAL_DRIVER_PARAM('P'),
+	UINT8_PARAM('V'),
 	END_PARAMS
 };
 
@@ -1208,7 +1215,7 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 			 filter : 16,					// which variables are present in the data packet
 			 zero : 10;
 	uint16_t firstSampleNumber;				// the number of the first sample
-	int16_t data[29];
+	float    data[14];
 
 	// Get the actual amount of data
 	size_t GetActualDataLength() const noexcept
@@ -1222,7 +1229,7 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 			tmpFilter >>= 1;
 		}
 
-		return sizeof(uint32_t) + sizeof(uint16_t) + numSamples * variableCount * sizeof(int16_t);
+		return sizeof(uint32_t) + sizeof(uint16_t) + numSamples * variableCount * sizeof(float);
 	}
 };
 

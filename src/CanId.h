@@ -89,6 +89,7 @@ enum class CanMessageType : uint16_t
 	configureFilamentMonitor = 6048,
 
 	updateHeaterModelNew = 6049,
+	m569p6 = 6050,
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,
