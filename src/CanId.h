@@ -28,7 +28,7 @@ enum class CanMessageType : uint16_t
 	// High priority responses sent by expansion boards and Smart Tools
 	inputStateChanged = 100,
 	motorStalled = 102,
-	enterTestMode = 104,						// sent by the ATE to the main board
+	enterTestMode = 104, // sent by the ATE to the main board
 
 	// Configuration messages sent by the main board
 	setAddressAndNormalTiming = 2010,
@@ -87,9 +87,9 @@ enum class CanMessageType : uint16_t
 	createFilamentMonitor = 6046,
 	deleteFilamentMonitor = 6047,
 	configureFilamentMonitor = 6048,
-
 	updateHeaterModelNew = 6049,
-	m569p6 = 6050,
+	m569p2 = 6050,
+	m569p6 = 6051,
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,
