@@ -39,7 +39,7 @@ constexpr float DefaultMinFanPwm = 0.1;					// minimum fan PWM
 constexpr uint32_t DefaultFanBlipTime = 100;			// fan blip time in milliseconds
 
 // The values of this enumeration must correspond to the meanings of the M569.1 S parameter
-NamedEnum(EncoderType, uint8_t, none, linearQuadrature, rotaryQuadrature, as5047, tli5012);
+NamedEnum(EncoderType, uint8_t, none, linearQuadrature, rotaryQuadrature, AS5047, TLI5012);
 
 // Error codes, presented as a number of flashes of the DIAG LED, used by both the bootloader and by expansion boards
 enum class FirmwareFlashErrorCode : unsigned int
