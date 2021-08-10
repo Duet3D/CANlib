@@ -80,4 +80,29 @@ NamedEnum(FilamentSensorStatus, uint8_t,
 	sensorError
 );
 
+// Meaning of the driver status bits. Many of these have the same bit positions as in the TMC2209 DRV_STATUS register. The TMC5160 DRV_STATUS is different.
+union StandardDriverStatus
+{
+	uint32_t all;
+	struct
+	{
+		uint32_t otpw : 1,						// over temperature warning
+				 ot : 1,						// over temperature error
+				 s2ga : 1,						// short to ground phase A
+				 s2gb : 1,						// short to ground phase B
+				 s2vsa : 1,						// short to VS phase A
+				 s2vsb : 1,						// short to VS phase B
+				 ola : 1,						// open load phase A
+				 olb : 1,						// open load phase B
+				 prestall : 1,					// close to stall, or closed loop warning
+				 stall : 1,						// stall, or closed loop error exceeded
+				 standstill : 1,				// standstill indicator
+				 zero : 5,						// reserved for future use
+				 sgresult : 10,					// stallguard result
+				 zero2 : 6;						// reserved for future use
+	};
+};
+
+static_assert(sizeof(StandardDriverStatus) == sizeof(uint32_t));
+
 #endif /* SRC_DUET3COMMON_H_ */

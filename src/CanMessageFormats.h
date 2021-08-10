@@ -11,6 +11,7 @@
 #include "CanId.h"
 #include "CanSettings.h"
 #include "RemoteInputHandle.h"
+#include "Duet3Common.h"
 
 #include <General/Bitmap.h>
 #include <General/Strnlen.h>
@@ -1095,7 +1096,7 @@ struct __attribute__((packed)) CanMessageDriversStatus
 	uint16_t numDriversReported : 4,
 			 zero : 12;
 	uint16_t zero2;						// for alignment
-	uint32_t data[15];
+	StandardDriverStatus data[15];
 
 	size_t GetActualDataLength() const noexcept
 	{
