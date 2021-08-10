@@ -97,8 +97,8 @@ union StandardDriverStatus
 				 prestall : 1,					// close to stall, or closed loop warning
 				 stall : 1,						// stall, or closed loop error exceeded
 				 standstill : 1,				// standstill indicator
-				 zero : 5,						// reserved for future use
-				 sgresult : 10,					// stallguard result
+				 closedLoopStatus : 5,			// closed loop driver status, all zero if OK
+				 sgresult : 10,					// reserved for stallguard result
 				 zero2 : 6;						// reserved for future use
 	};
 };
