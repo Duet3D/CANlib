@@ -107,4 +107,12 @@ union StandardDriverStatus
 
 static_assert(sizeof(StandardDriverStatus) == sizeof(uint32_t));
 
+// Structure to represent the minimum, current and maximum values of a floating point quantity
+struct MinCurMax
+{
+	float minimum;
+	float current;
+	float maximum;
+};
+
 #endif /* SRC_DUET3COMMON_H_ */
