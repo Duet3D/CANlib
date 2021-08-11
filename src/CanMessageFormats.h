@@ -1074,18 +1074,25 @@ struct __attribute__((packed)) CanMessageBoardStatus
 {
 	static constexpr CanMessageType messageType = CanMessageType::boardStatusReport;
 
-	struct MinCurMax
-	{
-		float minimum;
-		float current;
-		float maximum;
-	};
-
 	uint32_t hasVin : 1,
 			 hasV12 : 1,
-			 hasMcuTemp : 11,
-			 zero : 19;							// reserved for future use
+			 hasMcuTemp : 1,
+			 zero : 13,							// reserved for future use
+			 underVoltage : 1,
+			 zero2 : 15;
 	MinCurMax values[3];
+
+	void Clear() noexcept
+	{
+		hasVin = hasV12 = hasMcuTemp = underVoltage = false;
+		zero = zero2 = 0;
+	}
+
+	size_t GetActualDataLength() const noexcept
+	{
+		const unsigned int numValues = hasVin + hasV12 + hasMcuTemp;
+		return sizeof(uint32_t) + numValues * sizeof(values[0]);
+	}
 };
 
 // Message sent by expansion boards to report the status of their drivers
