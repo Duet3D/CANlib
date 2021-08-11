@@ -38,6 +38,8 @@ constexpr float DefaultThermistorC = 7.060e-8;
 constexpr float DefaultMinFanPwm = 0.1;					// minimum fan PWM
 constexpr uint32_t DefaultFanBlipTime = 100;			// fan blip time in milliseconds
 
+constexpr uint32_t ActLedFlashTime = 100;				// how long the ACT LED stays on after we process a CAN message
+
 // The values of this enumeration must correspond to the meanings of the M569.1 S parameter
 NamedEnum(EncoderType, uint8_t, none, linearQuadrature, rotaryQuadrature, AS5047, TLI5012);
 
