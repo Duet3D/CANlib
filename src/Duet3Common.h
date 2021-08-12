@@ -115,4 +115,25 @@ struct MinCurMax
 	float maximum;
 };
 
+// Enum to represent a heater state
+enum class HeaterMode : uint8_t
+{
+	// The order of these is important because we test "mode > HeatingMode::suspended" to determine whether the heater is active
+	// and "mode >= HeatingMode::off" to determine whether the heater is either active or suspended
+	fault,
+	offline,
+	off,
+	suspended,
+	heating,
+	cooling,
+	stable,
+	// All states from here onwards must be PID tuning states because function IsTuning assumes that
+	tuning0,
+	tuning1,
+	tuning2,
+	tuning3,
+	firstTuningMode = tuning0,
+	lastTuningMode = tuning3
+};
+
 #endif /* SRC_DUET3COMMON_H_ */
