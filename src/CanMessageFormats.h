@@ -311,6 +311,7 @@ struct __attribute__((packed)) DriverStateControl
 			 zero : 6,
 			 idlePercent : 8;		// only used when the mode is 'idle'
 
+	DriverStateControl() noexcept : mode(0), zero(0), idlePercent(0) { }
 	DriverStateControl(uint16_t m) noexcept : mode(m), zero(0), idlePercent(0) { }
 	DriverStateControl(uint16_t m, uint8_t idlePc) noexcept : mode(m), zero(0), idlePercent(idlePc) { }
 
@@ -927,11 +928,12 @@ constexpr ParamDescriptor M569Point1Params[] =
 {
 	LOCAL_DRIVER_PARAM('P'),
 	UINT8_PARAM('T'),
-	FLOAT_PARAM('E'),
+	FLOAT_ARRAY_PARAM('E', 2),
+	FLOAT_PARAM('C'),
 	FLOAT_PARAM('R'),
 	FLOAT_PARAM('I'),
 	FLOAT_PARAM('D'),
-	FLOAT_PARAM('F'),
+	UINT8_PARAM('L'),
 	END_PARAMS
 };
 
