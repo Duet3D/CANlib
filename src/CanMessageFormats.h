@@ -1245,21 +1245,14 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 			 filter : 16,					// which variables are present in the data packet
 			 zero : 10;
 	uint16_t firstSampleNumber;				// the number of the first sample
+	uint16_t zero2;							// for alignment, currently spare
 	float    data[14];
 
 	// Get the actual amount of data
 	size_t GetActualDataLength() const noexcept
 	{
-		// Count how many bits are set in 'filter'
-		// TODO: Look into a more efficient way of doing this
-		int variableCount = 0;
-		int tmpFilter = filter;
-		while (tmpFilter != 0) {
-			variableCount += tmpFilter & 0x1;
-			tmpFilter >>= 1;
-		}
-
-		return sizeof(uint32_t) + sizeof(uint16_t) + numSamples * variableCount * sizeof(float);
+		Bitmap<uint16_t> tmpFilter(filter);
+		return sizeof(uint32_t) + sizeof(uint16_t) + numSamples * tmpFilter.CountSetBits() * sizeof(float);
 	}
 };
 
