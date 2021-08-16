@@ -22,7 +22,7 @@ constexpr size_t MaxMonitorsPerHeater = 3;
 constexpr size_t MaxZProbes = 4;
 constexpr size_t MaxZProbeProgramBytes = 8;				// maximum number of bytes in a Z probe program
 
-constexpr size_t MaxFans = 16;
+constexpr size_t MaxFans = 20;
 
 constexpr size_t MaxGpOutPorts = 32;					// increased as requested by Jimmykc
 
