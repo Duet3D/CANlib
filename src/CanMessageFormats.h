@@ -1104,7 +1104,8 @@ struct __attribute__((packed)) CanMessageBoardStatus
 	uint32_t hasVin : 1,
 			 hasV12 : 1,
 			 hasMcuTemp : 1,
-			 zero : 13,							// reserved for future use
+			 hasAccelerometer : 1,
+			 zero : 12,							// reserved for future use
 			 underVoltage : 1,
 			 zero2 : 15;
 	MinCurMax values[3];
