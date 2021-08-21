@@ -9,6 +9,7 @@
 #define SRC_CANMESSAGEGENERICPARSER_H_
 
 #include "CanMessageFormats.h"
+#include "CanMessageGenericTableFormat.h"
 
 class StringRef;
 

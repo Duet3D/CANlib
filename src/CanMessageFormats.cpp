@@ -6,6 +6,7 @@
  */
 
 #include "CanMessageFormats.h"
+#include "CanMessageGenericTableFormat.h"
 #include "General/StringFunctions.h"
 #include <cinttypes>
 #include <cstring>
