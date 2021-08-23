@@ -139,18 +139,18 @@ enum class HeaterMode : uint8_t
 };
 
 // Variables available for recording in closed-loop mode
-const uint16_t CL_RECORD_RAW_ENCODER_READING 			= 1 << 0;
-const uint16_t CL_RECORD_CURRENT_MOTOR_STEPS 			= 1 << 1;
-const uint16_t CL_RECORD_TARGET_MOTOR_STEPS 			= 1 << 2;
-const uint16_t CL_RECORD_CURRENT_ERROR 					= 1 << 3;
-const uint16_t CL_RECORD_PID_CONTROL_SIGNAL 			= 1 << 4;
-const uint16_t CL_RECORD_PID_P_TERM 					= 1 << 5;
-const uint16_t CL_RECORD_PID_I_TERM 					= 1 << 6;
-const uint16_t CL_RECORD_PID_D_TERM 					= 1 << 7;
-const uint16_t CL_RECORD_STEP_PHASE 					= 1 << 8;
-const uint16_t CL_RECORD_DESIRED_STEP_PHASE 			= 1 << 9;
-const uint16_t CL_RECORD_PHASE_SHIFT 					= 1 << 10;
-const uint16_t CL_RECORD_COIL_A_CURRENT 				= 1 << 11;
-const uint16_t CL_RECORD_COIL_B_CURRENT 				= 1 << 12;
+constexpr uint16_t CL_RECORD_RAW_ENCODER_READING 			= 1 << 0;
+constexpr uint16_t CL_RECORD_CURRENT_MOTOR_STEPS 			= 1 << 1;
+constexpr uint16_t CL_RECORD_TARGET_MOTOR_STEPS 			= 1 << 2;
+constexpr uint16_t CL_RECORD_CURRENT_ERROR 					= 1 << 3;
+constexpr uint16_t CL_RECORD_PID_CONTROL_SIGNAL 			= 1 << 4;
+constexpr uint16_t CL_RECORD_PID_P_TERM 					= 1 << 5;
+constexpr uint16_t CL_RECORD_PID_I_TERM 					= 1 << 6;
+constexpr uint16_t CL_RECORD_PID_D_TERM 					= 1 << 7;
+constexpr uint16_t CL_RECORD_STEP_PHASE 					= 1 << 8;
+constexpr uint16_t CL_RECORD_DESIRED_STEP_PHASE 			= 1 << 9;
+constexpr uint16_t CL_RECORD_PHASE_SHIFT 					= 1 << 10;
+constexpr uint16_t CL_RECORD_COIL_A_CURRENT 				= 1 << 11;
+constexpr uint16_t CL_RECORD_COIL_B_CURRENT 				= 1 << 12;
 
 #endif /* SRC_DUET3COMMON_H_ */
