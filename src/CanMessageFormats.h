@@ -1108,7 +1108,6 @@ union CanMessage
 	CanMessageAccelerometerData accelerometerData;
 	CanMessageStartClosedLoopDataCollection startClosedLoopDataCollection;
 	CanMessageClosedLoopData closedLoopData;
-	CanMessageLogMessage canMessageLogMessage;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
