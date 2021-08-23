@@ -90,6 +90,7 @@ enum class CanMessageType : uint16_t
 	updateHeaterModelNew = 6049,
 	m569p2 = 6050,
 	m569p6 = 6051,
+	m569p7 = 6052,
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,
