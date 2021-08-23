@@ -1249,29 +1249,17 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 	uint16_t zero2;							// for alignment, currently spare
 	float    data[14];
 
-	// Get the actual amount of data
-	size_t GetActualDataLength() const noexcept
+	// Count how many bits are set in filter (i.e. how many variables are being collected)
+	size_t GetFilterSetBits() const noexcept
 	{
 		Bitmap<uint16_t> tmpFilter(filter);
-		return sizeof(uint32_t) + sizeof(uint16_t) + numSamples * tmpFilter.CountSetBits() * sizeof(float);
+		return tmpFilter.CountSetBits();
 	}
-};
-
-// Message used to send logging data from an expansion board to the master
-struct __attribute__((packed)) CanMessageLogMessage
-{
-	static constexpr CanMessageType messageType = CanMessageType::logMessage;
-
-	bool lastPacket;		// Are there more packets to come?
-	time_t time;			// Time of the message
-	uint8_t type;			// The type of logging message
-	uint16_t packetLength;	// Character count of the message
-	char message[50];		// The message
 
 	// Get the actual amount of data
 	size_t GetActualDataLength() const noexcept
 	{
-		return sizeof(bool) + sizeof(time_t) + sizeof(uint8_t) + sizeof(uint16_t) + packetLength * sizeof(char);
+		return sizeof(uint32_t) + sizeof(uint16_t) + numSamples * GetFilterSetBits() * sizeof(float);
 	}
 };
 
