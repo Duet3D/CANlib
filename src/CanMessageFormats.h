@@ -1035,17 +1035,17 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 	uint16_t zero2;							// for alignment, currently spare
 	float    data[14];
 
-	// Count how many bits are set in filter (i.e. how many variables are being collected)
-	size_t GetFilterSetBits() const noexcept
+	// Count how many variables are being collected
+	size_t GetVariableCount() const noexcept
 	{
 		Bitmap<uint16_t> tmpFilter(filter);
-		return tmpFilter.CountSetBits();
+		return tmpFilter.CountSetBits() + 1;	// (+1 because the timestamp is always collected)
 	}
 
 	// Get the actual amount of data
 	size_t GetActualDataLength() const noexcept
 	{
-		return sizeof(uint32_t) + sizeof(uint16_t) + numSamples * GetFilterSetBits() * sizeof(float);
+		return sizeof(uint32_t) + sizeof(uint16_t) + numSamples * GetVariableCount() * sizeof(float);
 	}
 };
 
