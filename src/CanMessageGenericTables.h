@@ -105,10 +105,19 @@ constexpr ParamDescriptor M569Point2Params[] =
 	END_PARAMS
 };
 
+// Note: M569Point6Params_StatusOnly must be kept in step with this!
 constexpr ParamDescriptor M569Point6Params[] =
 {
 	LOCAL_DRIVER_PARAM('P'),
 	UINT8_PARAM('V'),
+	END_PARAMS
+};
+
+// This is the same as M569Point6Params except that it doesn't pick up the V parameter from the GCodeBuffer
+constexpr ParamDescriptor M569Point6Params_StatusOnly[] =
+{
+	LOCAL_DRIVER_PARAM('P'),
+	UINT8_PARAM('v'),					// changed to lowercase so that we don't pick up this parameter from the GCode command
 	END_PARAMS
 };
 
