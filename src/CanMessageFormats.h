@@ -1027,12 +1027,12 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 {
 	static constexpr CanMessageType messageType = CanMessageType::closedLoopData;
 
-	uint32_t numSamples : 5,				// number of samples in this data packet (max 29)
+	uint32_t numSamples : 5,				// number of samples in this data packet
 			 lastPacket : 1,				// set if this is the last packet
 			 filter : 16,					// which variables are present in the data packet
-			 zero : 10;
-	uint16_t firstSampleNumber;				// the number of the first sample
-	uint16_t zero2;							// for alignment, currently spare
+			 zero : 10;						// Currently unused
+	uint32_t firstSampleNumber: 20,			// the number of the first sample
+			 zero2: 12;						// Currently unused
 	float    data[14];
 
 	// Count how many variables are being collected
@@ -1045,7 +1045,7 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 	// Get the actual amount of data
 	size_t GetActualDataLength() const noexcept
 	{
-		return sizeof(uint32_t) + sizeof(uint16_t) + numSamples * GetVariableCount() * sizeof(float);
+		return 2 * sizeof(uint32_t) + numSamples * GetVariableCount() * sizeof(float);
 	}
 };
 
