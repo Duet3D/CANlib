@@ -95,7 +95,7 @@ enum class CanMessageType : uint16_t
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,
 	boardStatusReport = 4511,
-	announce = 4512,
+	announceOld = 4512,							// announce message sent by firmware 3.4.0beta4 and earlier
 	fanTachoReport = 4513,
 	sensorTemperaturesReport = 4514,
 	heatersStatusReport = 4515,
@@ -108,6 +108,7 @@ enum class CanMessageType : uint16_t
 	accelerometerData = 4522,
 	closedLoopData = 4523,
 	logMessage = 4524,
+	announceNew = 4525,							// announce message sent by firmware 3.4.0beta5 and later
 
 	// Firmware updates
 	firmwareBlockRequest = 5000,

@@ -814,10 +814,10 @@ struct __attribute__((packed)) CanMessageHeatersStatus
 	size_t GetActualDataLength(unsigned int numHeaters) const noexcept { return numHeaters * sizeof(CanHeaterReport) + sizeof(uint64_t); }
 };
 
-// Message used by expansion boards to announce their presence on the CAN bus to other boards
-struct __attribute__((packed)) CanMessageAnnounce
+// Message used by expansion boards running firmware 3.4.0beta4 and earlier to announce their presence on the CAN bus to other boards
+struct __attribute__((packed)) CanMessageAnnounceOld
 {
-	static constexpr CanMessageType messageType = CanMessageType::announce;
+	static constexpr CanMessageType messageType = CanMessageType::announceOld;
 
 	uint32_t timeSinceStarted;				// how long since we started up
 	uint32_t numDrivers: 8,					// the number of motor drivers on this board
@@ -830,6 +830,25 @@ struct __attribute__((packed)) CanMessageAnnounce
 			{ return (2 * sizeof(uint32_t)) + Strnlen(boardTypeAndFirmwareVersion, sizeof(boardTypeAndFirmwareVersion)/sizeof(boardTypeAndFirmwareVersion[0])); }
 
 	static size_t GetMaxTextLength(size_t dataLength) noexcept { return dataLength - (2 * sizeof(uint32_t)); }
+};
+
+// Message used by expansion boards running firmware 3.4.0beta5 and later to announce their presence on the CAN bus to other boards
+struct __attribute__((packed)) CanMessageAnnounceNew
+{
+	static constexpr CanMessageType messageType = CanMessageType::announceNew;
+
+	uint32_t timeSinceStarted;				// how long since we started up
+	uint8_t uniqueId[16];					// the unique ID of this board
+	uint8_t numDrivers: 3,					// the number of motor drivers on this board
+			zero : 5;						// for future expansion, set to zero
+	char boardTypeAndFirmwareVersion[43];	// the type short name of this board followed by '|' and the firmware version
+
+	void SetRequestId(CanRequestId rid) noexcept { zero = 0;}	// these messages don't need RIDs
+
+	size_t GetActualDataLength() const noexcept
+			{ return sizeof(timeSinceStarted) + sizeof(uniqueId) + sizeof(uint8_t) + Strnlen(boardTypeAndFirmwareVersion, sizeof(boardTypeAndFirmwareVersion)/sizeof(boardTypeAndFirmwareVersion[0])); }
+
+	static size_t GetMaxTextLength(size_t dataLength) noexcept { return dataLength - (sizeof(timeSinceStarted) + sizeof(uniqueId) + sizeof(uint8_t)); }
 };
 
 // Struct used within the fans report message
@@ -1091,7 +1110,8 @@ union CanMessage
 	CanMessageFansReport fansReport;
 	CanMessageWriteGpio writeGpio;
 	CanMessageSetAddressAndNormalTiming setAddressAndNormalTiming;
-	CanMessageAnnounce announce;
+	CanMessageAnnounceOld announceOld;
+	CanMessageAnnounceNew announceNew;
 	CanMessageAcknowledgeAnnounce acknowledgeAnnounce;
 	CanMessageDiagnosticTest diagnosticTest;
 	CanMessageReadInputsRequest readInputsRequest;
