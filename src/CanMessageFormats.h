@@ -1054,6 +1054,8 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 			 zero2: 12;						// Currently unused
 	float    data[14];
 
+	static constexpr unsigned int MaxDataItems = sizeof(data)/sizeof(data[0]);
+
 	// Count how many variables are being collected
 	size_t GetVariableCount() const noexcept
 	{
