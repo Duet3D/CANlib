@@ -1049,7 +1049,8 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 	uint32_t numSamples : 5,				// number of samples in this data packet
 			 lastPacket : 1,				// set if this is the last packet
 			 filter : 16,					// which variables are present in the data packet
-			 zero : 10;						// Currently unused
+			 overflowed : 1,				// true if there was buffer overflow
+			 zero : 9;						// Currently unused
 	uint32_t firstSampleNumber: 20,			// the number of the first sample
 			 zero2: 12;						// Currently unused
 	float    data[14];
