@@ -93,7 +93,7 @@ constexpr ParamDescriptor M569Point1Params[] =
 	FLOAT_PARAM('R'),
 	FLOAT_PARAM('I'),
 	FLOAT_PARAM('D'),
-	UINT8_PARAM('L'),
+	FLOAT_PARAM('H'),		// minimum holding current percent when in closed loop mode
 	END_PARAMS
 };
 
