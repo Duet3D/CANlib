@@ -84,7 +84,7 @@ NamedEnum(FilamentSensorStatus, uint8_t,
 
 NamedEnum(LogLevel, uint8_t, off, warn, info, debug);
 
-// Meaning of the driver status bits. Many of these have the same bit positions as in the TMC2209 DRV_STATUS register. The TMC5160 DRV_STATUS is different.
+// Meaning of the driver status bits. The lowest 8 bits of these have the same bit positions as in the TMC2209 DRV_STATUS register. The TMC5160 DRV_STATUS is different.
 union StandardDriverStatus
 {
 	uint32_t all;
@@ -98,13 +98,20 @@ union StandardDriverStatus
 				 s2vsb : 1,						// short to VS phase B
 				 ola : 1,						// open load phase A
 				 olb : 1,						// open load phase B
+				 // The remaining bit assignments do not correspond to TMC2209 bit positions
+				 standstill : 1,				// standstill indicator
 				 prestall : 1,					// close to stall, or closed loop warning
 				 stall : 1,						// stall, or closed loop error exceeded
-				 standstill : 1,				// standstill indicator
-				 closedLoopStatus : 5,			// closed loop driver status, all zero if OK
+				 closedLoopNotTuned : 1,		// move attempted when closed loop driver not tuned
+				 closedLoopTuningError : 1,		// closed loop tuning status
+				 zero2 : 3,						// spare, always zero for now
 				 sgresult : 10,					// reserved for stallguard result
-				 zero2 : 6;						// reserved for future use
+				 zero3 : 6;						// reserved for future use
 	};
+
+	static constexpr unsigned int StandstillBitPos = 8;
+	static constexpr unsigned int StallBitPos = 10;
+	static constexpr unsigned int SgresultBitPos = 16;
 };
 
 static_assert(sizeof(StandardDriverStatus) == sizeof(uint32_t));
