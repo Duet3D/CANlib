@@ -9,10 +9,9 @@
 #define SRC_CAN_CANMESSAGEFORMATS_H_
 
 #include "CanId.h"
-#include "Duet3Common.h"
+#include "RRF3Common.h"
 #include "CanSettings.h"
 #include "RemoteInputHandle.h"
-#include "Duet3Common.h"
 
 #include <General/Bitmap.h>
 #include <General/Strnlen.h>
