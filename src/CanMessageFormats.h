@@ -1077,12 +1077,7 @@ struct CanMessageEvent
 {
 	static constexpr CanMessageType messageType = CanMessageType::event;
 
-	union
-	{
-		StandardDriverStatus driverStatus;
-		FilamentSensorStatus filamentStatus;
-		uint32_t uVal;
-	} param;					// more info about what happened, the type depends on the event type
+	EventParameter param;
 	EventType et;				// what happened
 	uint8_t deviceNumber;		// the device number it happened to (the device type is implied by the event type)
 };
