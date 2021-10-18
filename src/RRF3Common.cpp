@@ -9,22 +9,30 @@
 #include <General/Bitmap.h>
 
 // Append the driver status as text. 'severity' meaning is 0 for all, 1 for warnings/errors, 2 for errors only.
+// If nothing to print, append "ok".
 void StandardDriverStatus::AppendText(const StringRef& str, unsigned int severity) const noexcept
 {
 	// Report any errors
 	const uint32_t relevantBits = (severity == 2) ? all & ErrorMask
 									: (severity == 1) ? all & (WarningMask | ErrorMask)
-										: all;
-	Bitmap<uint16_t> errors(relevantBits);
-	errors.Iterate([&str](unsigned int bitNum, unsigned int index)->void
-					{
-						if (index != 0)
+										: all & (WarningMask | ErrorMask | InfoMask);
+	if (relevantBits == 0)
+	{
+		str.cat("ok");
+	}
+	else
+	{
+		Bitmap<uint32_t> errors(relevantBits);
+		errors.Iterate([&str](unsigned int bitNum, unsigned int index)->void
 						{
-							str.cat(", ");
+							if (index != 0)
+							{
+								str.cat(", ");
+							}
+							str.cat(BitMeanings[bitNum]);
 						}
-						str.cat(BitMeanings[bitNum]);
-					}
-				);
+					);
+	}
 }
 
 // End

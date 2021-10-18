@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <General/NamedEnum.h>
 #include <General/StringRef.h>
+#include <General/SimpleMath.h>
 
 // Constants etc. that are common across Duet main and expansion boards
 constexpr float DefaultThermistorR25 = 100000.0;
@@ -60,14 +61,15 @@ union StandardDriverStatus
 				 // The remaining bit assignments do not correspond to TMC2209 bit positions
 				 standstill : 1,						// standstill indicator
 				 stall : 1,								// stall, or closed loop error exceeded
+				 notPresent : 1,						// smart driver not present
 				 externalDriverError : 1,				// external driver signalled error
 				 closedLoopPositionWarning : 1,			// close to stall, or closed loop warning
 				 closedLoopPositionNotMaintained : 1,	// failed to achieve position
 				 closedLoopNotTuned : 1,				// closed loop driver has not been tuned
 				 closedLoopTuningError : 1,				// closed loop tuning failed
 				 closedLoopIllegalMove : 1,				// move attempted in closed loop mode when driver not tuned
-				 sgresultMin : 10,						// minimum stallguard result seen
-				 zero : 6;								// reserved for future use - don't use the MSB because it will make the value negative in the OM
+				 zero : 5,								// reserved for future use - don't use the MSB because it will make the value negative in the OM
+				 sgresultMin : 10;						// minimum stallguard result seen
 	};
 
 	static constexpr unsigned int OtBitPos = 0;
@@ -76,9 +78,9 @@ union StandardDriverStatus
 	static constexpr unsigned int StallBitPos = 10;
 	static constexpr unsigned int SgresultBitPos = 16;
 
-	static constexpr uint32_t ErrorMask =   0b1001011000111110;		// bit positions that usually correspond to errors
-	static constexpr uint32_t WarningMask = 0b0100100011000001;		// bit positions that correspond to warnings
-	static constexpr uint32_t InfoMask =    0b0010000100000000;		// bit positions that correspond to information
+	static constexpr uint32_t ErrorMask =   0b10010101000111110;		// bit positions that usually correspond to errors
+	static constexpr uint32_t WarningMask = 0b01001000011000001;		// bit positions that correspond to warnings
+	static constexpr uint32_t InfoMask =    0b00100010100000000;		// bit positions that correspond to information
 
 	static_assert((ErrorMask & WarningMask) == 0);
 	static_assert((ErrorMask & InfoMask) == 0);
@@ -100,6 +102,7 @@ private:
 		"phase B may be disconnected",
 		"standstill",
 		"stalled",
+		"not present",
 		"external driver error",
 		"position tolerance exceeded",
 		"failed to maintain position",
@@ -107,6 +110,8 @@ private:
 		"tuning failed",
 		"move attempted when not tuned"
 	};
+
+	static_assert((1u << ARRAY_SIZE(BitMeanings)) - 1 == (ErrorMask | WarningMask | InfoMask));
 };
 
 static_assert(sizeof(StandardDriverStatus) == sizeof(uint32_t));
@@ -150,8 +155,8 @@ union EventParameter
 	uint32_t uVal;
 	float fVal;
 	StandardDriverStatus driverStatus;
-	FilamentSensorStatus filamentStatus;
-	HeaterFaultType heaterFaultStatus;
+	FilamentSensorStatus::BaseType filamentStatus;
+	HeaterFaultType::BaseType heaterFaultStatus;
 };
 
 #endif /* SRC_RRF3COMMON_H_ */
