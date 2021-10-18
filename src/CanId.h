@@ -27,8 +27,8 @@ enum class CanMessageType : uint16_t
 
 	// High priority responses sent by expansion boards and Smart Tools
 	inputStateChanged = 100,
-	motorStalled = 102,
-	enterTestMode = 104, // sent by the ATE to the main board
+	event = 102,
+	enterTestMode = 104,	 	// sent by the ATE to the main board
 
 	// Configuration messages sent by the main board
 	setAddressAndNormalTiming = 2010,

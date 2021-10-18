@@ -60,13 +60,16 @@ union StandardDriverStatus
 				 standstill : 1,				// standstill indicator
 				 prestall : 1,					// close to stall, or closed loop warning
 				 stall : 1,						// stall, or closed loop error exceeded
-				 closedLoopNotTuned : 1,		// move attempted when closed loop driver not tuned
-				 closedLoopTuningError : 1,		// closed loop tuning status
-				 zero2 : 3,						// spare, always zero for now
-				 sgresult : 10,					// reserved for stallguard result
+				 closedLoopNotTuned : 1,		// closed loop driver has not been tuned
+				 closedLoopTuningError : 1,		// closed loop tuning failed
+				 closedLoopIllegalMove : 1,		// move attempted in closed loop mode when driver not tuned
+				 zero2 : 2,						// spare, always zero for now
+				 sgresultMin : 10,				// minimum stallguard result seen
 				 zero3 : 6;						// reserved for future use - don't use the MSB because it will make the value negative in the OM
 	};
 
+	static constexpr unsigned int OtBitPos = 0;
+	static constexpr unsigned int OtpwBitPos = 1;
 	static constexpr unsigned int StandstillBitPos = 8;
 	static constexpr unsigned int StallBitPos = 10;
 	static constexpr unsigned int SgresultBitPos = 16;
@@ -102,5 +105,8 @@ enum class HeaterMode : uint8_t
 	firstTuningMode = tuning0,
 	lastTuningMode = tuning3
 };
+
+// Enum to represent an event type. Earlier values in the list have higher priority.
+NamedEnum(EventType, uint8_t, mainBoardPowerFail, heaterFault, driverError, filamentError, driverWarning, mcuTemperatureWarning);
 
 #endif /* SRC_RRF3COMMON_H_ */

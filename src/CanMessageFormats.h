@@ -186,6 +186,7 @@ struct __attribute__((packed)) CanMessageMovementLinear
 	}
 };
 
+#if 0	// not used yet
 // Movement message
 struct __attribute__((packed)) CanMessageMovementLinearShaped
 {
@@ -243,6 +244,7 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped
 		return (sizeof(*this) - sizeof(perDrive)) + ((numDriversMinusOne + 1) * sizeof(perDrive[0]));
 	}
 };
+#endif
 
 // Change CAN address and normal timing message
 struct __attribute__((packed)) CanMessageSetAddressAndNormalTiming
@@ -1070,6 +1072,21 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 	}
 };
 
+// Message sent by an expansion board to the main board to indicate an event
+struct CanMessageEvent
+{
+	static constexpr CanMessageType messageType = CanMessageType::event;
+
+	union
+	{
+		StandardDriverStatus driverStatus;
+		FilamentSensorStatus filamentStatus;
+		uint32_t uVal;
+	} param;					// more info about what happened, the type depends on the event type
+	EventType et;				// what happened
+	uint8_t deviceNumber;		// the device number it happened to (the device type is implied by the event type)
+};
+
 // A union of all message types to allow the correct message format to be extracted from a message buffer
 union CanMessage
 {
@@ -1087,7 +1104,9 @@ union CanMessage
 	CanMessageMovement move;
 #endif
 	CanMessageMovementLinear moveLinear;
+#if 0	// not used yet
 	CanMessageMovementLinearShaped moveLinearShaped;
+#endif
 	CanMessageReturnInfo getInfo;
 	CanMessageSetHeaterTemperature setTemp;
 	CanMessageStandardReply standardReply;
@@ -1130,6 +1149,7 @@ union CanMessage
 	CanMessageAccelerometerData accelerometerData;
 	CanMessageStartClosedLoopDataCollection startClosedLoopDataCollection;
 	CanMessageClosedLoopData closedLoopData;
+	CanMessageEvent event;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
