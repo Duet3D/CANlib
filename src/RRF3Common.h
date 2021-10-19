@@ -148,7 +148,7 @@ enum class HeaterMode : uint8_t
 NamedEnum(HeaterFaultType, uint8_t, temperature_rising_too_slowly, exceeded_allowed_excursion, failed_to_read_sensor);
 
 // Enum to represent an event type. Earlier values in the list have higher priority.
-NamedEnum(EventType, uint8_t, Main_board_power_failure, Heater_fault, Driver_error, Filament_error, Driver_warning, Mcu_temperature_warning);
+NamedEnum(EventType, uint8_t, Main_board_power_failure, Heater_fault, Driver_error, Filament_error, Driver_warning, Mcu_temperature_warning, Trigger);
 
 union EventParameter
 {
