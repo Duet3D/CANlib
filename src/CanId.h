@@ -44,7 +44,7 @@ enum class CanMessageType : uint16_t
 	// Configuration messages sent by the main board
 	//unused_was_m950 = 6010,
 	//unused_was_m308 = 6011,
-	updateHeaterModelOld = 6012,
+	//unused_was_updateHeaterModelOld = 6012,
 	setHeaterTemperature = 6013,
 	//unused_was_setPressureAdvance = 6014,
 	setDateTime = 6015,
