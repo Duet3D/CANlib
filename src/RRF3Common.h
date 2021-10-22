@@ -15,13 +15,83 @@
 #include <General/StringRef.h>
 #include <General/SimpleMath.h>
 
+// This typedef duplicates the one in CoreN2G/Core.h so it must be defined in exactly the same way
+typedef uint16_t PwmFrequency;							// A type that represents a PWM frequency. 0 sometimes means "default".
+
 // Constants etc. that are common across Duet main and expansion boards
+
+// Generic constants
+constexpr float ABS_ZERO = -273.15;						// Celsius
+constexpr float NEARLY_ABS_ZERO = -273.0;				// Celsius
+
+// Timeouts
+constexpr uint32_t FanCheckInterval = 500;				// Milliseconds
+constexpr uint32_t OpenLoadTimeout = 500;				// Milliseconds
+constexpr uint32_t MinimumWarningInterval = 4000;		// Milliseconds, must be at least as long as FanCheckInterval
+constexpr uint32_t DriverCoolingTimeout = 4000;			// Milliseconds
+
+constexpr uint32_t MinimumOpenLoadFullStepsPerSec = 20;
+
+// FanCheckInterval must be lower than MinimumWarningInterval to avoid giving driver over temperature warnings too soon when thermostatic control of electronics cooling fans is used
+static_assert(FanCheckInterval < MinimumWarningInterval, "FanCheckInterval too large");
+
 constexpr float DefaultThermistorR25 = 100000.0;
 constexpr float DefaultThermistorBeta = 4725.0;
 constexpr float DefaultThermistorC = 7.060e-8;
 
 constexpr float DefaultMinFanPwm = 0.1;					// minimum fan PWM
 constexpr uint32_t DefaultFanBlipTime = 100;			// fan blip time in milliseconds
+
+// Heater values
+constexpr uint32_t HeatSampleIntervalMillis = 250;		// interval between taking temperature samples
+constexpr float HeatPwmAverageTime = 5.0;				// Seconds
+
+constexpr uint8_t SensorsTaskTotalDelay = 250;			// Interval between runs of sensors task
+
+constexpr float TEMPERATURE_CLOSE_ENOUGH = 1.0;			// Celsius
+constexpr float TEMPERATURE_LOW_SO_DONT_CARE = 40.0;	// Celsius
+constexpr float HOT_ENOUGH_TO_EXTRUDE = 160.0;			// Celsius
+constexpr float HOT_ENOUGH_TO_RETRACT = 90.0;			// Celsius
+
+constexpr unsigned int MaxBadTemperatureCount = 2000/HeatSampleIntervalMillis;	// Number of bad temperature samples permitted before a heater fault is reported (2 seconds)
+constexpr float BadLowTemperature = -10.0;				// Celsius
+constexpr float DefaultHotEndTemperatureLimit = 285.0;	// Celsius - E3D say to tighten the hot end at 285C
+constexpr float DefaultBedTemperatureLimit = 125.0;		// Celsius
+constexpr float DefaultAllowedOverTemperature = 5.0;
+constexpr float DefaultHotEndFanTemperature = 45.0;		// Temperature at which a thermostatic hot end fan comes on
+constexpr float ThermostatHysteresis = 1.0;				// How much hysteresis we use to prevent noise turning fans on/off too often
+constexpr float BadErrorTemperature = 2000.0;			// Must exceed any reasonable temperature limit including DEFAULT_TEMPERATURE_LIMIT
+constexpr uint32_t DefaultHeaterFaultTimeout = 10 * 60 * 1000;	// How long we wait (in milliseconds) for user intervention after a heater fault before shutting down
+
+// Heating model default parameters. For the chamber heater, we use the same values as for the bed heater.
+// These parameters are about right for an E3Dv6 hot end with 30W heater.
+constexpr float DefaultHotEndHeaterCoolingRate = 1.0/140.0;		// E3D V6 has a cooling time constant of about 140 seconds with the fan off
+constexpr float DefaultHotEndHeaterHeatingRate = 340.0 * DefaultHotEndHeaterCoolingRate;
+constexpr float DefaultHotEndHeaterDeadTime = 5.5;		// E3D v6
+
+// These parameters are about right for a typical PCB bed heater that maxes out at 110C
+constexpr float DefaultBedHeaterCoolingRate = 1.0/700.0;
+constexpr float DefaultBedHeaterHeatingRate = 90.0 * DefaultBedHeaterCoolingRate;
+constexpr float DefaultBedHeaterDeadTime = 10.0;
+
+// Parameters used to detect heating errors
+constexpr float DefaultMaxHeatingFaultTime = 5.0;		// How many seconds we allow a heating fault to persist
+constexpr float AllowedTemperatureDerivativeNoise = 0.12;	// How much fluctuation in the averaged temperature derivative we allow
+constexpr float MaxAmbientTemperature = 45.0;			// We expect heaters to cool to this temperature or lower when switched off
+constexpr float NormalAmbientTemperature = 25.0;		// The ambient temperature we assume - allow for the printer heating its surroundings a little
+constexpr float LowAmbientTemperature = 15.0;			// A lower ambient temperature that we assume when checking heater performance
+constexpr float DefaultMaxTempExcursion = 15.0;			// How much error we tolerate when maintaining temperature before deciding that a heater fault has occurred
+constexpr float MinimumConnectedTemperature = -5.0;		// Temperatures below this we treat as a disconnected thermistor
+
+static_assert(DefaultMaxTempExcursion > TEMPERATURE_CLOSE_ENOUGH, "DefaultMaxTempExcursion is too low");
+
+// PWM frequencies
+constexpr PwmFrequency SlowHeaterPwmFreq = 10;			// slow PWM frequency for bed and chamber heaters, compatible with DC/AC SSRs
+constexpr PwmFrequency DefaultHeaterPwmFreq = 250;		// normal PWM frequency used for hot ends
+constexpr PwmFrequency MaxHeaterPwmFrequency = 1000;	// maximum supported heater PWM frequency, to avoid overheating the mosfets
+constexpr PwmFrequency DefaultFanPwmFreq = 250;			// increase to 25kHz using M106 command to meet Intel 4-wire PWM fan specification
+constexpr PwmFrequency DefaultPinWritePwmFreq = 500;	// default PWM frequency for M42 pin writes and extrusion ancillary PWM
+constexpr PwmFrequency ServoRefreshFrequency = 50;
 
 // Firmware module numbers
 enum class FirmwareModule : uint8_t
