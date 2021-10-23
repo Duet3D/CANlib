@@ -776,6 +776,10 @@ struct __attribute__((packed)) CanHeaterReport
 {
 	uint8_t mode;							// a HeaterMode value
 	uint8_t averagePwm;						// scaled to 0-255 to save space
+
+	float GetTemperature() const noexcept { return LoadLEFloat(&temperature); }
+	void SetTemperature(float t) noexcept { StoreLEFloat(&temperature, t); }
+private:									// make unaligned members private
 	float temperature;						// the last temperature we read
 };
 
@@ -828,7 +832,7 @@ struct __attribute__((packed)) CanMessageAnnounceNew
 };
 
 // Struct used within the fans report message
-struct FanReport
+struct __attribute__((packed)) FanReport
 {
 	uint16_t actualPwm;						// actual PWM value, 0-65535
 	int16_t rpm;							// tacho reading, or -1 if no tacho configured
