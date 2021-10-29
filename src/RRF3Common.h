@@ -11,12 +11,10 @@
 #define SRC_RRF3COMMON_H_
 
 #include <cstdint>
+#include <CoreTypes.h>				// for PwmFrequency
 #include <General/NamedEnum.h>
 #include <General/StringRef.h>
 #include <General/SimpleMath.h>
-
-// This typedef duplicates the one in CoreN2G/Core.h so it must be defined in exactly the same way
-typedef uint16_t PwmFrequency;							// A type that represents a PWM frequency. 0 sometimes means "default".
 
 // Constants etc. that are common across Duet main and expansion boards
 
