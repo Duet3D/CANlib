@@ -158,7 +158,7 @@ union StandardDriverStatus
 
 private:
 	// Strings representing the meaning of each bit in DriverStatus
-	static constexpr const char *BitMeanings[] =
+	static constexpr const char * _ecv_array BitMeanings[] =
 	{
 		"over temperature warning",
 		"over temperature shutdown",
