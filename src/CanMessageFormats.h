@@ -1004,7 +1004,7 @@ struct __attribute__((packed)) CanMessageAccelerometerData
 	uint16_t firstSampleNumber;				// the number of the first sample
 	uint16_t data[29];
 
-	// Get the actual amount of data
+	// Get the actual amount of data. Must call SetAxesAndResolution first to set up bitsPerSampleMinusOne.
 	size_t GetActualDataLength() const noexcept
 	{
 		const unsigned int numAxes = (axes & 1u) + ((axes >> 1) & 1u) + ((axes >> 2) & 1u);
