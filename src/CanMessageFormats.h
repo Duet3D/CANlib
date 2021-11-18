@@ -384,6 +384,7 @@ struct __attribute__((packed)) CanMessageM303
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
+#if 0	// no longer used
 struct __attribute__((packed)) CanMessageUpdateHeaterModelNew
 {
 	static constexpr CanMessageType messageType = CanMessageType::updateHeaterModelNew;
@@ -410,6 +411,37 @@ struct __attribute__((packed)) CanMessageUpdateHeaterModelNew
 	float tD;								// controller differential time
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
+};
+#endif
+
+struct __attribute__((packed)) CanMessageHeaterModelNewNew
+{
+	static constexpr CanMessageType messageType = CanMessageType::heaterModelNewNew;
+
+	uint16_t requestId : 12,
+			 zero : 4;
+	uint16_t heater : 8,
+			 zero2 : 6;
+	float heatingRate;
+	float coolingRate;
+	float coolingRateChangeFanOn;
+	float coolingRateChangeExtruding;
+	float coolingRateExponent;
+	float deadTime;
+	float maxPwm;
+	float standardVoltage;					// power voltage reading at which tuning was done, or 0 if unknown
+	uint32_t enabled : 1,
+			usePid : 1,
+			inverted : 1,
+			pidParametersOverridden : 1,
+			zero3 : 28;
+
+	// The next 3 are used only if pidParametersOverridden is true
+	float kP;								// controller (not model) gain
+	float recipTi;							// reciprocal of controller integral time
+	float tD;								// controller differential time
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0;zero2 = 0; zero3 = 0; }
 };
 
 struct __attribute__((packed)) CanMessageSetHeaterFaultDetectionParameters
@@ -545,7 +577,7 @@ struct __attribute__((packed)) CanMessageStartAccelerometer
 	uint8_t  axes : 3,						// bitmap of axes to collect
 			 delayedStart : 1,				// true to delay starting until startTime
 			 zero2 : 4;
-	uint16_t numSamples;					// how many samples to collect
+	uint32_t numSamples;					// how many samples to collect
 	uint32_t startTime;						// step timer ticks at which to start collecting, if delayedStart is set
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero1 = 0; zero2 = 0; }
@@ -1088,7 +1120,7 @@ union CanMessage
 	CanMessageFirmwareUpdateResponse firmwareUpdateResponse;
 	CanMessageSensorTemperatures sensorTemperaturesBroadcast;
 	CanMessageHeatersStatus heatersStatusBroadcast;
-	CanMessageUpdateHeaterModelNew heaterModelNew;
+	CanMessageHeaterModelNewNew heaterModelNewNew;
 	CanMessageMultipleDrivesRequest<uint16_t> multipleDrivesRequestUint16;
 	CanMessageMultipleDrivesRequest<float> multipleDrivesRequestFloat;
 	CanMessageMultipleDrivesRequest<StepsPerUnitAndMicrostepping> multipleDrivesStepsPerUnitAndMicrostepping;

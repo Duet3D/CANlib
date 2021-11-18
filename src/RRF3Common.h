@@ -64,11 +64,13 @@ constexpr uint32_t DefaultHeaterFaultTimeout = 10 * 60 * 1000;	// How long we wa
 // Heating model default parameters. For the chamber heater, we use the same values as for the bed heater.
 // These parameters are about right for an E3Dv6 hot end with 30W heater.
 constexpr float DefaultHotEndHeaterCoolingRate = 1.0/140.0;		// E3D V6 has a cooling time constant of about 140 seconds with the fan off
+constexpr float DefaultHotEndHeaterCoolingRateExponent = 1.0;
 constexpr float DefaultHotEndHeaterHeatingRate = 340.0 * DefaultHotEndHeaterCoolingRate;
 constexpr float DefaultHotEndHeaterDeadTime = 5.5;		// E3D v6
 
 // These parameters are about right for a typical PCB bed heater that maxes out at 110C
 constexpr float DefaultBedHeaterCoolingRate = 1.0/700.0;
+constexpr float DefaultBedHeaterCoolingRateExponent = 1.0;
 constexpr float DefaultBedHeaterHeatingRate = 90.0 * DefaultBedHeaterCoolingRate;
 constexpr float DefaultBedHeaterDeadTime = 10.0;
 
