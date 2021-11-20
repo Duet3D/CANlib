@@ -421,27 +421,26 @@ struct __attribute__((packed)) CanMessageHeaterModelNewNew
 	uint16_t requestId : 12,
 			 zero : 4;
 	uint16_t heater : 8,
-			 zero2 : 6;
+			 enabled : 1,
+			 usePid : 1,
+			 inverted : 1,
+			 pidParametersOverridden : 1,
+			 zero2 : 4;
 	float heatingRate;
-	float coolingRate;
-	float coolingRateChangeFanOn;
-	float coolingRateChangeExtruding;
+	float basicCoolingRate;
+	float fanCoolingRate;
 	float coolingRateExponent;
+	float fZero;							// earmarked for extra cooling rate due to extrusion
 	float deadTime;
 	float maxPwm;
 	float standardVoltage;					// power voltage reading at which tuning was done, or 0 if unknown
-	uint32_t enabled : 1,
-			usePid : 1,
-			inverted : 1,
-			pidParametersOverridden : 1,
-			zero3 : 28;
 
 	// The next 3 are used only if pidParametersOverridden is true
 	float kP;								// controller (not model) gain
 	float recipTi;							// reciprocal of controller integral time
 	float tD;								// controller differential time
 
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0;zero2 = 0; zero3 = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
 };
 
 struct __attribute__((packed)) CanMessageSetHeaterFaultDetectionParameters

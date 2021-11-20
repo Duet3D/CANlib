@@ -46,7 +46,7 @@ constexpr float HeatPwmAverageTime = 5.0;				// Seconds
 
 constexpr uint8_t SensorsTaskTotalDelay = 250;			// Interval between runs of sensors task
 
-constexpr float TEMPERATURE_CLOSE_ENOUGH = 1.0;			// Celsius
+constexpr float TEMPERATURE_CLOSE_ENOUGH = 1.5;			// Celsius
 constexpr float TEMPERATURE_LOW_SO_DONT_CARE = 40.0;	// Celsius
 constexpr float HOT_ENOUGH_TO_EXTRUDE = 160.0;			// Celsius
 constexpr float HOT_ENOUGH_TO_RETRACT = 90.0;			// Celsius
@@ -55,23 +55,22 @@ constexpr unsigned int MaxBadTemperatureCount = 2000/HeatSampleIntervalMillis;	/
 constexpr float BadLowTemperature = -10.0;				// Celsius
 constexpr float DefaultHotEndTemperatureLimit = 285.0;	// Celsius - E3D say to tighten the hot end at 285C
 constexpr float DefaultBedTemperatureLimit = 125.0;		// Celsius
-constexpr float DefaultAllowedOverTemperature = 5.0;
 constexpr float DefaultHotEndFanTemperature = 45.0;		// Temperature at which a thermostatic hot end fan comes on
 constexpr float ThermostatHysteresis = 1.0;				// How much hysteresis we use to prevent noise turning fans on/off too often
 constexpr float BadErrorTemperature = 2000.0;			// Must exceed any reasonable temperature limit including DEFAULT_TEMPERATURE_LIMIT
 constexpr uint32_t DefaultHeaterFaultTimeout = 10 * 60 * 1000;	// How long we wait (in milliseconds) for user intervention after a heater fault before shutting down
 
 // Heating model default parameters. For the chamber heater, we use the same values as for the bed heater.
-// These parameters are about right for an E3Dv6 hot end with 30W heater.
-constexpr float DefaultHotEndHeaterCoolingRate = 1.0/140.0;		// E3D V6 has a cooling time constant of about 140 seconds with the fan off
-constexpr float DefaultHotEndHeaterCoolingRateExponent = 1.0;
-constexpr float DefaultHotEndHeaterHeatingRate = 340.0 * DefaultHotEndHeaterCoolingRate;
-constexpr float DefaultHotEndHeaterDeadTime = 5.5;		// E3D v6
+// These parameters are about right for an E3Dv6 hot end with 30W heater, cooling time constant is about 140 seconds with the fan off
+constexpr float DefaultToolHeaterHeatingRate = 2.43;
+constexpr float DefaultToolHeaterBasicCoolingRate = 0.56;
+constexpr float DefaultToolHeaterCoolingRateExponent = 1.35;
+constexpr float DefaultToolHeaterDeadTime = 5.5;
 
-// These parameters are about right for a typical PCB bed heater that maxes out at 110C
-constexpr float DefaultBedHeaterCoolingRate = 1.0/700.0;
-constexpr float DefaultBedHeaterCoolingRateExponent = 1.0;
-constexpr float DefaultBedHeaterHeatingRate = 90.0 * DefaultBedHeaterCoolingRate;
+// These parameters are about right for a typical PCB bed heater that maxes out at 110C and has a cooling time constant of 700 seconds
+constexpr float DefaultBedHeaterHeatingRate = 0.13;
+constexpr float DefaultBedHeaterBasicCoolingRate = 0.15;
+constexpr float DefaultBedHeaterCoolingRateExponent = 1.35;
 constexpr float DefaultBedHeaterDeadTime = 10.0;
 
 // Parameters used to detect heating errors
@@ -86,7 +85,6 @@ constexpr float MinimumConnectedTemperature = -5.0;		// Temperatures below this 
 static_assert(DefaultMaxTempExcursion > TEMPERATURE_CLOSE_ENOUGH, "DefaultMaxTempExcursion is too low");
 
 // PWM frequencies
-constexpr PwmFrequency SlowHeaterPwmFreq = 10;			// slow PWM frequency for bed and chamber heaters, compatible with DC/AC SSRs
 constexpr PwmFrequency DefaultHeaterPwmFreq = 250;		// normal PWM frequency used for hot ends
 constexpr PwmFrequency MaxHeaterPwmFrequency = 1000;	// maximum supported heater PWM frequency, to avoid overheating the mosfets
 constexpr PwmFrequency DefaultFanPwmFreq = 250;			// increase to 25kHz using M106 command to meet Intel 4-wire PWM fan specification
