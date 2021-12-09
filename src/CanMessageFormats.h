@@ -1083,13 +1083,21 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 };
 
 // Message sent by an expansion board to the main board to indicate an event
-struct CanMessageEvent
+struct __attribute__((packed)) CanMessageEvent
 {
 	static constexpr CanMessageType messageType = CanMessageType::event;
 
-	EventParameter param;
-	EventType et;				// what happened
-	uint8_t deviceNumber;		// the device number it happened to (the device type is implied by the event type)
+	uint32_t eventType : 8,		// the event type (what happened)
+			deviceNumber : 8,	// the device number that it happened to
+			eventParam : 16;	// more info about the event
+	uint32_t zero;				// reserved for future use
+	char text[56];				// other information about the event, to display to the user
+
+	// Get the actual amount of data
+	size_t GetActualDataLength() const noexcept
+	{
+		return 2 * sizeof(uint32_t) + min<size_t>(Strnlen(text, ARRAY_SIZE(text)), ARRAY_SIZE(text));
+	}
 };
 
 // A union of all message types to allow the correct message format to be extracted from a message buffer
