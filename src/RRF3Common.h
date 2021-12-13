@@ -215,12 +215,15 @@ enum class HeaterMode : uint8_t
 
 // Enum to represent an event type. Earlier values in the list have higher priority.
 // The type names are also the names of the associated macro files that are run in response to the event.
+// Note: main board power failure is not currently handled by the event system but is included here as a placeholder in case in future it is.
+// mcu_temperature_warning is not current used.
 NamedEnum(EventType, uint8_t, main_board_power_fail, heater_fault, driver_error, filament_error, driver_stall, driver_warning, mcu_temperature_warning);
 
 // Type of heater fault
 enum class HeaterFaultType : uint8_t
 {
-	failedToReadSensor = 0, temperatureRisingTooSlowly, exceededAllowedExcursion, monitorTriggered
+	failedToReadSensor = 0, temperatureRisingTooSlowly, exceededAllowedExcursion, monitorTriggered,
+	heaterFaultTypeLimit
 };
 
 // Text descriptions of the above, with an extra one to handle out-of-range parameters
@@ -232,5 +235,7 @@ static constexpr const char *_ecv_array HeaterFaultText[] =
 	"",												// "monitor ... was triggered" will be appended
 	"unknown error: "								// this is used if the parameter is not a valid heater fault type
 };
+
+static_assert(ARRAY_SIZE(HeaterFaultText) == (unsigned int)HeaterFaultType::heaterFaultTypeLimit + 1);
 
 #endif /* SRC_RRF3COMMON_H_ */
