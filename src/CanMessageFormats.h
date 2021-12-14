@@ -947,7 +947,7 @@ struct __attribute__((packed)) CanMessageDriversStatus
 	uint16_t numDriversReported : 4,
 			 zero : 12;
 	uint16_t zero2;						// for alignment
-	StandardDriverStatus data[15];
+	uint32_t data[15];					// status of each driver as a uint32_t
 
 	size_t GetActualDataLength() const noexcept
 	{
@@ -1097,6 +1097,12 @@ struct __attribute__((packed)) CanMessageEvent
 	size_t GetActualDataLength() const noexcept
 	{
 		return 2 * sizeof(uint32_t) + min<size_t>(Strnlen(text, ARRAY_SIZE(text)), ARRAY_SIZE(text));
+	}
+
+	// Get the maximum length of the text
+	size_t GetMaxTextLength(size_t msgLen) const noexcept
+	{
+		return msgLen - 2 * sizeof(uint32_t);
 	}
 };
 

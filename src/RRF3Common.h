@@ -112,32 +112,39 @@ NamedEnum(FilamentSensorStatus, uint8_t,
 
 NamedEnum(LogLevel, uint8_t, off, warn, info, debug);
 
-// Meaning of the driver status bits. The lowest 8 bits of these have the same bit positions as in the TMC2209 DRV_STATUS register. The TMC5160 DRV_STATUS is different.
+// Meaning of the driver status bits.
+// The lowest 8 bits of these have the same bit positions as in the TMC2209 DRV_STATUS register.
+// The TMC5160 DRV_STATUS is different so the bits are translated to this. Similarly for TMC2660.
+// Only the lowest 16 bits are passed in driver event messages
 union StandardDriverStatus
 {
 	uint32_t all;
 	struct
 	{
-		uint32_t otpw : 1,								// over temperature warning
-				 ot : 1,								// over temperature error
-				 s2ga : 1,								// short to ground phase A
-				 s2gb : 1,								// short to ground phase B
-				 s2vsa : 1,								// short to VS phase A
-				 s2vsb : 1,								// short to VS phase B
-				 ola : 1,								// open load phase A
-				 olb : 1,								// open load phase B
-				 // The remaining bit assignments do not correspond to TMC2209 bit positions
-				 standstill : 1,						// standstill indicator
-				 stall : 1,								// stall, or closed loop error exceeded
-				 notPresent : 1,						// smart driver not present
-				 externalDriverError : 1,				// external driver signalled error
-				 closedLoopPositionWarning : 1,			// close to stall, or closed loop warning
-				 closedLoopPositionNotMaintained : 1,	// failed to achieve position
-				 closedLoopNotTuned : 1,				// closed loop driver has not been tuned
-				 closedLoopTuningError : 1,				// closed loop tuning failed
-				 closedLoopIllegalMove : 1,				// move attempted in closed loop mode when driver not tuned
-				 zero : 5,								// reserved for future use - don't use the MSB because it will make the value negative in the OM
-				 sgresultMin : 10;						// minimum stallguard result seen
+		uint32_t
+				// bits 0-7 (these match the TMC2209 status bits for easy translation)
+				otpw : 1,								// over temperature warning
+				ot : 1,									// over temperature error
+				s2ga : 1,								// short to ground phase A
+				s2gb : 1,								// short to ground phase B
+				s2vsa : 1,								// short to VS phase A
+				s2vsb : 1,								// short to VS phase B
+				ola : 1,								// open load phase A
+				olb : 1,								// open load phase B
+				// bits 8-15
+				stall : 1,								// stall, or closed loop error exceeded
+				externalDriverError : 1,				// external driver signalled error
+				closedLoopPositionWarning : 1,			// close to stall, or closed loop warning
+				closedLoopPositionNotMaintained : 1,	// failed to achieve position
+				closedLoopNotTuned : 1,					// closed loop driver has not been tuned
+				closedLoopTuningError : 1,				// closed loop tuning failed
+				closedLoopIllegalMove : 1,				// move attempted in closed loop mode when driver not tuned
+				zero1 : 1,								// reserved for future use
+				// bits 16-31 (these are not passed in driver event messages)
+				standstill : 1,							// standstill indicator
+				notPresent : 1,							// smart driver not present
+				zero2 : 4,								// reserved for future use - don't use the MSB because it will make the value negative in the OM
+				sgresultMin : 10;						// minimum stallguard result seen
 	};
 
 	static constexpr unsigned int OtBitPos = 0;
@@ -146,15 +153,26 @@ union StandardDriverStatus
 	static constexpr unsigned int StallBitPos = 10;
 	static constexpr unsigned int SgresultBitPos = 16;
 
-	static constexpr uint32_t ErrorMask =   0b10010101000111110;		// bit positions that usually correspond to errors
-	static constexpr uint32_t WarningMask = 0b01001000011000001;		// bit positions that correspond to warnings
-	static constexpr uint32_t InfoMask =    0b00100010100000000;		// bit positions that correspond to information
+	static constexpr uint32_t ErrorMask =    0b1'0010'1010'0011'1110;	// bit positions that usually correspond to errors
+	static constexpr uint32_t WarningMask =  0b0'1001'0000'1100'0001;	// bit positions that correspond to warnings
+	static constexpr uint32_t InfoMask =     0b0'0100'0101'0000'0000;	// bit positions that correspond to information
 
 	static_assert((ErrorMask & WarningMask) == 0);
 	static_assert((ErrorMask & InfoMask) == 0);
 	static_assert((InfoMask & WarningMask) == 0);
 
+	StandardDriverStatus() noexcept : all(0) { }
+	explicit StandardDriverStatus(uint32_t val) : all(val) { }
+	void Clear() noexcept { all = 0; }
+
 	void AppendText(const StringRef& str, unsigned int severity) const noexcept;
+	bool HasNewErrorSince(StandardDriverStatus prev) const noexcept { return ((all & ~prev.all) & ErrorMask) != 0; }
+	bool HasNewWarningSince(StandardDriverStatus prev) const noexcept { return ((all & ~prev.all) & WarningMask) != 0; }
+	bool HasNewStallSince(StandardDriverStatus prev) const noexcept { return ((all & ~prev.all) & (1u << StallBitPos)) != 0; }
+	bool IsAnyOpenLoadBitSet() const noexcept { return (all & OpenLoadMask) != 0; }
+	void ClearOpenLoadBits() noexcept { all &= ~OpenLoadMask; }
+	uint16_t AsU16() const noexcept { return (uint16_t)all; }			// this includes the error ands warning bits but no the others
+	uint32_t AsU32() const noexcept { return all; }
 
 private:
 	// Strings representing the meaning of each bit in DriverStatus
@@ -180,6 +198,8 @@ private:
 	};
 
 	static_assert((1u << ARRAY_SIZE(BitMeanings)) - 1 == (ErrorMask | WarningMask | InfoMask));
+
+	static constexpr uint32_t OpenLoadMask = 0b0'0000'0000'1100'0000;	// bit positions that correspond to open load bits
 };
 
 static_assert(sizeof(StandardDriverStatus) == sizeof(uint32_t));
