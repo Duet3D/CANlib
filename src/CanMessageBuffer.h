@@ -62,6 +62,7 @@ public:
 		useBrs = 0;
 		remote = 0;
 		reportInFifo = 0;
+		spare = 0;
 		msg.generic.requestId = rid;
 		return &msg.generic;
 	}
@@ -79,6 +80,7 @@ public:
 		useBrs = 0;
 		remote = 0;
 		reportInFifo = 0;
+		spare = 0;
 		T* rslt = reinterpret_cast<T*>(&msg);
 		rslt->SetRequestId(rid);
 		return rslt;
@@ -97,6 +99,7 @@ public:
 		useBrs = 0;
 		remote = 0;
 		reportInFifo = 0;
+		spare = 0;
 		T* rslt = reinterpret_cast<T*>(&msg);
 		rslt->SetRequestId(rid);
 		return rslt;
@@ -115,6 +118,7 @@ public:
 		useBrs = 0;
 		remote = 0;
 		reportInFifo = 0;
+		spare = 0;
 		T* rslt = reinterpret_cast<T*>(&msg);
 		rslt->SetRequestId(rid);
 		return rslt;
@@ -133,6 +137,7 @@ public:
 		useBrs = 0;
 		remote = 0;
 		reportInFifo = 0;
+		spare = 0;
 		return reinterpret_cast<T*>(&msg);
 	}
 
@@ -149,6 +154,7 @@ public:
 		useBrs = 0;
 		remote = 0;
 		reportInFifo = 0;
+		spare = 0;
 		return reinterpret_cast<T*>(&msg);
 	}
 
@@ -159,11 +165,12 @@ public:
 	size_t dataLength;
 	uint16_t timeStamp;
 	uint16_t marker : 8,			// message marker for transmit messages
-			extId : 1,
-			fdMode : 1,
-			useBrs : 1,
-			remote : 1,
-			reportInFifo : 1;		// true to report transmission complete via TxEventFifo
+			extId : 1,				// true to send this using an extended ID
+			fdMode : 1,				// true to send as CAN-FD, false for plain CAN
+			useBrs : 1,				// true to use bit rate switching (only for CAN-FD)
+			remote : 1,				// true to set the 'remote' bit in the frame
+			reportInFifo : 1,		// true to report transmission complete via TxEventFifo
+			spare : 3;				// spare bits that are cleared by the Setup calls but are otherwise not used
 	CanMessage msg;
 
 private:

@@ -93,14 +93,25 @@ struct __attribute__((packed)) CanMessageReset
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
-// Stop movement on specific drives or all drives
+// Stop movement on specific drives or all drives.
 struct __attribute__((packed)) CanMessageStopMovement
 {
 	static constexpr CanMessageType messageType = CanMessageType::stopMovement;
 
+#if 1
 	uint16_t whichDrives;							// 0xFFFF if all drives on board to be stopped
 
 	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't need RIDs
+#else
+	// This message used to contain just a single uint16_t, so we can tell whether we have an old or new format message by looking at the length.
+	uint32_t whichDrives : 16,									// 0xFFFF if all drives on board to be stopped
+			 zero: 16;
+	int32_t finalStepCounts[MaxLinearDriversPerCanSlave];		// the net number of steps of the last move that were required. 0x80000000 means all of them.
+
+	void SetRequestId(CanRequestId rid) noexcept { zero = 0; }	// these messages don't need RIDs
+	size_t GetActualDataLength(size_t numStopping) const noexcept { return (numStopping + 1) * sizeof(uint32_t); }
+	static constexpr size_t MinDataLengthForNewFormat = 2 * sizeof(uint32_t);
+#endif
 };
 
 #if 0	// this message is no longer used
@@ -359,9 +370,12 @@ struct __attribute__((packed)) CanMessageSetHeaterTemperature
 
 	uint16_t requestId : 12,
 			 zero : 4;
-	uint16_t heaterNumber;
+	uint16_t heaterNumber : 8,
+			 zero2 : 7,
+			 isBedOrChamber : 1;
 	float setPoint;
-	uint8_t command;
+	uint8_t command : 4,
+			zero3 : 4;
 
 	static constexpr uint8_t commandNone = 0;
 	static constexpr uint8_t commandOff = 1;
@@ -371,7 +385,7 @@ struct __attribute__((packed)) CanMessageSetHeaterTemperature
 	static constexpr uint8_t commandUnsuspend = 5;
 	static constexpr uint8_t commandReset = 6;				// reset the heater after a failed model update
 
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; zero3 = 0; }
 };
 
 struct __attribute__((packed)) CanMessageM303
