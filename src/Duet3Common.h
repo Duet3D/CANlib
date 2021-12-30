@@ -32,7 +32,8 @@ constexpr size_t MaxSpindles = 4;							// maximum number of configurable spindl
 
 constexpr uint32_t ActLedFlashTime = 100;					// how long the ACT LED stays on after we process a CAN message
 
-constexpr uint32_t AllowedDriverPositionRevertMillis = 50;	// how long we allow for CAN-connected drivers to revert their position after a move involving endstops
+constexpr uint32_t BasicDriverPositionRevertMillis = 40;	// how long we tell CAN-connected drivers that they have to revert their position after a move involving endstops
+constexpr uint32_t TotalDriverPositionRevertMillis = BasicDriverPositionRevertMillis + 10;		// the same plus an allowance for how long ot takes to send the CAN messages
 
 // The values of this enumeration must correspond to the meanings of the M569.1 S parameter
 NamedEnum(EncoderType, uint8_t, none, linearQuadrature, rotaryQuadrature, AS5047, TLI5012);

@@ -109,13 +109,16 @@ struct __attribute__((packed)) CanMessageRevertPosition
 {
 	static constexpr CanMessageType messageType = CanMessageType::revertPosition;
 
-	uint32_t whichDrives : 16,
+	uint32_t whichDrives : 16,									// bitmap of driver numbers whose required step counts are included n the message
 			 zero: 16;
-	int32_t finalStepCounts[MaxLinearDriversPerCanSlave];		// the net number of steps of the last move that were required. 0x80000000 would mean all of them, but it not normally sent.
+	uint32_t clocksAllowed;										// how many step clocks we allow for the move
+	int32_t finalStepCounts[MaxLinearDriversPerCanSlave];		// the net number of steps of the last move that were required
 
 	void SetRequestId(CanRequestId rid) noexcept { zero = 0; }	// these messages don't need RIDs
-	size_t GetActualDataLength(size_t numStopping) const noexcept { return sizeof(uint32_t) + (numStopping * sizeof(int32_t)); }
+	static constexpr size_t GetActualDataLength(size_t numReverting) noexcept { return (2 * sizeof(uint32_t)) + (numReverting * sizeof(int32_t)); }
 };
+
+static_assert(CanMessageRevertPosition::GetActualDataLength(MaxLinearDriversPerCanSlave) == sizeof(CanMessageRevertPosition));
 
 // Movement message
 struct __attribute__((packed)) CanMessageMovementLinear
