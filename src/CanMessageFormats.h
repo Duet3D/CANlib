@@ -17,6 +17,7 @@
 #include <General/Strnlen.h>
 #include <General/Portability.h>
 
+#include <climits>
 #include <ctime>
 #include <cstring>
 
@@ -93,70 +94,28 @@ struct __attribute__((packed)) CanMessageReset
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
-// Stop movement on specific drives or all drives.
+// Stop movement on specific drivers
 struct __attribute__((packed)) CanMessageStopMovement
 {
 	static constexpr CanMessageType messageType = CanMessageType::stopMovement;
 
-#if 1
 	uint16_t whichDrives;							// 0xFFFF if all drives on board to be stopped
 
 	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't need RIDs
-#else
-	// This message used to contain just a single uint16_t, so we can tell whether we have an old or new format message by looking at the length.
-	uint32_t whichDrives : 16,									// 0xFFFF if all drives on board to be stopped
+};
+
+// Revert position on specific drivers
+struct __attribute__((packed)) CanMessageRevertPosition
+{
+	static constexpr CanMessageType messageType = CanMessageType::revertPosition;
+
+	uint32_t whichDrives : 16,
 			 zero: 16;
-	int32_t finalStepCounts[MaxLinearDriversPerCanSlave];		// the net number of steps of the last move that were required. 0x80000000 means all of them.
+	int32_t finalStepCounts[MaxLinearDriversPerCanSlave];		// the net number of steps of the last move that were required. 0x80000000 would mean all of them, but it not normally sent.
 
 	void SetRequestId(CanRequestId rid) noexcept { zero = 0; }	// these messages don't need RIDs
-	size_t GetActualDataLength(size_t numStopping) const noexcept { return (numStopping + 1) * sizeof(uint32_t); }
-	static constexpr size_t MinDataLengthForNewFormat = 2 * sizeof(uint32_t);
-#endif
+	size_t GetActualDataLength(size_t numStopping) const noexcept { return sizeof(uint32_t) + (numStopping * sizeof(int32_t)); }
 };
-
-#if 0	// this message is no longer used
-
-// Movement message
-struct __attribute__((packed)) CanMessageMovement
-{
-	static constexpr CanMessageType messageType = CanMessageType::movement;
-
-	uint32_t whenToExecute;
-	uint32_t accelerationClocks;
-	uint32_t steadyClocks;
-	uint32_t decelClocks;
-
-	uint32_t deltaDrives : 4,						// which drivers are doing delta movement (not fully implemented yet, so may change)
-			 pressureAdvanceDrives : 4,				// which drivers have pressure advance applied
-			 zero : 5,								// unused (was: which drivers have endstop checks applied, and whether to stop all drives on endstop triggering)
-			 seq : 3;								// TEMP sequence number
-
-	float initialSpeedFraction;
-	float finalSpeedFraction;
-
-	float initialX;									// needed only for delta movement
-	float initialY;									// needed only for delta movement
-	float finalX;									// needed only for delta movement
-	float finalY;									// needed only for delta movement
-	float zMovement;								// needed only for delta movement
-
-	struct PerDriveValues
-	{
-		int32_t steps;								// net steps moved
-
-		void Init() noexcept
-		{
-			steps = 0;
-		}
-	};
-
-	PerDriveValues perDrive[MaxDriversPerCanSlave];
-
-	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't have RIDs, use the whenToExecute field to avoid duplication
-	void DebugPrint() const noexcept;
-};
-
-#endif
 
 // Movement message
 struct __attribute__((packed)) CanMessageMovementLinear
@@ -188,7 +147,7 @@ struct __attribute__((packed)) CanMessageMovementLinear
 
 	PerDriveValues perDrive[MaxLinearDriversPerCanSlave];
 
-	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't have RIDs, use the whenToExecute field to avoid duplication
+	void SetRequestId(CanRequestId rid) noexcept { zero = 0; }		// these messages don't have RIDs
 	void DebugPrint() const noexcept;
 
 	size_t GetActualDataLength() const noexcept
@@ -1132,6 +1091,7 @@ union CanMessage
 	CanMessageEmergencyStop eStop;
 	CanMessageEnterTestMode enterTestMode;
 	CanMessageStopMovement stopMovement;
+	CanMessageRevertPosition revertPosition;
 	CanMessageReset reset;
 #if 0	// this message is no longer used
 	CanMessageMovement move;

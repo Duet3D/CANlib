@@ -22,6 +22,7 @@ enum class CanMessageType : uint16_t
 	powerFailing = 40,
 	stopMovement = 45,
 	insertHiccup = 46,
+	revertPosition = 47,
 	//unused_was_movement = 50,
 	movementLinear = 51,
 	movementLinearShaped = 52,

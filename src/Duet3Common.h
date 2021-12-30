@@ -15,22 +15,24 @@
 #include <General/NamedEnum.h>
 
 // Limits of Duet 3 systems
-constexpr size_t MaxSensors = 56;						// limited by the size of bitmap we can store in an ExpressionValue
+constexpr size_t MaxSensors = 56;							// limited by the size of bitmap we can store in an ExpressionValue
 constexpr size_t MaxHeaters = 32;
 constexpr size_t MaxMonitorsPerHeater = 3;
 
 constexpr size_t MaxZProbes = 4;
-constexpr size_t MaxZProbeProgramBytes = 8;				// maximum number of bytes in a Z probe program
+constexpr size_t MaxZProbeProgramBytes = 8;					// maximum number of bytes in a Z probe program
 
 constexpr size_t MaxFans = 20;
 
-constexpr size_t MaxGpOutPorts = 32;					// increased as requested by Jimmykc
+constexpr size_t MaxGpOutPorts = 32;						// increased as requested by Jimmykc
 
 // The following currently don't need to be known by expansion boards, but might in future
 constexpr size_t MaxGpInPorts = 16;
-constexpr size_t MaxSpindles = 4;						// maximum number of configurable spindles
+constexpr size_t MaxSpindles = 4;							// maximum number of configurable spindles
 
-constexpr uint32_t ActLedFlashTime = 100;				// how long the ACT LED stays on after we process a CAN message
+constexpr uint32_t ActLedFlashTime = 100;					// how long the ACT LED stays on after we process a CAN message
+
+constexpr uint32_t AllowedDriverPositionRevertMillis = 50;	// how long we allow for CAN-connected drivers to revert their position after a move involving endstops
 
 // The values of this enumeration must correspond to the meanings of the M569.1 S parameter
 NamedEnum(EncoderType, uint8_t, none, linearQuadrature, rotaryQuadrature, AS5047, TLI5012);
