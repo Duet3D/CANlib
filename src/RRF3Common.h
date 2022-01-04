@@ -89,7 +89,7 @@ constexpr PwmFrequency DefaultHeaterPwmFreq = 250;		// normal PWM frequency used
 constexpr PwmFrequency MaxHeaterPwmFrequency = 1000;	// maximum supported heater PWM frequency, to avoid overheating the mosfets
 constexpr PwmFrequency DefaultFanPwmFreq = 250;			// increase to 25kHz using M106 command to meet Intel 4-wire PWM fan specification
 constexpr PwmFrequency DefaultPinWritePwmFreq = 500;	// default PWM frequency for M42 pin writes and extrusion ancillary PWM
-constexpr PwmFrequency ServoRefreshFrequency = 50;
+constexpr PwmFrequency DefaultServoRefreshFrequency = 50;
 
 // Firmware module numbers
 enum class FirmwareModule : uint8_t
