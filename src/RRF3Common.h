@@ -81,6 +81,8 @@ constexpr float NormalAmbientTemperature = 25.0;		// The ambient temperature we 
 constexpr float LowAmbientTemperature = 15.0;			// A lower ambient temperature that we assume when checking heater performance
 constexpr float DefaultMaxTempExcursion = 15.0;			// How much error we tolerate when maintaining temperature before deciding that a heater fault has occurred
 constexpr float MinimumConnectedTemperature = -5.0;		// Temperatures below this we treat as a disconnected thermistor
+constexpr float MinToolTemperatureRiseFactor = 0.6;		// Minimum actual/expected temperature rise to not trigger a heater fault for hot end heaters
+constexpr float MinBedTemperatureRiseFactor = 0.3;		// Minimum actual/expected temperature rise to not trigger a heater fault for bed and chamber heaters. One user needs <= 0.333.
 
 static_assert(DefaultMaxTempExcursion > TEMPERATURE_CLOSE_ENOUGH, "DefaultMaxTempExcursion is too low");
 
