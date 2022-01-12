@@ -219,7 +219,7 @@ enum class HeaterMode : uint8_t
 {
 	// The order of these is important because we test "mode > HeatingMode::suspended" to determine whether the heater is active
 	// and "mode >= HeatingMode::off" to determine whether the heater is either active or suspended
-	fault,
+	fault = 0,
 	offline,
 	off,
 	suspended,
