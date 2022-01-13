@@ -149,11 +149,12 @@ union StandardDriverStatus
 				sgresultMin : 10;						// minimum stallguard result seen
 	};
 
-	static constexpr unsigned int OtBitPos = 0;
-	static constexpr unsigned int OtpwBitPos = 1;
-	static constexpr unsigned int StandstillBitPos = 8;
-	static constexpr unsigned int StallBitPos = 10;
-	static constexpr unsigned int SgresultBitPos = 16;
+	static constexpr unsigned int OtpwBitPos = 0;
+	static constexpr unsigned int OtBitPos = 1;
+	static constexpr unsigned int StallBitPos = 8;
+	static constexpr unsigned int ExternDriverErrorBitPos = 9;
+	static constexpr unsigned int StandstillBitPos = 16;
+	static constexpr unsigned int SgresultBitPos = 22;
 
 	static constexpr uint32_t ErrorMask =    0b1'0010'1010'0011'1110;	// bit positions that usually correspond to errors
 	static constexpr uint32_t WarningMask =  0b0'1001'0000'1100'0001;	// bit positions that correspond to warnings
