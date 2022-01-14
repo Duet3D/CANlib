@@ -133,11 +133,12 @@ union StandardDriverStatus
 				s2vsb : 1,								// short to VS phase B
 				ola : 1,								// open load phase A
 				olb : 1,								// open load phase B
-				// bits 8-15
+				// bits 8-11
 				stall : 1,								// stall, or closed loop error exceeded
 				externalDriverError : 1,				// external driver signalled error
 				closedLoopPositionWarning : 1,			// close to stall, or closed loop warning
 				closedLoopPositionNotMaintained : 1,	// failed to achieve position
+				// bits 12-15
 				closedLoopNotTuned : 1,					// closed loop driver has not been tuned
 				closedLoopTuningError : 1,				// closed loop tuning failed
 				closedLoopIllegalMove : 1,				// move attempted in closed loop mode when driver not tuned
@@ -156,9 +157,9 @@ union StandardDriverStatus
 	static constexpr unsigned int StandstillBitPos = 16;
 	static constexpr unsigned int SgresultBitPos = 22;
 
-	static constexpr uint32_t ErrorMask =    0b1'0010'1010'0011'1110;	// bit positions that usually correspond to errors
-	static constexpr uint32_t WarningMask =  0b0'1001'0000'1100'0001;	// bit positions that correspond to warnings
-	static constexpr uint32_t InfoMask =     0b0'0100'0101'0000'0000;	// bit positions that correspond to information
+	static constexpr uint32_t ErrorMask =    0b00'0100'1010'0011'1110;	// bit positions that usually correspond to errors
+	static constexpr uint32_t WarningMask =  0b00'0010'0000'1100'0001;	// bit positions that correspond to warnings
+	static constexpr uint32_t InfoMask =     0b11'1001'0101'0000'0000;	// bit positions that correspond to information, including the unused bit
 
 	static_assert((ErrorMask & WarningMask) == 0);
 	static_assert((ErrorMask & InfoMask) == 0);
@@ -181,6 +182,7 @@ private:
 	// Strings representing the meaning of each bit in DriverStatus
 	static constexpr const char * _ecv_array BitMeanings[] =
 	{
+		// Bits 0-7
 		"over temperature warning",
 		"over temperature shutdown",
 		"phase A short to ground",
@@ -189,15 +191,19 @@ private:
 		"phase B short to Vin",
 		"phase A may be disconnected",
 		"phase B may be disconnected",
-		"standstill",
+		// Bits 8-11
 		"stalled",
-		"not present",
 		"external driver error",
 		"position tolerance exceeded",
 		"failed to maintain position",
+		// Bits 12-15
 		"not tuned",
 		"tuning failed",
-		"move attempted when not tuned"
+		"move attempted when not tuned",
+		"unused bit",
+		// Bit 16
+		"standstill",
+		"not present",
 	};
 
 	static_assert((1u << ARRAY_SIZE(BitMeanings)) - 1 == (ErrorMask | WarningMask | InfoMask));
