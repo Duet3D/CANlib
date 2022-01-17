@@ -27,7 +27,7 @@ constexpr size_t MaxFans = 20;
 constexpr size_t MaxGpOutPorts = 32;						// increased as requested by Jimmykc
 
 // The following currently don't need to be known by expansion boards, but might in future
-constexpr size_t MaxGpInPorts = 16;
+constexpr size_t MaxGpInPorts = 32;
 constexpr size_t MaxSpindles = 4;							// maximum number of configurable spindles
 
 constexpr uint32_t ActLedFlashTime = 100;					// how long the ACT LED stays on after we process a CAN message
