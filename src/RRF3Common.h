@@ -93,13 +93,20 @@ constexpr PwmFrequency DefaultFanPwmFreq = 250;			// increase to 25kHz using M10
 constexpr PwmFrequency DefaultPinWritePwmFreq = 500;	// default PWM frequency for M42 pin writes and extrusion ancillary PWM
 constexpr PwmFrequency DefaultServoRefreshFrequency = 50;
 
-// Firmware module numbers
+// Slow driver timings
+constexpr float DefaultStepWidthMicroseconds = 2.5;
+constexpr float DefaultStepIntervalMicroseconds = 2.5;
+constexpr float DefaultSetupTimeMicroseconds = 2.5;
+constexpr float DefaultHoldTimeMicroseconds = 2.5;
+
+// Firmware module numbers in firmware update commands
 enum class FirmwareModule : uint8_t
 {
 	main = 0,
 	wifi = 1,
 	reserved = 2,
-	bootloader = 3
+	bootloader = 3,
+	panelDue = 4
 };
 
 NamedEnum(FilamentSensorStatus, uint8_t,
