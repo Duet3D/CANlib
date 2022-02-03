@@ -46,10 +46,11 @@ constexpr float HeatPwmAverageTime = 5.0;				// Seconds
 
 constexpr uint8_t SensorsTaskTotalDelay = 250;			// Interval between runs of sensors task
 
-constexpr float TEMPERATURE_CLOSE_ENOUGH = 1.5;			// Celsius
-constexpr float TEMPERATURE_LOW_SO_DONT_CARE = 40.0;	// Celsius
-constexpr float HOT_ENOUGH_TO_EXTRUDE = 160.0;			// Celsius
-constexpr float HOT_ENOUGH_TO_RETRACT = 90.0;			// Celsius
+constexpr float TemperatureCloseEnough = 1.5;			// Celsius
+constexpr float TemperatureSoLowDontCare = 40.0;		// When heating, temperatures below this are treated as meaning no heating required
+constexpr float TemperatureSoHighDontCare = 20.0;		// When cooling, temperature above this are treated as no cooling required
+constexpr float DefaultMinExtrusionTemperature = 160.0;	// Celsius
+constexpr float DefaultMinRetractionTemperature = 90.0;	// Celsius
 
 constexpr unsigned int MaxBadTemperatureCount = 2000/HeatSampleIntervalMillis;	// Number of bad temperature samples permitted before a heater fault is reported (2 seconds)
 constexpr float BadLowTemperature = -10.0;				// Celsius
@@ -57,7 +58,7 @@ constexpr float DefaultHotEndTemperatureLimit = 285.0;	// Celsius - E3D say to t
 constexpr float DefaultBedTemperatureLimit = 125.0;		// Celsius
 constexpr float DefaultHotEndFanTemperature = 45.0;		// Temperature at which a thermostatic hot end fan comes on
 constexpr float ThermostatHysteresis = 1.0;				// How much hysteresis we use to prevent noise turning fans on/off too often
-constexpr float BadErrorTemperature = 2000.0;			// Must exceed any reasonable temperature limit including DEFAULT_TEMPERATURE_LIMIT
+constexpr float BadErrorTemperature = 2000.0;			// Must exceed any reasonable temperature limit including DefaultHotEndTemperatureLimit
 constexpr uint32_t DefaultHeaterFaultTimeout = 10 * 60 * 1000;	// How long we wait (in milliseconds) for user intervention after a heater fault before shutting down
 
 // Heating model default parameters. For the chamber heater, we use the same values as for the bed heater.
@@ -84,7 +85,7 @@ constexpr float MinimumConnectedTemperature = -5.0;		// Temperatures below this 
 constexpr float MinToolTemperatureRiseFactor = 0.6;		// Minimum actual/expected temperature rise to not trigger a heater fault for hot end heaters
 constexpr float MinBedTemperatureRiseFactor = 0.3;		// Minimum actual/expected temperature rise to not trigger a heater fault for bed and chamber heaters. One user needs <= 0.333.
 
-static_assert(DefaultMaxTempExcursion > TEMPERATURE_CLOSE_ENOUGH, "DefaultMaxTempExcursion is too low");
+static_assert(DefaultMaxTempExcursion > TemperatureCloseEnough, "DefaultMaxTempExcursion is too low");
 
 // PWM frequencies
 constexpr PwmFrequency DefaultHeaterPwmFreq = 250;		// normal PWM frequency used for hot ends
