@@ -157,6 +157,19 @@ struct __attribute__((packed)) CanMessageMovementLinear
 	{
 		return (sizeof(*this) - sizeof(perDrive)) + (numDrivers * sizeof(perDrive[0]));
 	}
+
+	// This is called just once (from CanMotion::FinishMovement), so inline
+	bool HasMotion() const noexcept
+	{
+		for (size_t drive = 0; drive < numDrivers; ++drive)
+		{
+			if (perDrive[drive].steps != 0)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 };
 
 #if 0	// not used yet
@@ -897,14 +910,15 @@ struct __attribute__((packed)) CanMessageBoardStatus
 			 hasV12 : 1,
 			 hasMcuTemp : 1,
 			 hasAccelerometer : 1,
-			 zero : 12,							// reserved for future use
+			 hasClosedLoop : 1,
+			 zero : 11,							// reserved for future use
 			 underVoltage : 1,
 			 zero2 : 15;
 	MinCurMax values[3];
 
 	void Clear() noexcept
 	{
-		hasVin = hasV12 = hasMcuTemp = underVoltage = false;
+		hasVin = hasV12 = hasMcuTemp = underVoltage = hasAccelerometer = hasClosedLoop = false;
 		zero = zero2 = 0;
 	}
 
