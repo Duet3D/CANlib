@@ -59,7 +59,7 @@ constexpr float DefaultBedTemperatureLimit = 125.0;		// Celsius
 constexpr float DefaultHotEndFanTemperature = 45.0;		// Temperature at which a thermostatic hot end fan comes on
 constexpr float ThermostatHysteresis = 1.0;				// How much hysteresis we use to prevent noise turning fans on/off too often
 constexpr float BadErrorTemperature = 2000.0;			// Must exceed any reasonable temperature limit including DefaultHotEndTemperatureLimit
-constexpr uint32_t DefaultHeaterFaultTimeout = 10 * 60 * 1000;	// How long we wait (in milliseconds) for user intervention after a heater fault before shutting down
+constexpr float FanFeedForwardMultiplier = 0.7;			// how much we under- or over-compensate feedforward to allow for heat reservoirs during tuning
 
 // Heating model default parameters. For the chamber heater, we use the same values as for the bed heater.
 // These parameters are about right for an E3Dv6 hot end with 30W heater, cooling time constant is about 140 seconds with the fan off
@@ -75,6 +75,7 @@ constexpr float DefaultBedHeaterCoolingRateExponent = 1.35;
 constexpr float DefaultBedHeaterDeadTime = 10.0;
 
 // Parameters used to detect heating errors
+constexpr uint32_t DefaultHeaterFaultTimeout = 10 * 60 * 1000;	// How long we wait (in milliseconds) for user intervention after a heater fault before shutting down
 constexpr float DefaultMaxHeatingFaultTime = 5.0;		// How many seconds we allow a heating fault to persist
 constexpr float AllowedTemperatureDerivativeNoise = 0.12;	// How much fluctuation in the averaged temperature derivative we allow
 constexpr float MaxAmbientTemperature = 45.0;			// We expect heaters to cool to this temperature or lower when switched off
