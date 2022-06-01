@@ -143,7 +143,7 @@ union StandardDriverStatus
 				ola : 1,								// open load phase A
 				olb : 1,								// open load phase B
 				// bits 8-11
-				stall : 1,								// stall, or closed loop error exceeded
+				stall : 1,								// stall
 				externalDriverError : 1,				// external driver signalled error
 				closedLoopPositionWarning : 1,			// close to stall, or closed loop warning
 				closedLoopPositionNotMaintained : 1,	// failed to achieve position
