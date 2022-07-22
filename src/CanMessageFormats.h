@@ -125,22 +125,22 @@ struct __attribute__((packed)) CanMessageMovementLinear
 {
 	static constexpr CanMessageType messageType = CanMessageType::movementLinear;
 
-	uint32_t whenToExecute;
-	uint32_t accelerationClocks;
-	uint32_t steadyClocks;
-	uint32_t decelClocks;
+	uint32_t whenToExecute;							// the master clock time at which this move should start
+	uint32_t accelerationClocks;					// how many clocks the acceleration phase should last
+	uint32_t steadyClocks;							// how many clocks the steady speed phase should last
+	uint32_t decelClocks;							// how many clocks the deceleration phase should last
 
 	uint32_t pressureAdvanceDrives : 8,				// which drivers have pressure advance applied
 			 numDrivers : 4,						// how many drivers we included
 			 seq : 7,								// sequence number
 			 zero : 13;								// unused
 
-	float initialSpeedFraction;
-	float finalSpeedFraction;
+	float initialSpeedFraction;						// the initial speed divided by the top speed
+	float finalSpeedFraction;						// the final speed divided by the top speed
 
 	struct PerDriveValues
 	{
-		int32_t steps;								// net steps moved
+		int32_t steps;								// net steps moved by this drive
 
 		void Init() noexcept
 		{
@@ -158,7 +158,7 @@ struct __attribute__((packed)) CanMessageMovementLinear
 		return (sizeof(*this) - sizeof(perDrive)) + (numDrivers * sizeof(perDrive[0]));
 	}
 
-	// This is called just once (from CanMotion::FinishMovement), so inline
+	// This is called from just one place (in CanMotion::FinishMovement), so inline
 	bool HasMotion() const noexcept
 	{
 		for (size_t drive = 0; drive < numDrivers; ++drive)
