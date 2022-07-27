@@ -161,6 +161,9 @@ union StandardDriverStatus
 
 	static constexpr unsigned int OtpwBitPos = 0;
 	static constexpr unsigned int OtBitPos = 1;
+	static constexpr unsigned int S2gBitsPos = 2;
+	static constexpr unsigned int S2vsBitsPos = 4;
+	static constexpr unsigned int OpenLoadBitsPos = 6;
 	static constexpr unsigned int StallBitPos = 8;
 	static constexpr unsigned int ExternDriverErrorBitPos = 9;
 	static constexpr unsigned int StandstillBitPos = 16;
