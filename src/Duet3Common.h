@@ -55,7 +55,8 @@ enum class FirmwareFlashErrorCode : unsigned int
 	writeFailed = 12,
 	lockFailed = 13,
 	vinTooLow = 14,
-	unknownBoard = 15
+	unknownBoard = 15,
+	vAssertCalled = 16
 };
 
 // Variables available for recording in closed-loop mode
