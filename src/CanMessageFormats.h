@@ -667,8 +667,9 @@ struct __attribute__((packed)) CanMessageFirmwareUpdateRequest
 	static constexpr CanMessageType messageType = CanMessageType::firmwareBlockRequest;
 
 	uint32_t fileOffset : 24,			// the offset in the file of the data we need
-			 bootloaderVersion: 6,		// the protocol version of the bootloader or firmware making this request, currently 0
-			 fileWanted : 2;			// 0 = want firmware file, 1 = want bootloader, 2 and 3 reserved
+			 bootloaderVersion: 5,		// the protocol version of the bootloader or firmware making this request, currently 0
+			 uf2Format : 1,				// set if we want UF2 format, otherwise we want binary
+			 fileWanted : 2;			// 0 = want firmware file, 1 and 2 reserved, 3 = want bootloader
 	uint32_t lengthRequested : 24,		// how much data we want
 			 boardVersion : 8;			// the hardware version of this board, currently always 0 for production boards
 	char boardType[56];					// null-terminated board type name (firmware request) or bootloader class name (bootloader request)
