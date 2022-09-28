@@ -21,7 +21,8 @@ enum class GCodeResult : uint8_t
 	errorNotSupported,
 	notSupportedInCurrentMode,
 	badOrMissingParameter,
-	remoteInternalError
+	remoteInternalError,
+	m291Cancelled
 };
 
 // Test whether the command succeeded
