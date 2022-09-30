@@ -373,36 +373,6 @@ struct __attribute__((packed)) CanMessageM303
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
-#if 0	// no longer used
-struct __attribute__((packed)) CanMessageUpdateHeaterModelNew
-{
-	static constexpr CanMessageType messageType = CanMessageType::updateHeaterModelNew;
-
-	uint16_t requestId : 12,
-			 zero : 4;
-	uint16_t heater;
-	float heatingRate;
-	float coolingRate;
-	float coolingRateChangeFanOn;
-	float coolingRateChangeExtruding;
-	float zero2;
-	float deadTime;
-	float maxPwm;
-	float standardVoltage;					// power voltage reading at which tuning was done, or 0 if unknown
-	bool enabled;
-	bool usePid;
-	bool inverted;
-	bool pidParametersOverridden;
-
-	// The next 3 are used only if pidParametersOverridden is true
-	float kP;								// controller (not model) gain
-	float recipTi;							// reciprocal of controller integral time
-	float tD;								// controller differential time
-
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
-};
-#endif
-
 struct __attribute__((packed)) CanMessageHeaterModelNewNew
 {
 	static constexpr CanMessageType messageType = CanMessageType::heaterModelNewNew;
@@ -432,17 +402,22 @@ struct __attribute__((packed)) CanMessageHeaterModelNewNew
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
 };
 
+// M570 parameters
+// IMPORTANT! Field maxBadTemperatureCount was added at version 3.5.
+// Boards receiving this message must not use the maxBadTemperatureReadings unless the version35 bit is set.
 struct __attribute__((packed)) CanMessageSetHeaterFaultDetectionParameters
 {
 	static constexpr CanMessageType messageType = CanMessageType::setHeaterFaultDetection;
 
 	uint16_t requestId : 12,
-			 zero : 4;
+			 version35 : 1,
+			  	  zero : 3;
 	uint16_t heater;
 	float maxTempExcursion;
 	float maxFaultTime;
+	uint32_t maxBadTemperatureCount;		// added at version 3.5; only present if the version35 flag is set
 
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; version35 = 0; }
 };
 
 struct __attribute__((packed)) CanMessageSetHeaterMonitors
