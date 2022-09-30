@@ -52,7 +52,8 @@ constexpr float TemperatureSoHighDontCare = 20.0;		// When cooling, temperature 
 constexpr float DefaultMinExtrusionTemperature = 160.0;	// Celsius
 constexpr float DefaultMinRetractionTemperature = 90.0;	// Celsius
 
-constexpr unsigned int MaxBadTemperatureCount = 2000/HeatSampleIntervalMillis;	// Number of bad temperature samples permitted before a heater fault is reported (2 seconds)
+constexpr unsigned int DefaultMaxBadTemperatureCount = 3;	// Number of consecutive bad temperature samples permitted before a heater fault is reported
+const unsigned int MaxDhtBadTemperatureCount = 6;		// Number of consecutive bad readings from a DHT sensor that we allow
 constexpr float BadLowTemperature = -10.0;				// Celsius
 constexpr float DefaultHotEndTemperatureLimit = 285.0;	// Celsius - E3D say to tighten the hot end at 285C
 constexpr float DefaultBedTemperatureLimit = 125.0;		// Celsius
