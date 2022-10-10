@@ -102,6 +102,9 @@ constexpr float DefaultStepIntervalMicroseconds = 2.5;
 constexpr float DefaultSetupTimeMicroseconds = 2.5;
 constexpr float DefaultHoldTimeMicroseconds = 2.5;
 
+// Driver brake control
+const uint16_t DefaultDelayAfterBrakeOn = 100;			// milliseconds delay between turning a driver brake on and disabling the driver
+
 // Firmware module numbers in firmware update commands
 enum class FirmwareModule : uint8_t
 {
