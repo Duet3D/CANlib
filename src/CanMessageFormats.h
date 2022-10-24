@@ -295,13 +295,16 @@ struct __attribute__((packed)) StepsPerUnitAndMicrostepping
 // Type of data used to send driver status
 struct __attribute__((packed)) DriverStateControl
 {
-	uint16_t mode : 2,				// see value below
-			 zero : 6,
-			 idlePercent : 8;		// only used when the mode is 'idle'
+	// In the following the meaning of idlePercentOrDelayAfterBrakeOn is:
+	// - If the mode is driverIdle then the top 8 bits are the idle current percent, to match the earlier version of this struct
+	// - If the mode is driverDisabled then all 12 bits are the delay in milliseconds between re-engaging the brake and disabling the motor
+	// - If the mode is driverEnabled then all 12 bits are the delay in milliseconds between enabling the motor and disengaging the brake
+	uint16_t mode : 2,									// see value below
+			 zero : 2,
+			 idlePercentOrDelayAfterBrakeOn : 12;
 
-	DriverStateControl() noexcept : mode(0), zero(0), idlePercent(0) { }
-	DriverStateControl(uint16_t m) noexcept : mode(m), zero(0), idlePercent(0) { }
-	DriverStateControl(uint16_t m, uint8_t idlePc) noexcept : mode(m), zero(0), idlePercent(idlePc) { }
+	DriverStateControl() noexcept : mode(0), zero(0), idlePercentOrDelayAfterBrakeOn(0) { }
+	DriverStateControl(uint16_t m, uint16_t idlePcOrBrakeDelay) noexcept : mode(m), zero(0), idlePercentOrDelayAfterBrakeOn(idlePcOrBrakeDelay) { }
 
 	static constexpr uint16_t driverDisabled = 0, driverIdle = 1, driverActive = 2;		// values for 'mode'
 };
