@@ -216,9 +216,9 @@ private:
 		"position tolerance exceeded",
 		"failed to maintain position",
 		// Bits 12-15
-		"not tuned",
-		"tuning failed",
-		"move attempted when not tuned",
+		"not tuned/calibrated",
+		"tuning/calibration failed",
+		"move attempted when not tuned/calibrated",
 		"unused bit",
 		// Bit 16
 		"standstill",
