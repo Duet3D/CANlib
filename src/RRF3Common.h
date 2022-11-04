@@ -108,6 +108,9 @@ constexpr uint16_t DefaultDelayAfterBrakeOn = 100;		// milliseconds delay betwee
 constexpr float DefaultClosedLoopPositionErrorThreshold = 2.0;
 constexpr float DefaultClosedLoopPositionWarningThreshold = 1.0;
 
+// Accelerometer
+constexpr size_t NumAccelerometerAxes = 3;
+
 // Firmware module numbers in firmware update commands
 enum class FirmwareModule : uint8_t
 {
