@@ -36,7 +36,7 @@ constexpr uint32_t BasicDriverPositionRevertMillis = 40;	// how long we tell CAN
 constexpr uint32_t TotalDriverPositionRevertMillis = BasicDriverPositionRevertMillis + 10;		// the same plus an allowance for how long it takes to send the CAN messages
 
 // The values of this enumeration must correspond to the meanings of the M569.1 S parameter
-NamedEnum(EncoderType, uint8_t, none, linearQuadrature, rotaryQuadrature, AS5047, TLI5012);
+NamedEnum(EncoderType, uint8_t, none, linearComposite, rotaryQuadrature, rotaryAS5047, rotaryTLI5012);
 
 // Error codes, presented as a number of flashes of the DIAG LED, used by both the bootloader and by expansion boards
 enum class FirmwareFlashErrorCode : unsigned int
