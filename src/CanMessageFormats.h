@@ -133,7 +133,10 @@ struct __attribute__((packed)) CanMessageMovementLinear
 	uint32_t pressureAdvanceDrives : 8,				// which drivers have pressure advance applied
 			 numDrivers : 4,						// how many drivers we included
 			 seq : 7,								// sequence number
-			 zero : 13;								// unused
+			 shapeAcceleration : 1,					// true if input shaping should be applied to acceleration segment
+			 shapeDeceleration : 1,					// true if input shaping should be applied to deceleration segment
+			 replacement : 1,						// true if this is a modification to a previously-sent move with the same whenToExecute value
+			 zero : 10;								// unused
 
 	float initialSpeedFraction;						// the initial speed divided by the top speed
 	float finalSpeedFraction;						// the final speed divided by the top speed
@@ -150,7 +153,14 @@ struct __attribute__((packed)) CanMessageMovementLinear
 
 	PerDriveValues perDrive[MaxLinearDriversPerCanSlave];
 
-	void SetRequestId(CanRequestId rid) noexcept { zero = 0; }		// these messages don't have RIDs
+	void SetRequestId(CanRequestId rid) noexcept	// these messages don't have RIDs
+	{
+		shapeAcceleration = 0;
+		shapeDeceleration = 0;
+		replacement = 0;
+		zero = 0;
+	}
+
 	void DebugPrint() const noexcept;
 
 	size_t GetActualDataLength() const noexcept
@@ -625,6 +635,7 @@ struct __attribute__((packed)) CanMessageHeaterTuningCommand
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
 };
 
+// Configure heater feedforward
 struct __attribute__((packed)) CanMessageHeaterFeedForward
 {
 	static constexpr CanMessageType messageType = CanMessageType::heaterFeedForward;
@@ -637,6 +648,17 @@ struct __attribute__((packed)) CanMessageHeaterFeedForward
 	float extrusionAdjustment;
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
+};
+
+// Configure input shaping
+struct __attribute__((packed)) CanMessageSetInputShaping
+{
+	static constexpr CanMessageType messageType = CanMessageType::setInputShapingParameters;
+
+	uint16_t requestId : 12,
+			 zero : 4;
+
+	// remainder TODO
 };
 
 // Request to send a chunk of a firmware or bootloader file
