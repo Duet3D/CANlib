@@ -861,6 +861,47 @@
 		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="SAMC21_RTOS">
+			<resource resourceType="PROJECT" workspacePath="/CANlib"/>
+		</configuration>
+		<configuration configurationName="SAME70_nonRTOS">
+			<resource resourceType="PROJECT" workspacePath="/CANlib"/>
+		</configuration>
+		<configuration configurationName="SAME70_RTOS_Debug">
+			<resource resourceType="PROJECT" workspacePath="/CANlib"/>
+		</configuration>
+		<configuration configurationName="SAME51_nonRTOS_Debug">
+			<resource resourceType="PROJECT" workspacePath="/CANlib"/>
+		</configuration>
+		<configuration configurationName="SAMC21_RTOS_Debug">
+			<resource resourceType="PROJECT" workspacePath="/CANlib"/>
+		</configuration>
+		<configuration configurationName="SAME70_RTOS">
+			<resource resourceType="PROJECT" workspacePath="/CANlib"/>
+		</configuration>
+		<configuration configurationName="SAMC21_nonRTOS">
+			<resource resourceType="PROJECT" workspacePath="/CANlib"/>
+		</configuration>
+		<configuration configurationName="RP2040_RTOS">
+			<resource resourceType="PROJECT" workspacePath="/CANlib"/>
+		</configuration>
+		<configuration configurationName="SAM4S_RTOS">
+			<resource resourceType="PROJECT" workspacePath="/CANlib"/>
+		</configuration>
+		<configuration configurationName="SAME51_RTOS">
+			<resource resourceType="PROJECT" workspacePath="/CANlib"/>
+		</configuration>
+		<configuration configurationName="SAM4E_RTOS">
+			<resource resourceType="PROJECT" workspacePath="/CANlib"/>
+		</configuration>
+		<configuration configurationName="SAME51_nonRTOS">
+			<resource resourceType="PROJECT" workspacePath="/CANlib"/>
+		</configuration>
+		<configuration configurationName="SAME51_RTOS_Debug">
+			<resource resourceType="PROJECT" workspacePath="/CANlib"/>
+		</configuration>
+	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>
