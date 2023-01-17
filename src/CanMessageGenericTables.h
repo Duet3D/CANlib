@@ -126,6 +126,7 @@ constexpr ParamDescriptor M569Point7Params[] =
 {
 	LOCAL_DRIVER_PARAM('P'),
 	REDUCED_STRING_PARAM('C'),
+	FLOAT_PARAM('V'),					// brake voltage added at 3.5beta2
 	END_PARAMS
 };
 
