@@ -112,6 +112,9 @@ constexpr float DefaultClosedLoopPositionWarningThreshold = 2.0;
 // Accelerometer
 constexpr size_t NumAccelerometerAxes = 3;
 
+// Array indices in 'set' commands
+constexpr size_t MaxArrayIndices = 5;
+
 // Firmware module numbers in firmware update commands
 enum class FirmwareModule : uint8_t
 {
