@@ -21,10 +21,6 @@
 #include <ctime>
 #include <cstring>
 
-#if 0	// this was used by the original movement message, which is no longer supported
-constexpr unsigned int MaxDriversPerCanSlave = 4;
-#endif
-
 constexpr unsigned int MaxLinearDriversPerCanSlave = 8;
 constexpr unsigned int MaxHeatersPerCanSlave = 6;
 
@@ -133,10 +129,12 @@ struct __attribute__((packed)) CanMessageMovementLinear
 	uint32_t pressureAdvanceDrives : 8,				// which drivers have pressure advance applied
 			 numDrivers : 4,						// how many drivers we included
 			 seq : 7,								// sequence number
-			 shapeAcceleration : 1,					// true if input shaping should be applied to acceleration segment
-			 shapeDeceleration : 1,					// true if input shaping should be applied to deceleration segment
+			 shapeAccelStart : 1,					// true if input shaping should be applied to the start of the acceleration segment
+			 shapeAccelEnd : 1,						// true if input shaping should be applied to the end of the acceleration segment
+			 shapeDecelStart : 1,					// true if input shaping should be applied to the start of the deceleration segment
+			 shapeDecelEnd : 1,						// true if input shaping should be applied to the end of the deceleration segment
 			 replacement : 1,						// true if this is a modification to a previously-sent move with the same whenToExecute value
-			 zero : 10;								// unused
+			 zero : 8;								// unused
 
 	float initialSpeedFraction;						// the initial speed divided by the top speed
 	float finalSpeedFraction;						// the final speed divided by the top speed
@@ -155,9 +153,7 @@ struct __attribute__((packed)) CanMessageMovementLinear
 
 	void SetRequestId(CanRequestId rid) noexcept	// these messages don't have RIDs
 	{
-		shapeAcceleration = 0;
-		shapeDeceleration = 0;
-		replacement = 0;
+		shapeAccelStart = shapeAccelEnd = shapeDecelStart = shapeDecelEnd = replacement = 0;
 		zero = 0;
 	}
 
@@ -181,66 +177,6 @@ struct __attribute__((packed)) CanMessageMovementLinear
 		return false;
 	}
 };
-
-#if 0	// not used yet
-// Movement message
-struct __attribute__((packed)) CanMessageMovementLinearShaped
-{
-	static constexpr CanMessageType messageType = CanMessageType::movementLinearShaped;
-
-	enum MoveType : uint32_t
-	{
-		shapedAxis = 0,								// normal axis movement with input shaping. Must be zero because we default to this.
-		shapedDelta,								// delta axis movement with input shaping
-		extruderNoPa,								// extruder movement without pressure advance
-		extruderWithPa								// extruder movement with pressure advance
-	};
-
-	uint32_t whenToExecute;
-	uint32_t accelerationClocks;
-	uint32_t steadyClocks;
-	uint32_t decelClocks;
-
-	uint32_t moveTypes : 16,						// the movement type (2 bits) for each possible driver
-			 numDriversMinusOne : 3,				// how many drivers we included, minus one
-			 seq : 7,								// move sequence number
-			 shaperAccelPhasesMinusOne : 3,			// the number of phases of input shaping during acceleration
-			 shaperDecelPhasesMinusOne : 3;			// the number of phases of input shaping during deceleration
-
-	uint16_t initialSpeedFraction;					// range 0 to 2^15 where 2^15 means 1.0
-	uint16_t finalSpeedFraction;					// range 0 to 2^15 where 2^15 means 1.0
-
-	struct PerDriveValues
-	{
-		union
-		{
-			int32_t iSteps;							// net steps to move, for axes
-			float fDist;							// distance to move before applying pressure advance, for extruders
-		};
-
-		void Init() noexcept
-		{
-			iSteps = 0;
-		}
-	};
-
-	PerDriveValues perDrive[MaxLinearDriversPerCanSlave];
-
-	// Get the move type for a particular drive
-	MoveType GetMoveType(unsigned int drive) const noexcept { return (MoveType)((moveTypes >> (2 * drive)) & 3); }
-
-	// Set the move type for a drive, assuming it is currently set to type 0
-	void ChangeMoveTypeFromDefault(unsigned int drive, MoveType mt) noexcept { (moveTypes |= ((uint32_t)mt) << (2 * drive)); }
-
-	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't have RIDs, use the whenToExecute field to avoid duplication
-	void DebugPrint() const noexcept;
-
-	size_t GetActualDataLength() const noexcept
-	{
-		return (sizeof(*this) - sizeof(perDrive)) + ((numDriversMinusOne + 1) * sizeof(perDrive[0]));
-	}
-};
-#endif
 
 // Change CAN address and normal timing message
 struct __attribute__((packed)) CanMessageSetAddressAndNormalTiming
@@ -1111,13 +1047,7 @@ union CanMessage
 	CanMessageStopMovement stopMovement;
 	CanMessageRevertPosition revertPosition;
 	CanMessageReset reset;
-#if 0	// this message is no longer used
-	CanMessageMovement move;
-#endif
 	CanMessageMovementLinear moveLinear;
-#if 0	// not used yet
-	CanMessageMovementLinearShaped moveLinearShaped;
-#endif
 	CanMessageReturnInfo getInfo;
 	CanMessageSetHeaterTemperature setTemp;
 	CanMessageStandardReply standardReply;
