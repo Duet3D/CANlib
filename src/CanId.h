@@ -93,7 +93,7 @@ enum class CanMessageType : uint16_t
 	m569p6 = 6051,
 	m569p7 = 6052,
 	heaterModelNewNew = 6053,
-	setInputShapingParameters = 6054,
+	setInputShaping = 6054,
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,

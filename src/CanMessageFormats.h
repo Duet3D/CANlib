@@ -589,12 +589,14 @@ struct __attribute__((packed)) CanMessageHeaterFeedForward
 // Configure input shaping
 struct __attribute__((packed)) CanMessageSetInputShaping
 {
-	static constexpr CanMessageType messageType = CanMessageType::setInputShapingParameters;
+	static constexpr CanMessageType messageType = CanMessageType::setInputShaping;
 
 	uint16_t requestId : 12,
 			 zero : 4;
 
 	// remainder TODO
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
 // Request to send a chunk of a firmware or bootloader file
@@ -1065,6 +1067,7 @@ union CanMessage
 	CanMessageSetFanSpeed setFanSpeed;
 	CanMessageSetHeaterFaultDetectionParameters setHeaterFaultDetection;
 	CanMessageSetHeaterMonitors setHeaterMonitors;
+	CanMessageSetInputShaping setInputShaping;
 	CanMessageCreateInputMonitor createInputMonitor;
 	CanMessageChangeInputMonitor changeInputMonitor;
 	CanMessageInputChanged inputChanged;
