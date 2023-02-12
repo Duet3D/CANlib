@@ -25,7 +25,7 @@ void MessageBufferDelete(void *ptr, std::align_val_t align) noexcept;
 class CanMessageBuffer
 {
 public:
-	CanMessageBuffer(CanMessageBuffer *prev) noexcept : next(prev) { }
+	CanMessageBuffer() noexcept : next(nullptr), managed(false) { }
 
 	// Replacement new/delete functions, to allocate the memory permanently and avoid the additional RAM needed by malloc
 	void* operator new(size_t count) { return MessageBufferAlloc(count, static_cast<std::align_val_t>(alignof(CanMessageBuffer))); }
@@ -170,7 +170,8 @@ public:
 			useBrs : 1,				// true to use bit rate switching (only for CAN-FD)
 			remote : 1,				// true to set the 'remote' bit in the frame
 			reportInFifo : 1,		// true to report transmission complete via TxEventFifo
-			spare : 3;				// spare bits that are cleared by the Setup calls but are otherwise not used
+			spare : 2,				// spare bits that are cleared by the Setup calls but are otherwise not used
+			managed : 1;			// true if this buffer is allocated from heap or freelist and returned to freelist, false if it is a local buffer
 	CanMessage msg;
 
 private:
@@ -181,6 +182,8 @@ private:
 #ifdef RTOS
 	static TaskBase * volatile bufferWaitingTask;
 #endif
+
+	CanMessageBuffer(CanMessageBuffer *prev) noexcept : next(prev), managed(true) { }
 };
 
 // Helper class to manage CAN message buffer pointers, to ensure they get released if an exception occurs

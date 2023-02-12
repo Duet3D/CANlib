@@ -74,14 +74,7 @@ CanMessageBuffer *CanMessageBuffer::BlockingAllocate() noexcept
 
 			bufferWaitingTask = TaskBase::GetCallerTaskHandle();
 		}
-#if 0	//DEBUG
-		if (!TaskBase::Take(1000) && freelist != nullptr)
-		{
-			minNumFree = 9999;
-		}
-#else
 		TaskBase::Take();
-#endif
 	}
 }
 
@@ -89,7 +82,7 @@ CanMessageBuffer *CanMessageBuffer::BlockingAllocate() noexcept
 
 void CanMessageBuffer::Free(CanMessageBuffer*& buf) noexcept
 {
-	if (buf != nullptr)
+	if (buf != nullptr && buf->managed)
 	{
 		TaskCriticalSectionLocker lock;
 		buf->next = freelist;
