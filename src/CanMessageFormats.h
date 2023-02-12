@@ -591,11 +591,15 @@ struct __attribute__((packed)) CanMessageSetInputShaping
 {
 	static constexpr CanMessageType messageType = CanMessageType::setInputShaping;
 
+	struct ShapingPair { float coefficient; float duration; };
+
 	uint16_t requestId : 12,
 			 zero : 4;
 
-	// remainder TODO
+	uint16_t numExtraImpulses;							// the number of extra impulses
+	ShapingPair impulses[7];							// the coefficients and durations of the impulses
 
+	size_t GetActualDataLength() const noexcept { return (2 * sizeof(uint16_t)) + (numExtraImpulses * sizeof(ShapingPair)); }
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
