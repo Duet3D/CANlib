@@ -25,6 +25,7 @@ enum class CanMessageType : uint16_t
 	revertPosition = 47,
 	//unused_was_movement = 50,
 	movementLinear = 51,
+	movementLinearShaped = 52,
 
 	// High priority responses sent by expansion boards and Smart Tools
 	inputStateChanged = 100,

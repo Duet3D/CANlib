@@ -116,7 +116,7 @@ struct __attribute__((packed)) CanMessageRevertPosition
 
 static_assert(CanMessageRevertPosition::GetActualDataLength(MaxLinearDriversPerCanSlave) == sizeof(CanMessageRevertPosition));
 
-// Movement message
+// Movement messages
 struct __attribute__((packed)) CanMessageMovementLinear
 {
 	static constexpr CanMessageType messageType = CanMessageType::movementLinear;
@@ -170,6 +170,66 @@ struct __attribute__((packed)) CanMessageMovementLinear
 		for (size_t drive = 0; drive < numDrivers; ++drive)
 		{
 			if (perDrive[drive].steps != 0)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+};
+
+// Movement messages
+struct __attribute__((packed)) CanMessageMovementLinearShaped
+{
+	static constexpr CanMessageType messageType = CanMessageType::movementLinearShaped;
+
+	uint32_t whenToExecute;							// the master clock time at which this move should start
+	uint32_t accelerationClocks;					// how many clocks the acceleration phase should last
+	uint32_t steadyClocks;							// how many clocks the steady speed phase should last
+	uint32_t decelClocks;							// how many clocks the deceleration phase should last
+
+	uint32_t extruderDrives : 8,					// which drivers are for extruders
+			 numDrivers : 4,						// how many drivers we included (maximum is 8)
+			 seq : 4,								// sequence number
+			 shapingPlan : 8,						// the input shaping plan for this move (see file InputShaperPlan.h)
+			 usePressureAdvance : 1,				// true to apply PA to the extruders
+			 zero : 7;								// unused
+
+	float initialSpeedFraction;						// the initial speed divided by the top speed
+	float finalSpeedFraction;						// the final speed divided by the top speed
+
+	union PerDriveValues
+	{
+		int32_t steps;								// net steps moved by this drive (for non-extruders)
+		float extrusion;							// how much extrusion to do (for extruders)
+
+		void Init() noexcept
+		{
+			steps = 0;
+		}
+	};
+
+	PerDriveValues perDrive[MaxLinearDriversPerCanSlave];
+
+	void SetRequestId(CanRequestId rid) noexcept	// these messages don't have RIDs
+	{
+		shapingPlan = 0;
+		zero = 0;
+	}
+
+	void DebugPrint() const noexcept;
+
+	size_t GetActualDataLength() const noexcept
+	{
+		return (sizeof(*this) - sizeof(perDrive)) + (numDrivers * sizeof(perDrive[0]));
+	}
+
+	// This is called from just one place (in CanMotion::FinishMovement), so inline
+	bool HasMotion() const noexcept
+	{
+		for (size_t drive = 0; drive < numDrivers; ++drive)
+		{
+			if (perDrive[drive].steps != 0)				// we rely on this being valid even if perDrive[drive] contains [positive] floating point zero
 			{
 				return true;
 			}
@@ -1054,6 +1114,7 @@ union CanMessage
 	CanMessageRevertPosition revertPosition;
 	CanMessageReset reset;
 	CanMessageMovementLinear moveLinear;
+	CanMessageMovementLinearShaped moveLinearShaped;
 	CanMessageReturnInfo getInfo;
 	CanMessageSetHeaterTemperature setTemp;
 	CanMessageStandardReply standardReply;
