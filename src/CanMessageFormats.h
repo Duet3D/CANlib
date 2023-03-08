@@ -129,12 +129,7 @@ struct __attribute__((packed)) CanMessageMovementLinear
 	uint32_t pressureAdvanceDrives : 8,				// which drivers have pressure advance applied
 			 numDrivers : 4,						// how many drivers we included
 			 seq : 7,								// sequence number
-			 shapeAccelStart : 1,					// true if input shaping should be applied to the start of the acceleration segment
-			 shapeAccelEnd : 1,						// true if input shaping should be applied to the end of the acceleration segment
-			 shapeDecelStart : 1,					// true if input shaping should be applied to the start of the deceleration segment
-			 shapeDecelEnd : 1,						// true if input shaping should be applied to the end of the deceleration segment
-			 replacement : 1,						// true if this is a modification to a previously-sent move with the same whenToExecute value
-			 zero : 8;								// unused
+			 zero : 13;								// unused
 
 	float initialSpeedFraction;						// the initial speed divided by the top speed
 	float finalSpeedFraction;						// the final speed divided by the top speed
@@ -153,7 +148,6 @@ struct __attribute__((packed)) CanMessageMovementLinear
 
 	void SetRequestId(CanRequestId rid) noexcept	// these messages don't have RIDs
 	{
-		shapeAccelStart = shapeAccelEnd = shapeDecelStart = shapeDecelEnd = replacement = 0;
 		zero = 0;
 	}
 
@@ -201,7 +195,7 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped
 	union PerDriveValues
 	{
 		int32_t steps;								// net steps moved by this drive (for non-extruders)
-		float extrusion;							// how much extrusion to do (for extruders)
+		float extrusion;							// how many steps of extrusion to do (for extruders) including fractional parts
 
 		void Init() noexcept
 		{
@@ -213,6 +207,8 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped
 
 	void SetRequestId(CanRequestId rid) noexcept	// these messages don't have RIDs
 	{
+		extruderDrives = 0;
+		usePressureAdvance = 0;
 		shapingPlan = 0;
 		zero = 0;
 	}
