@@ -189,8 +189,8 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped
 			 usePressureAdvance : 1,				// true to apply PA to the extruders
 			 zero : 7;								// unused
 
-	float initialSpeedFraction;						// the initial speed divided by the top speed
-	float finalSpeedFraction;						// the final speed divided by the top speed
+	float acceleration;								// the base acceleration during the acceleration segment, when the total distance is normalised to 1.0
+	float deceleration;								// the base deceleration during the deceleration segment, when the total distance is normalised to 1.0
 
 	union PerDriveValues
 	{
