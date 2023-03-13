@@ -131,6 +131,8 @@ struct __attribute__((packed)) CanMessageMovementLinear
 			 seq : 7,								// sequence number
 			 zero : 13;								// unused
 
+	static constexpr uint8_t SeqMask = 0x7f;
+
 	float initialSpeedFraction;						// the initial speed divided by the top speed
 	float finalSpeedFraction;						// the final speed divided by the top speed
 
@@ -188,6 +190,8 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped
 			 shapingPlan : 8,						// the input shaping plan for this move (see file InputShaperPlan.h)
 			 usePressureAdvance : 1,				// true to apply PA to the extruders
 			 zero : 7;								// unused
+
+	static constexpr uint8_t SeqMask = 0x0f;
 
 	float acceleration;								// the base acceleration during the acceleration segment, when the total distance is normalised to 1.0
 	float deceleration;								// the base deceleration during the deceleration segment, when the total distance is normalised to 1.0
