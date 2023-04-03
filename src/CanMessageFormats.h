@@ -43,8 +43,8 @@ struct __attribute__((packed)) CanMessageTimeSync
 			 zero : 15;								// unused
 	uint32_t realTime;								// seconds since 00:00:00 UTC on 1 January 1970, unsigned to avoid year 2038 problem. Not always present.
 
-	static constexpr size_t SizeWithoutRealTime = 12;	// length of message that doesn't include read time
-	static constexpr size_t SizeWithRealTime = 16;	// minimum length of message that includes read time
+	static constexpr size_t SizeWithoutRealTime = 12;	// length of message that doesn't include real time
+	static constexpr size_t SizeWithRealTime = 16;	// minimum length of message that includes real time
 };
 
 // Emergency stop message
