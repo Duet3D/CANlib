@@ -40,6 +40,9 @@ constexpr float DefaultThermistorC = 7.060e-8;
 constexpr float DefaultMinFanPwm = 0.1;					// minimum fan PWM
 constexpr uint32_t DefaultFanBlipTime = 100;			// fan blip time in milliseconds
 
+// Z probes
+constexpr size_t MaxZProbeProgramBytes = 8;				// maximum number of bytes in a Z probe program
+
 // Heater values
 constexpr uint32_t HeatSampleIntervalMillis = 250;		// interval between taking temperature samples
 constexpr float HeatPwmAverageTime = 5.0;				// Seconds

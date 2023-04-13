@@ -18,12 +18,8 @@
 constexpr size_t MaxSensors = 56;							// limited by the size of bitmap we can store in an ExpressionValue
 constexpr size_t MaxHeaters = 32;
 constexpr size_t MaxMonitorsPerHeater = 3;
-
 constexpr size_t MaxZProbes = 4;
-constexpr size_t MaxZProbeProgramBytes = 8;					// maximum number of bytes in a Z probe program
-
 constexpr size_t MaxFans = 20;
-
 constexpr size_t MaxGpOutPorts = 32;						// increased as requested by Jimmykc
 
 // The following currently don't need to be known by expansion boards, but might in future
