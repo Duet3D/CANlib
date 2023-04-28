@@ -113,10 +113,12 @@ constexpr ParamDescriptor M569Point6Params[] =
 {
 	LOCAL_DRIVER_PARAM('P'),
 	UINT8_PARAM('V'),
+	FLOAT_PARAM('S'),					// speed parameter (in full steps/sec) for step tuning move (can't use V because it is taken already)
+	FLOAT_PARAM('A'),					// acceleration parameter (in full steps/sec^2) for step tuning move
 	END_PARAMS
 };
 
-// This is the same as M569Point6Params except that it doesn't pick up the V parameter from the GCodeBuffer
+// This is the same as M569Point6Params except that it doesn't pick up the V parameter from the GCodeBuffer, and we don't need the extra parameters
 constexpr ParamDescriptor M569Point6Params_StatusOnly[] =
 {
 	LOCAL_DRIVER_PARAM('P'),
