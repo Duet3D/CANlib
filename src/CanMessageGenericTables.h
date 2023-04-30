@@ -19,6 +19,20 @@ constexpr ParamDescriptor M42Params[] =
 	END_PARAMS
 };
 
+constexpr ParamDescriptor M150Params[] =
+{
+	UINT16_PARAM('E'),		// strip number
+	UINT16_PARAM('S'),		// number of LEDs to set
+	UINT8_PARAM('R'),		// red intensity
+	UINT8_PARAM('U'),		// green intensity
+	UINT8_PARAM('B'),		// blue intensity
+	UINT8_PARAM('W'),		// white intensity
+	UINT8_PARAM('P'),		// brightness 0-255
+	UINT8_PARAM('Y'),		// alternative brightness 0-31
+	UINT8_PARAM('F'),		// 'more follows' flag
+	END_PARAMS
+};
+
 constexpr ParamDescriptor M280Params[] =
 {
 	UINT16_PARAM('P'),
@@ -40,32 +54,6 @@ constexpr ParamDescriptor M308NewParams[] =
 	CHAR_PARAM('K'),
 	REDUCED_STRING_PARAM('Y'),
 	REDUCED_STRING_PARAM('P'),
-	END_PARAMS
-};
-
-constexpr ParamDescriptor M950HeaterParams[] =
-{
-	UINT16_PARAM('H'),
-	PWM_FREQ_PARAM('Q'),
-	UINT16_PARAM('T'),
-	REDUCED_STRING_PARAM('C'),
-	END_PARAMS
-};
-
-constexpr ParamDescriptor M950FanParams[] =
-{
-	UINT16_PARAM('F'),
-	PWM_FREQ_PARAM('Q'),
-	STRING_PARAM('C'),
-	END_PARAMS
-};
-
-constexpr ParamDescriptor M950GpioParams[] =
-{
-	UINT16_PARAM('P'),
-	PWM_FREQ_PARAM('Q'),
-	UINT8_PARAM('S'),			// 1 if servo, 0 if GPIO
-	REDUCED_STRING_PARAM('C'),
 	END_PARAMS
 };
 
@@ -142,6 +130,42 @@ constexpr ParamDescriptor M915Params[] =
 	UINT16_PARAM('H'),
 	UINT16_PARAM('T'),
 	UINT8_PARAM('R'),
+	END_PARAMS
+};
+
+constexpr ParamDescriptor M950HeaterParams[] =
+{
+	UINT16_PARAM('H'),
+	PWM_FREQ_PARAM('Q'),
+	UINT16_PARAM('T'),
+	REDUCED_STRING_PARAM('C'),
+	END_PARAMS
+};
+
+constexpr ParamDescriptor M950FanParams[] =
+{
+	UINT16_PARAM('F'),
+	PWM_FREQ_PARAM('Q'),
+	STRING_PARAM('C'),
+	END_PARAMS
+};
+
+constexpr ParamDescriptor M950GpioParams[] =
+{
+	UINT16_PARAM('P'),
+	PWM_FREQ_PARAM('Q'),
+	UINT8_PARAM('S'),			// 1 if servo, 0 if GPIO
+	REDUCED_STRING_PARAM('C'),
+	END_PARAMS
+};
+
+constexpr ParamDescriptor M950LedParams[] =
+{
+	UINT16_PARAM('P'),			// Strip number
+	PWM_FREQ_PARAM('Q'),		// SPI frequency (DotStar) or cycle frequency (Neopixel)
+	UINT8_PARAM('T'),			// Type (0 = DotStar, 1 = RGB Neopixel, 2 = RGBW Neopixel)
+	REDUCED_STRING_PARAM('C'),	// Port name
+	UINT16_ARRAY_PARAM('L', 4),	// Timing parameters, used by STM implementation only, implies bit-banged
 	END_PARAMS
 };
 

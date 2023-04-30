@@ -69,11 +69,7 @@ enum class CanMessageType : uint16_t
 	heaterTuningCommand = 6032,
 	heaterFeedForward = 6033,
 	accelerometerConfig = 6034,
-
-	//unused_was_configureZProbe = 6032,
-	//unused_was_getZProbePinNames = 6033,
-	//unused_was_destroyZProbe = 6034,
-	//unused_was_setProbing = 6035,
+	m950Led = 6035,
 
 	createInputMonitor = 6036,
 	changeInputMonitor = 6037,
@@ -95,6 +91,7 @@ enum class CanMessageType : uint16_t
 	m569p7 = 6052,
 	heaterModelNewNew = 6053,
 	setInputShaping = 6054,
+	writeLedStrip = 6055,
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,
