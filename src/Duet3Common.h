@@ -21,6 +21,7 @@ constexpr size_t MaxMonitorsPerHeater = 3;
 constexpr size_t MaxZProbes = 4;
 constexpr size_t MaxFans = 32;
 constexpr size_t MaxGpOutPorts = 64;						// increased in RRF 3.5.0-beta.4
+constexpr size_t MaxLedStrips = 5;
 
 // The following currently don't need to be known by expansion boards, but might in future
 constexpr size_t MaxGpInPorts = 56;							// increased in RRF 3.5.0-beta.4, limit this to 56 so that we can report trigger input bitmaps in the object model
