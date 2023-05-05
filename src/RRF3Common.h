@@ -296,4 +296,8 @@ static constexpr const char *_ecv_array HeaterFaultText[] =
 
 static_assert(ARRAY_SIZE(HeaterFaultText) == (unsigned int)HeaterFaultType::heaterFaultTypeLimit + 1);
 
+NamedEnum(LedStripType, uint8_t, DotStar, NeoPixel_RGB, NeoPixel_RGBW);
+
+const LedStripType DefaultLedStripType = LedStripType::NeoPixel_RGB;
+
 #endif /* SRC_RRF3COMMON_H_ */
