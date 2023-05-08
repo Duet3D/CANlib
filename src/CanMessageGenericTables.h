@@ -154,19 +154,19 @@ constexpr ParamDescriptor M950GpioParams[] =
 {
 	UINT16_PARAM('P'),
 	PWM_FREQ_PARAM('Q'),
-	UINT8_PARAM('S'),			// 1 if servo, 0 if GPIO
+	UINT8_PARAM('S'),					// 1 if servo, 0 if GPIO
 	REDUCED_STRING_PARAM('C'),
 	END_PARAMS
 };
 
 constexpr ParamDescriptor M950LedParams[] =
 {
-	UINT16_PARAM('E'),			// Strip number
-	PWM_FREQ_PARAM('Q'),		// SPI frequency (DotStar) or cycle frequency (Neopixel)
-	UINT16_PARAM('U'),			// Maximum number of LEDs
-	UINT8_PARAM('T'),			// Type (0 = DotStar, 1 = RGB Neopixel, 2 = RGBW Neopixel)
-	REDUCED_STRING_PARAM('C'),	// Port name
-	UINT16_ARRAY_PARAM('L', 4),	// Timing parameters, used by STM implementation only, implies bit-banged
+	UINT16_PARAM('E'),					// Strip number
+	UINT16_PARAM('U'),					// Maximum number of LEDs
+	UINT32_PARAM('Q'),					// SPI frequency (DotStar) or cycle frequency (Neopixel)
+	UINT8_PARAM('T'),					// Type (0 = DotStar, 1 = RGB Neopixel, 2 = RGBW Neopixel)
+	REDUCED_STRING_PARAM('C'),			// Port name
+	UINT16_ARRAY_PARAM('L', 4),			// Timing parameters, used by STM implementation only, implies bit-banged if present
 	END_PARAMS
 };
 
