@@ -932,6 +932,49 @@ struct __attribute__((packed)) CanMessageBoardStatus
 	}
 };
 
+struct __attribute__((packed)) CanMessageClosedLoopPIDStatus {
+	static constexpr CanMessageType messageType = CanMessageType::closedLoopPIDStatus;
+
+	float GetClosedLoopPTerm() const noexcept { return LoadLEFloat(&closedLoopPTerm); }
+	void SetClosedLoopPTerm(float t) noexcept { StoreLEFloat(&closedLoopPTerm, t); }
+
+	float GetClosedLoopITerm() const noexcept { return LoadLEFloat(&closedLoopITerm); }
+	void SetClosedLoopITerm(float t) noexcept { StoreLEFloat(&closedLoopITerm, t); }
+
+	float GetClosedLoopDTerm() const noexcept { return LoadLEFloat(&closedLoopDTerm); }
+	void SetClosedLoopDTerm(float t) noexcept { StoreLEFloat(&closedLoopDTerm, t); }
+
+	float GetClosedLoopVTerm() const noexcept { return LoadLEFloat(&closedLoopVTerm); }
+	void SetClosedLoopVTerm(float t) noexcept { StoreLEFloat(&closedLoopVTerm, t); }
+
+	float GetClosedLoopATerm() const noexcept { return LoadLEFloat(&closedLoopATerm); }
+	void SetClosedLoopATerm(float t) noexcept { StoreLEFloat(&closedLoopATerm, t); }
+
+	void Clear()
+	{
+		closedLoopPTerm = 0;
+		closedLoopITerm = 0;
+		closedLoopDTerm = 0;
+		closedLoopVTerm = 0;
+		closedLoopATerm = 0;
+		zero = 0;
+	}
+
+	size_t GetActualDataLength() const noexcept
+	{
+		return 6 * sizeof(float);
+	}
+
+	float zero;
+
+private:
+	float closedLoopPTerm,
+		  closedLoopITerm,
+		  closedLoopDTerm,
+		  closedLoopVTerm,
+		  closedLoopATerm;
+};
+
 // Message sent by expansion boards to report the status of their drivers
 struct __attribute__((packed)) CanMessageDriversStatus
 {
@@ -1146,6 +1189,7 @@ union CanMessage
 	CanMessageReadInputsRequest readInputsRequest;
 	CanMessageReadInputsReply readInputsReply;
 	CanMessageBoardStatus boardStatus;
+	CanMessageClosedLoopPIDStatus closedLoopPIDStatus;
 	CanMessageDriversStatus driversStatus;
 	CanMessageFilamentMonitorsStatus filamentMonitorsStatus;
 	CanMessageCreateFilamentMonitor createFilamentMonitor;
