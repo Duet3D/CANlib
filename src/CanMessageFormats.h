@@ -188,7 +188,7 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped
 			 numDrivers : 4,						// how many drivers we included (maximum is 8)
 			 seq : 4,								// sequence number
 			 shapingPlan : 8,						// the input shaping plan for this move (see file InputShaperPlan.h)
-			 usePressureAdvance : 1,				// true to apply PA to the extruders
+			 usePressureAdvance : 1,				// true to apply PA to the extruders and accumulate partial steps
 			 zero : 7;								// unused
 
 	static constexpr uint8_t SeqMask = 0x0f;
