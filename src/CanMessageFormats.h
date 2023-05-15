@@ -1089,13 +1089,33 @@ struct __attribute__((packed)) CanMessageEvent
 	// Get the actual amount of data
 	size_t GetActualDataLength() const noexcept
 	{
-		return 2 * sizeof(uint32_t) + min<size_t>(Strnlen(text, ARRAY_SIZE(text)), ARRAY_SIZE(text));
+		return 2 * sizeof(uint32_t) + Strnlen(text, ARRAY_SIZE(text));
 	}
 
 	// Get the maximum length of the text
 	size_t GetMaxTextLength(size_t msgLen) const noexcept
 	{
 		return msgLen - 2 * sizeof(uint32_t);
+	}
+};
+
+// Debug text message, sent by the expansion board to the main board
+struct __attribute__((packed)) CanMessageDebugText
+{
+	static constexpr CanMessageType messageType = CanMessageType::debugText;
+
+	char text[64];				// other information about the event, to display to the user
+
+	// Get the actual amount of data
+	size_t GetActualDataLength() const noexcept
+	{
+		return Strnlen(text, ARRAY_SIZE(text));
+	}
+
+	// Get the maximum length of the text
+	size_t GetMaxTextLength(size_t msgLen) const noexcept
+	{
+		return ARRAY_SIZE(text);
 	}
 };
 
@@ -1158,6 +1178,7 @@ union CanMessage
 	CanMessageStartClosedLoopDataCollection startClosedLoopDataCollection;
 	CanMessageClosedLoopData closedLoopData;
 	CanMessageEvent event;
+	CanMessageDebugText debugText;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large
