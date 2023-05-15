@@ -1115,7 +1115,7 @@ struct __attribute__((packed)) CanMessageDebugText
 	// Get the maximum length of the text
 	size_t GetMaxTextLength(size_t msgLen) const noexcept
 	{
-		return ARRAY_SIZE(text);
+		return msgLen;
 	}
 };
 
