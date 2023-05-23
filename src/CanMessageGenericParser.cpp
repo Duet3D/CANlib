@@ -67,12 +67,12 @@ bool CanMessageGenericParser::GetUintParam(char c, uint32_t& v) const noexcept
 	switch (type)
 	{
 	case ParamDescriptor::ParamType::uint32:
-		v = LoadLE32(msg.data + pos);
+		v = LoadLEU32(msg.data + pos);
 		return true;
 
 	case ParamDescriptor::ParamType::uint16:
 	case ParamDescriptor::ParamType::pwmFreq:
-		v = LoadLE16(msg.data + pos);
+		v = LoadLEU16(msg.data + pos);
 		return true;
 
 	case ParamDescriptor::ParamType::uint8:
@@ -114,11 +114,11 @@ bool CanMessageGenericParser::GetIntParam(char c, int32_t& v) const noexcept
 	switch (type)
 	{
 	case ParamDescriptor::ParamType::int32:
-		v = (int32_t)LoadLE32(msg.data + pos);
+		v = LoadLEI32(msg.data + pos);
 		return true;
 
 	case ParamDescriptor::ParamType::int16:
-		v = (int16_t)LoadLE16(msg.data + pos);
+		v = LoadLEI16(msg.data + pos);
 		return true;
 
 	case ParamDescriptor::ParamType::int8:
@@ -159,7 +159,7 @@ bool CanMessageGenericParser::GetFloatParam(char c, float& v) const noexcept
 	switch (type)
 	{
 	case ParamDescriptor::ParamType::float_p:
-		v = LoadLEFloat(msg.data + pos);
+		v = LoadLEF32(msg.data + pos);
 		return true;
 
 	default:
@@ -240,7 +240,7 @@ bool CanMessageGenericParser::GetUint16ArrayParam(char c, size_t& numValues, uin
 	{
 		for (size_t i = 0; i < numValues; ++i)
 		{
-			*values++ = LoadLE16(p);
+			*values++ = LoadLEU16(p);
 			p += sizeof(uint16_t);
 		}
 		return true;
@@ -258,7 +258,7 @@ bool CanMessageGenericParser::GetFloatArrayParam(char c, size_t& numValues, floa
 	{
 		for (size_t i = 0; i < numValues; ++i)
 		{
-			*values++ = LoadLEFloat(p);
+			*values++ = LoadLEF32(p);
 			p += sizeof(float);
 		}
 		return true;

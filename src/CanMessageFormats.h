@@ -281,7 +281,7 @@ struct __attribute__((packed)) StepsPerUnitAndMicrostepping
 
 	StepsPerUnitAndMicrostepping(float spu, uint16_t ms) noexcept
 	{
-		StoreLEFloat(&stepsPerUnit, spu);
+		StoreLEF32(&stepsPerUnit, spu);
 		microstepping = ms;
 	}
 
@@ -289,7 +289,7 @@ struct __attribute__((packed)) StepsPerUnitAndMicrostepping
 
 	float GetStepsPerUnit() const noexcept
 	{
-		return LoadLEFloat(&stepsPerUnit);
+		return LoadLEF32(&stepsPerUnit);
 	}
 
 	uint16_t GetMicrostepping() const noexcept
@@ -777,8 +777,8 @@ struct __attribute__((packed)) CanSensorReport
 {
 	uint8_t errorCode;						// this holds a TemperatureError
 
-	float GetTemperature() const noexcept { return LoadLEFloat(&temperature); }
-	void SetTemperature(float t) noexcept { StoreLEFloat(&temperature, t); }
+	float GetTemperature() const noexcept { return LoadLEF32(&temperature); }
+	void SetTemperature(float t) noexcept { StoreLEF32(&temperature, t); }
 private:									// make unaligned members private
 	float temperature;						// the last temperature we read
 };
@@ -800,8 +800,8 @@ struct __attribute__((packed)) CanHeaterReport
 	uint8_t mode;							// a HeaterMode value
 	uint8_t averagePwm;						// scaled to 0-255 to save space
 
-	float GetTemperature() const noexcept { return LoadLEFloat(&temperature); }
-	void SetTemperature(float t) noexcept { StoreLEFloat(&temperature, t); }
+	float GetTemperature() const noexcept { return LoadLEF32(&temperature); }
+	void SetTemperature(float t) noexcept { StoreLEF32(&temperature, t); }
 private:									// make unaligned members private
 	float temperature;						// the last temperature we read
 };
@@ -1054,24 +1054,22 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 			 lastPacket : 1,				// set if this is the last packet
 			 filter : 16,					// which variables are present in the data packet
 			 overflowed : 1,				// true if there was buffer overflow
-			 zero : 9;						// Currently unused
+			 badSample : 1,					// true if we had a bad sample (should not happen)
+			 zero : 8;						// Currently unused
 	uint32_t firstSampleNumber: 20,			// the number of the first sample
 			 zero2: 12;						// Currently unused
-	float    data[14];
-
-	static constexpr unsigned int MaxDataItems = sizeof(data)/sizeof(data[0]);
-
-	// Count how many variables are being collected
-	size_t GetVariableCount() const noexcept
-	{
-		Bitmap<uint16_t> tmpFilter(filter);
-		return tmpFilter.CountSetBits() + 1;	// (+1 because the timestamp is always collected)
-	}
+	uint8_t  data[56];
 
 	// Get the actual amount of data
-	size_t GetActualDataLength() const noexcept
+	size_t GetActualDataLength(size_t numDataBytes) const noexcept
 	{
-		return 2 * sizeof(uint32_t) + numSamples * GetVariableCount() * sizeof(float);
+		return 2 * sizeof(uint32_t) + numDataBytes;
+	}
+
+	// Get the number of data bytes in a message, given the message length (which will have been rounded up to the next CAN-FD value)
+	static size_t GetNumDataBytes(size_t msglen) noexcept
+	{
+		return msglen - 2 * sizeof(uint32_t);
 	}
 };
 

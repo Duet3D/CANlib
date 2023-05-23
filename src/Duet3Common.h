@@ -65,10 +65,55 @@ constexpr uint16_t CL_RECORD_PID_CONTROL_SIGNAL 			= 1u << 4;
 constexpr uint16_t CL_RECORD_PID_P_TERM 					= 1u << 5;
 constexpr uint16_t CL_RECORD_PID_I_TERM 					= 1u << 6;
 constexpr uint16_t CL_RECORD_PID_D_TERM 					= 1u << 7;
-constexpr uint16_t CL_RECORD_STEP_PHASE 					= 1u << 8;
+constexpr uint16_t CL_RECORD_CURRENT_STEP_PHASE 			= 1u << 8;
 constexpr uint16_t CL_RECORD_DESIRED_STEP_PHASE 			= 1u << 9;
 constexpr uint16_t CL_RECORD_PHASE_SHIFT 					= 1u << 10;
 constexpr uint16_t CL_RECORD_COIL_A_CURRENT 				= 1u << 11;
 constexpr uint16_t CL_RECORD_COIL_B_CURRENT 				= 1u << 12;
+constexpr uint16_t CL_RECORD_PID_V_TERM 					= 1u << 13;
+constexpr uint16_t CL_RECORD_PID_A_TERM 					= 1u << 14;
+
+typedef __fp16 float16_t;			///< A 16-bit floating point type
+
+// Total of the above is currently 34 bytes, plus 4 bytes for the time stamp = 38 bytes.
+// We can fit 56 bytes of data in each CAN data sample message.
+
+// Calculate how much data there is from the bitmap of data to collect
+constexpr uint8_t ClosedLoopSampleLength(uint16_t valuesToCollect) noexcept
+{
+	// Size of each data item, in the same order as the CL_RECORD_ values declared in Duet3Common.h
+	constexpr uint8_t ClosedLoopDataSizes[16] =
+	{
+		sizeof(int32_t),	// raw encoder reading
+		sizeof(float),		// current motor steps
+		sizeof(float),		// target motor steps
+		sizeof(float),		// current error
+		sizeof(float16_t),	// total PID control signal
+		sizeof(float16_t),	// PID P term
+		sizeof(float16_t),	// PID I term
+		sizeof(float16_t),	// PID D term
+		sizeof(uint16_t),	// current step phase
+		sizeof(uint16_t),	// desired step phase
+		sizeof(float16_t),	// phase shift
+		sizeof(int16_t),	// coil A current
+		sizeof(int16_t),	// coil B current
+		sizeof(float16_t),	// PID V term
+		sizeof(float16_t),	// PID A term
+		0					// unused
+	};
+
+	uint8_t ret = sizeof(float);									// space for the time stamp
+	for (unsigned int i = 0; valuesToCollect != 0 ; ++i)
+	{
+		if (valuesToCollect & 1u)
+		{
+			ret += ClosedLoopDataSizes[i];
+		}
+		valuesToCollect >>= 1;
+	}
+	return ret;
+}
+
+constexpr size_t MaxClosedLoopSampleLength = ClosedLoopSampleLength(0xFFFF);
 
 #endif /* SRC_DUET3COMMON_H_ */
