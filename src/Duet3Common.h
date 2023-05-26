@@ -72,6 +72,7 @@ constexpr uint16_t CL_RECORD_COIL_A_CURRENT 				= 1u << 11;
 constexpr uint16_t CL_RECORD_COIL_B_CURRENT 				= 1u << 12;
 constexpr uint16_t CL_RECORD_PID_V_TERM 					= 1u << 13;
 constexpr uint16_t CL_RECORD_PID_A_TERM 					= 1u << 14;
+constexpr uint16_t CL_RECORD_MOTOR_CURRENT_FRACTION			= 1u << 15;
 
 typedef __fp16 float16_t;			///< A 16-bit floating point type
 
@@ -99,7 +100,7 @@ constexpr uint8_t ClosedLoopSampleLength(uint16_t valuesToCollect) noexcept
 		sizeof(int16_t),	// coil B current
 		sizeof(float16_t),	// PID V term
 		sizeof(float16_t),	// PID A term
-		0					// unused
+		sizeof(float16_t)	// motor current percent
 	};
 
 	uint8_t ret = sizeof(float);									// space for the time stamp
