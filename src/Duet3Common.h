@@ -99,7 +99,7 @@ constexpr uint8_t ClosedLoopSampleLength(uint16_t valuesToCollect) noexcept
 		sizeof(int16_t),	// coil B current
 		sizeof(float16_t),	// PID V term
 		sizeof(float16_t),	// PID A term
-		sizeof(float16_t)	// motor current percent
+		0					// unused
 	};
 
 	uint8_t ret = sizeof(float);									// space for the time stamp
