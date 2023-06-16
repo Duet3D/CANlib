@@ -914,14 +914,15 @@ struct __attribute__((packed)) CanMessageBoardStatus
 			 hasMcuTemp : 1,
 			 hasAccelerometer : 1,
 			 hasClosedLoop : 1,
-			 zero : 11,							// reserved for future use
+			 hasInductiveSensor : 1,
+			 zero : 10,							// reserved for future use
 			 underVoltage : 1,
 			 zero2 : 15;
 	MinCurMax values[3];
 
 	void Clear() noexcept
 	{
-		hasVin = hasV12 = hasMcuTemp = underVoltage = hasAccelerometer = hasClosedLoop = false;
+		hasVin = hasV12 = hasMcuTemp = underVoltage = hasAccelerometer = hasClosedLoop = hasInductiveSensor = false;
 		zero = zero2 = 0;
 	}
 
