@@ -746,8 +746,8 @@ struct __attribute__((packed)) CanMessageReadInputsReply
 	struct __attribute__((packed))
 	{
 		RemoteInputHandle handle;
-		uint16_t value;
-	} results[15];
+		uint32_t value;
+	} results[10];
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 
