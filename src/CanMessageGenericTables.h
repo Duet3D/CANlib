@@ -72,6 +72,7 @@ constexpr ParamDescriptor M569Params[] =
 	END_PARAMS
 };
 
+// Configure closed loop stepper motor
 constexpr ParamDescriptor M569Point1Params[] =
 {
 	LOCAL_DRIVER_PARAM('P'),
@@ -81,18 +82,29 @@ constexpr ParamDescriptor M569Point1Params[] =
 	FLOAT_PARAM('R'),
 	FLOAT_PARAM('I'),
 	FLOAT_PARAM('D'),
-	FLOAT_PARAM('H'),		// minimum holding current percent when in closed loop mode
-	UINT16_PARAM('S'),		// steps/rev added for EXP1HCL firmware 3.5 compatibility
-	FLOAT_PARAM('V'),		// velocity feedforward term added in 3.5beta2
-	FLOAT_PARAM('A'),		// acceleration feedforward term added in 3.5beta4
+	FLOAT_PARAM('H'),					// minimum holding current percent when in closed loop mode
+	UINT16_PARAM('S'),					// steps/rev added for EXP1HCL firmware 3.5 compatibility
+	FLOAT_PARAM('V'),					// velocity feedforward term added in 3.5beta2
+	FLOAT_PARAM('A'),					// acceleration feedforward term added in 3.5beta4
+	FLOAT_PARAM('Q'),					// torque constant in Nm per A added in 3.5 post beta4
 	END_PARAMS
 };
 
+// Read or write stepper driver register
 constexpr ParamDescriptor M569Point2Params[] =
 {
 	LOCAL_DRIVER_PARAM('P'),
 	UINT8_PARAM('R'),
 	UINT32_PARAM('V'),
+	END_PARAMS
+};
+
+// Set driver torque mode
+constexpr ParamDescriptor M569Point4Params[] =
+{
+	LOCAL_DRIVER_PARAM('P'),			// driver
+	FLOAT_PARAM('T'),					// requested torque in Nm
+	FLOAT_PARAM('V'),					// maximum speed to move at
 	END_PARAMS
 };
 
