@@ -521,7 +521,13 @@ struct __attribute__((packed)) CanMessageChangeInputMonitor
 	uint16_t param;
 	uint8_t action;
 
-	static constexpr uint8_t actionDontMonitor = 0, actionDoMonitor = 1, actionDelete = 2, actionChangeThreshold = 3, actionChangeMinInterval = 4, actionReturnPinName = 5;
+	static constexpr uint8_t actionDontMonitor = 0, actionDoMonitor = 1, actionDelete = 2, actionChangeThreshold = 3, actionChangeMinInterval = 4,
+								actionReturnPinName = 5, actionSetDriveLevel = 6;
+	// When the action is actionSetDriveLevel the value of param also defines the action:
+	//		0xFFFF = auto calibrate and report drive level
+	//		0xFFFE = just report the drive level
+	//		other  = set the drive level
+
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
