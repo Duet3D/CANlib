@@ -71,8 +71,9 @@ enum class CanMessageType : uint16_t
 	accelerometerConfig = 6034,
 	m950Led = 6035,
 
-	createInputMonitor = 6036,
-	changeInputMonitor = 6037,
+	//unused_was_createInputMonitorOld = 6036,
+	//unused_was_changeInputMonitorOld = 6037,
+
 	acknowledgeAnnounce = 6038,
 	setHeaterMonitors = 6039,
 	diagnosticTest = 6040,
@@ -93,6 +94,9 @@ enum class CanMessageType : uint16_t
 	setInputShaping = 6054,
 	writeLedStrip = 6055,
 	m569p4 = 6056,
+
+	createInputMonitorNew = 6057,
+	changeInputMonitorNew = 6058,
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,
