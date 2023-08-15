@@ -568,6 +568,13 @@ struct __attribute__((packed)) CanMessageChangeInputMonitorNew
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
+// Struct to represent an analog handle and the reading from it
+struct __attribute__((packed)) AnalogHandleData
+{
+	uint32_t reading;						// store this first so that if the object is aligned, so is this field
+	RemoteInputHandle handle;
+};
+
 // Request to read inputs, including analog inputs
 struct __attribute__((packed)) CanMessageReadInputsRequest
 {
@@ -960,19 +967,26 @@ struct __attribute__((packed)) CanMessageBoardStatus
 			 hasInductiveSensor : 1,
 			 zero : 10,							// reserved for future use
 			 underVoltage : 1,
-			 zero2 : 15;
+			 numAnalogHandles : 3,				// how many instances of AnaloghandleData we append
+			 zero2 : 12;
 	MinCurMax values[3];						// values of Vin, V12 and CPU temperature
+	// After the last present MinCurMax value the data for some analog handles follows (max 4 if all of Vin/V12/mcuTemp are supported)
 
 	void Clear() noexcept
 	{
 		hasVin = hasV12 = hasMcuTemp = underVoltage = hasAccelerometer = hasClosedLoop = hasInductiveSensor = false;
-		zero = zero2 = 0;
+		zero = zero2 = numAnalogHandles = 0;
+	}
+
+	size_t GetAnalogHandlesOffset() const noexcept
+	{
+		const unsigned int numMinCurMaxValues = hasVin + hasV12 + hasMcuTemp;
+		return sizeof(uint32_t) + numMinCurMaxValues * sizeof(values[0]);
 	}
 
 	size_t GetActualDataLength() const noexcept
 	{
-		const unsigned int numValues = hasVin + hasV12 + hasMcuTemp;
-		return sizeof(uint32_t) + numValues * sizeof(values[0]);
+		return GetAnalogHandlesOffset() + numAnalogHandles * sizeof(AnalogHandleData);
 	}
 };
 
