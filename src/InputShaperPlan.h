@@ -40,6 +40,12 @@ union InputShaperPlan
 	void Clear() noexcept { all = 0; }
 
 	bool IsShaped() const noexcept { return condensedPlan != 0; }
+
+	bool HasAccelShaping() const noexcept { return shapeAccelStart | shapeAccelEnd | shapeAccelOverlapped; }
+	bool HasDecelShaping() const noexcept { return shapeDecelStart | shapeDecelEnd | shapeDecelOverlapped; }
+
+	void CopyAccelShapingFrom(InputShaperPlan other) noexcept { shapeAccelStart = other.shapeAccelStart; shapeAccelEnd = other.shapeAccelEnd; shapeAccelOverlapped = other.shapeAccelOverlapped; }
+	void CopyDecelShapingFrom(InputShaperPlan other) noexcept { shapeDecelStart = other.shapeDecelStart; shapeDecelEnd = other.shapeDecelEnd; shapeDecelOverlapped = other.shapeDecelOverlapped; }
 };
 
 
