@@ -82,7 +82,7 @@ constexpr ParamDescriptor M569Point1Params[] =
 	FLOAT_PARAM('R'),
 	FLOAT_PARAM('I'),
 	FLOAT_PARAM('D'),
-	FLOAT_PARAM('H'),					// minimum holding current percent when in closed loop mode
+	FLOAT_PARAM('H'),					// no longer used, retained for backwards compatibility
 	UINT16_PARAM('S'),					// steps/rev added for EXP1HCL firmware 3.5 compatibility
 	FLOAT_PARAM('V'),					// velocity feedforward term added in 3.5beta2
 	FLOAT_PARAM('A'),					// acceleration feedforward term added in 3.5beta4
