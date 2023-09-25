@@ -990,24 +990,40 @@ struct __attribute__((packed)) CanMessageBoardStatus
 	}
 };
 
+// Struct to represent driver status including closed loop data
+struct __attribute__((packed)) ClosedLoopDriverStatus
+{
+	uint32_t status;
+	float16_t averageCurrentFraction;
+	float16_t maxCurrentFraction;
+	float16_t averagePositionError;
+	float16_t maxPositionError;
+};
+
 // Message sent by expansion boards to report the status of their drivers
 struct __attribute__((packed)) CanMessageDriversStatus
 {
 	static constexpr CanMessageType messageType = CanMessageType::driversStatusReport;
 
 	uint16_t numDriversReported : 4,
-			 zero : 12;
-	uint16_t zero2;						// for alignment
-	uint32_t data[15];					// status of each driver as a uint32_t
+			 hasClosedLoopData : 1,
+			 zero : 11;
+	uint16_t zero2;									// for alignment
+	union
+	{
+		uint32_t openLoopData[15];					// status of each driver if not closed loop, as a uint32_t
+		ClosedLoopDriverStatus closedLoopData[5];	// status of each driver if closed loop
+	};
 
 	size_t GetActualDataLength() const noexcept
 	{
-		return (2 * sizeof(uint16_t)) + (numDriversReported * sizeof(data[0]));
+		return 2 * sizeof(uint16_t) + numDriversReported * ((hasClosedLoopData) ? sizeof(closedLoopData[0]) : sizeof(openLoopData[0]));
 	}
 
 	void SetStandardFields(unsigned int numReported) noexcept
 	{
 		numDriversReported = numReported;
+		hasClosedLoopData = false;
 		zero = 0;
 		zero2 = 0;
 	}
