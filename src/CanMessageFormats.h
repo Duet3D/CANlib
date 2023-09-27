@@ -1035,38 +1035,37 @@ struct __attribute__((packed)) CanMessageDriversStatus
 	}
 };
 
-// Message sent by expansion boards to report the status of their filament monitors
-struct __attribute__((packed)) CanMessageFilamentMonitorsStatus
+// This has to be declared outside struct CanMessageFilamentMonitorsStatusNew to avoid having to include this file in FilamentMonitor.h
+struct __attribute__((packed)) FilamentMonitorDataNew
 {
-	static constexpr CanMessageType messageType = CanMessageType::filamentMonitorsStatusReport;
+	uint32_t calibrationLength : 24,	// length in mm over which we measured
+			 status : 4,				// standard filament status
+			 zero : 2,					// reserved for future use
+			 hasLiveData : 1;			// true if the following fields are meaningful for this sensor
+	int16_t avgPercentage;
+	int16_t minPercentage;
+	int16_t maxPercentage;
+	int16_t lastPercentage;
+};
 
-	struct FilamentMonitorData
-	{
-		uint32_t status : 4,
-				 zero : 28;
+// Message sent by expansion boards to report the status of their filament monitors
+struct __attribute__((packed)) CanMessageFilamentMonitorsStatusNew
+{
+	static constexpr CanMessageType messageType = CanMessageType::filamentMonitorsStatusReportNew;
 
-		void Set(uint32_t stat) noexcept
-		{
-			status = stat;
-			zero = 0;
-		}
-	};
-
-	uint16_t numMonitorsReported : 4,
-			 zero : 12;
-	uint16_t zero2;						// for alignment
-	FilamentMonitorData data[10];
+	uint32_t driversReported : 8,			// bitmap of driver numbers with associated filament monitors reported in this message
+			 zero : 24;
+	FilamentMonitorDataNew data[5];
 
 	size_t GetActualDataLength() const noexcept
 	{
-		return (2 * sizeof(uint16_t)) + (numMonitorsReported * sizeof(data[0]));
+		return sizeof(uint32_t) + (Bitmap<uint32_t>(driversReported).CountSetBits() * sizeof(data[0]));
 	}
 
-	void SetStandardFields(unsigned int numReported) noexcept
+	void SetStandardFields(Bitmap<uint32_t> drivers) noexcept
 	{
-		numMonitorsReported = numReported;
+		driversReported = drivers.GetRaw();
 		zero = 0;
-		zero2 = 0;
 	}
 };
 
@@ -1245,7 +1244,7 @@ union CanMessage
 	CanMessageReadInputsReply readInputsReply;
 	CanMessageBoardStatus boardStatus;
 	CanMessageDriversStatus driversStatus;
-	CanMessageFilamentMonitorsStatus filamentMonitorsStatus;
+	CanMessageFilamentMonitorsStatusNew filamentMonitorsStatusNew;
 	CanMessageCreateFilamentMonitor createFilamentMonitor;
 	CanMessageDeleteFilamentMonitor deleteFilamentMonitor;
 	CanMessageHeaterTuningCommand heaterTuningCommand;

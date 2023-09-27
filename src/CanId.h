@@ -109,13 +109,14 @@ enum class CanMessageType : uint16_t
 	fansReport = 4517,
 	readInputsReply = 4518,
 	driversStatusReport = 4519,
-	filamentMonitorsStatusReport = 4520,
+	//unused_was_filamentMonitorsStatusReportOld = 4520,
 	heaterTuningReport = 4521,
 	accelerometerData = 4522,
 	closedLoopData = 4523,
 	logMessage = 4524,
 	announceNew = 4525,							// announce message sent by firmware 3.4.0beta5 and later
 	debugText = 4526,
+	filamentMonitorsStatusReportNew = 4527,
 
 	// Firmware updates
 	firmwareBlockRequest = 5000,
