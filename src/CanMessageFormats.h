@@ -878,7 +878,7 @@ struct __attribute__((packed)) CanMessageAnnounceOld
 			 zero : 24;						// for future expansion, set to zero
 	char boardTypeAndFirmwareVersion[56];	// the type short name of this board followed by '|' and the firmware version
 
-	void SetRequestId(CanRequestId rid) noexcept { zero = 0;}	// these messages don't need RIDs
+	void SetRequestId(CanRequestId rid) noexcept { zero = 0; }	// these messages don't need RIDs
 
 	size_t GetActualDataLength() const noexcept
 			{ return (2 * sizeof(uint32_t)) + Strnlen(boardTypeAndFirmwareVersion, sizeof(boardTypeAndFirmwareVersion)/sizeof(boardTypeAndFirmwareVersion[0])); }
@@ -893,11 +893,12 @@ struct __attribute__((packed)) CanMessageAnnounceNew
 
 	uint32_t timeSinceStarted;				// how long since we started up
 	uint8_t uniqueId[16];					// the unique ID of this board
-	uint8_t numDrivers: 3,					// the number of motor drivers on this board
-			zero : 5;						// for future expansion, set to zero
+	uint8_t numDrivers: 4,					// the number of motor drivers on this board
+			usesUf2Binary : 1,				// set if this board takes a main firmware binary in .uf2 format
+			zero : 3;						// for future expansion, set to zero
 	char boardTypeAndFirmwareVersion[43];	// the type short name of this board followed by '|' and the firmware version
 
-	void SetRequestId(CanRequestId rid) noexcept { zero = 0;}	// these messages don't need RIDs
+	void SetRequestId(CanRequestId rid) noexcept { zero = 0; }	// these messages don't need RIDs
 
 	size_t GetActualDataLength() const noexcept
 			{ return sizeof(timeSinceStarted) + sizeof(uniqueId) + sizeof(uint8_t) + Strnlen(boardTypeAndFirmwareVersion, sizeof(boardTypeAndFirmwareVersion)/sizeof(boardTypeAndFirmwareVersion[0])); }
