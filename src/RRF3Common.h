@@ -140,6 +140,12 @@ NamedEnum(FilamentSensorStatus, uint8_t,
 
 NamedEnum(LogLevel, uint8_t, off, warn, info, debug);
 
+NamedEnum(AccelerometerType, uint8_t,
+	LIS3DH,
+	LIS3DSH,
+	LIS2DW
+);
+
 // Meaning of the driver status bits.
 // The lowest 8 bits of these have the same bit positions as in the TMC2209 DRV_STATUS register.
 // The TMC5160 DRV_STATUS is different so the bits are translated to this. Similarly for TMC2660.
