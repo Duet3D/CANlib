@@ -789,8 +789,8 @@ struct __attribute__((packed)) CanMessageReadInputsReply
 {
 	static constexpr CanMessageType messageType = CanMessageType::readInputsReply;
 
-	uint32_t requestId : 12,				// the request ID of the message we are replying to
-			 resultCode : 4,				// normally a GCodeResult
+	uint32_t requestId : 12,				// the request ID of the message we are replying to - must be in the same place as in a StandardReply
+			 resultCode : 4,				// normally a GCodeResult - must be in the same place as in a StandardReply
 			 numReported : 4,				// number of input handles reported
 			 zero : 12;						// spare
 	struct __attribute__((packed))
