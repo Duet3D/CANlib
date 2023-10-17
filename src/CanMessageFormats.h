@@ -564,6 +564,9 @@ struct __attribute__((packed)) CanMessageChangeInputMonitorNew
 
 	// When the action is actionSetDriveLevel, some values of param define a special action:
 	static constexpr uint32_t paramAutoCalibrateDriveLevelAndReport = 0xFFFFFFFF, paramReportDriveLevel = 0xFFFFFFFE;
+	static constexpr uint32_t paramDriveLevelMask = 0x1F;			// bottom 5 bits are the drive level
+	static constexpr unsigned int paramOffsetShift = 5;				// remaining bits are the offset
+	static constexpr uint32_t maxParamOffset = ((uint32_t)1 << (32 - paramOffsetShift)) - 1;
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
