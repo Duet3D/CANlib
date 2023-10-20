@@ -8,6 +8,7 @@
 #ifndef SRC_GCODERESULT_H_
 #define SRC_GCODERESULT_H_
 
+#include <ecv_duet3d.h>
 #include <cstdint>
 
 // Enumeration to specify the result of attempting to process a GCode command
@@ -17,13 +18,18 @@ enum class GCodeResult : uint8_t
 	ok,								// we have finished processing this code in the current state, and if the GCodeState is 'normal' then we have finished it completely
 	warning,						// the command succeeded but a warning was generated
 	warningNotSupported,			// the command is not supported, but for this command we issue a warning not an error
-	error,
+	error,							// general error, the reason will be written to the associated reply buffer
 	errorNotSupported,
 	notSupportedInCurrentMode,
 	badOrMissingParameter,
-	remoteInternalError,
-	m291Cancelled
+	remoteInternalError,			// only used if CAN expansion is supported
+	m291Cancelled,
+	// The following are only used of CAN expansion is supported
+	noCanBuffer,					// we failed to allocate a CAN buffer to send a message to an expansion board
+	canResponseTimeout				// timed out waiting for a response to a CAN message - the associated reply buffer may contain more info
 };
+
+constexpr const char *_ecv_array NoCanBufferMessage = "no CAN buffer available";
 
 // Test whether the command succeeded
 inline constexpr bool Succeeded(GCodeResult rslt) noexcept
