@@ -212,7 +212,7 @@ constexpr ParamDescriptor M122P1Params[] =
 	FLOAT_ARRAY_PARAM('V', 2),			// VIN voltage limits
 	FLOAT_ARRAY_PARAM('W', 2),			// V12 voltage limits
 	FLOAT_ARRAY_PARAM('U', 2),			// thermistor temperature reading limits
-	UINT32_ARRAY_PARAM('F', 2),			// inductive sensor frequency limits
+	FLOAT_ARRAY_PARAM('F', 2),			// inductive sensor frequency limits
 	END_PARAMS
 };
 
