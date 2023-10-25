@@ -98,6 +98,8 @@ enum class CanMessageType : uint16_t
 	createInputMonitorNew = 6057,
 	changeInputMonitorNew = 6058,
 
+	testReport = 6059,
+
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,
 	boardStatusReport = 4511,
