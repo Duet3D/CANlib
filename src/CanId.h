@@ -160,7 +160,7 @@ public:
 	static constexpr CanAddress Exp1HCLBoardDefaultAddress = 123;
 	static constexpr CanAddress SammyC21DefaultAddress = 124;
 	static constexpr CanAddress ATEMasterAddress = 125;						// the address of the ATE main board
-	static constexpr CanAddress Exp3HCFirmwareUpdateAddress = 126;		// special address we use for backup firmware update system (board ID switches set to zero on 3HC)
+	static constexpr CanAddress Exp3HCFirmwareUpdateAddress = 126;			// special address we use for backup firmware update system (board ID switches set to zero on 3HC)
 	static constexpr CanAddress MaxCanAddress = 126;						// maximum CAN address including the firmware update address
 	static constexpr CanAddress BroadcastAddress = 127;
 	static constexpr CanAddress NoAddress = 255;
