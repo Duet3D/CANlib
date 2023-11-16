@@ -565,6 +565,9 @@ struct __attribute__((packed)) CanMessageChangeInputMonitorNew
 
 	// When the action is actionSetDriveLevel, some values of param define a special action:
 	static constexpr uint32_t paramAutoCalibrateDriveLevelAndReport = 0xFFFFFFFF, paramReportDriveLevel = 0xFFFFFFFE;
+	static constexpr uint32_t paramDriveLevelMask = 0x1F;			// bottom 5 bits are the drive level
+	static constexpr unsigned int paramOffsetShift = 5;				// remaining bits are the offset
+	static constexpr uint32_t maxParamOffset = ((uint32_t)1 << (32 - paramOffsetShift)) - 1;
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
@@ -790,8 +793,8 @@ struct __attribute__((packed)) CanMessageReadInputsReply
 {
 	static constexpr CanMessageType messageType = CanMessageType::readInputsReply;
 
-	uint32_t requestId : 12,				// the request ID of the message we are replying to
-			 resultCode : 4,				// normally a GCodeResult
+	uint32_t requestId : 12,				// the request ID of the message we are replying to - must be in the same place as in a StandardReply
+			 resultCode : 4,				// normally a GCodeResult - must be in the same place as in a StandardReply
 			 numReported : 4,				// number of input handles reported
 			 zero : 12;						// spare
 	struct __attribute__((packed))

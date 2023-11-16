@@ -205,4 +205,15 @@ constexpr ParamDescriptor M955Params[] =
 	END_PARAMS
 };
 
+// M122 P1 parameters
+constexpr ParamDescriptor M122P1Params[] =
+{
+	FLOAT_ARRAY_PARAM('T', 2),			// MCU temperature limits
+	FLOAT_ARRAY_PARAM('V', 2),			// VIN voltage limits
+	FLOAT_ARRAY_PARAM('W', 2),			// V12 voltage limits
+	FLOAT_ARRAY_PARAM('U', 2),			// thermistor temperature reading limits
+	FLOAT_ARRAY_PARAM('F', 2),			// inductive sensor frequency limits
+	END_PARAMS
+};
+
 #endif /* SRC_CANMESSAGEGENERICTABLES_H_ */
