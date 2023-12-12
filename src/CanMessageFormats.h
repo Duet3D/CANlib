@@ -117,6 +117,9 @@ struct __attribute__((packed)) CanMessageRevertPosition
 static_assert(CanMessageRevertPosition::GetActualDataLength(MaxLinearDriversPerCanSlave) == sizeof(CanMessageRevertPosition));
 
 // Movement messages
+
+#if 0
+
 struct __attribute__((packed)) CanMessageMovementLinear
 {
 	static constexpr CanMessageType messageType = CanMessageType::movementLinear;
@@ -174,7 +177,8 @@ struct __attribute__((packed)) CanMessageMovementLinear
 	}
 };
 
-// Movement messages
+#endif
+
 struct __attribute__((packed)) CanMessageMovementLinearShaped
 {
 	static constexpr CanMessageType messageType = CanMessageType::movementLinearShaped;
@@ -1215,7 +1219,9 @@ union CanMessage
 	CanMessageStopMovement stopMovement;
 	CanMessageRevertPosition revertPosition;
 	CanMessageReset reset;
+#if 0
 	CanMessageMovementLinear moveLinear;
+#endif
 	CanMessageMovementLinearShaped moveLinearShaped;
 	CanMessageReturnInfo getInfo;
 	CanMessageSetHeaterTemperature setTemp;

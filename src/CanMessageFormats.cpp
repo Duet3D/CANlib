@@ -22,7 +22,7 @@ size_t CanAdjustedLength(size_t rawLength)
 					: 64;
 }
 
-#if 0	// this message is no longer used
+#if 0	// these messages are no longer used
 
 void CanMessageMovement::DebugPrint() const noexcept
 {
@@ -35,7 +35,6 @@ void CanMessageMovement::DebugPrint() const noexcept
 	debugPrintf("\n");
 }
 
-#endif
 
 void CanMessageMovementLinear::DebugPrint() const noexcept
 {
@@ -47,6 +46,8 @@ void CanMessageMovementLinear::DebugPrint() const noexcept
 	}
 	debugPrintf("\n");
 }
+
+#endif
 
 void CanMessageGeneric::DebugPrint(const ParamDescriptor *pt) const noexcept
 {

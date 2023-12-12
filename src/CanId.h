@@ -24,7 +24,7 @@ enum class CanMessageType : uint16_t
 	insertHiccup = 46,
 	revertPosition = 47,
 	//unused_was_movement = 50,
-	movementLinear = 51,
+	//unused_was_movementLinear = 51,
 	movementLinearShaped = 52,
 
 	// High priority responses sent by expansion boards and Smart Tools
