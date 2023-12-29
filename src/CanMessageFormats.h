@@ -191,7 +191,7 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped
 	uint32_t extruderDrives : 8,					// which drivers are for extruders
 			 numDrivers : 4,						// how many drivers we included (maximum is 8)
 			 seq : 4,								// sequence number
-			 zero1 : 8,								// used to hold the input shaping plan for this move
+			 zero1 : 8,								// was used to hold the input shaping plan for this move
 			 usePressureAdvance : 1,				// true to apply PA to the extruders and accumulate partial steps
 			 useLateInputShaping : 1,
 			 zero2 : 6;								// unused
@@ -709,15 +709,15 @@ struct __attribute__((packed)) CanMessageSetInputShaping
 {
 	static constexpr CanMessageType messageType = CanMessageType::setInputShaping;
 
-	struct ShapingPair { float coefficient; float duration; };
+	struct ShapingPair { float coefficient; float delay; };
 
 	uint16_t requestId : 12,
 			 zero : 4;
 
-	uint16_t numExtraImpulses;							// the number of extra impulses
+	uint16_t numImpulses;								// the total number of impulses
 	ShapingPair impulses[7];							// the coefficients and durations of the impulses
 
-	size_t GetActualDataLength() const noexcept { return (2 * sizeof(uint16_t)) + (numExtraImpulses * sizeof(ShapingPair)); }
+	size_t GetActualDataLength() const noexcept { return (2 * sizeof(uint16_t)) + (numImpulses * sizeof(ShapingPair)); }
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
