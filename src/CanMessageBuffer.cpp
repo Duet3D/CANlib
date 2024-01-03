@@ -7,6 +7,7 @@
 
 #include "CanMessageBuffer.h"
 #include "RTOSIface/RTOSIface.h"
+#include "CANlibNotifyIndices.h"
 #include <cinttypes>
 
 extern "C" void debugPrintf(const char* fmt, ...) __attribute__ ((format (printf, 1, 2)));
@@ -74,7 +75,7 @@ CanMessageBuffer *CanMessageBuffer::BlockingAllocate() noexcept
 
 			bufferWaitingTask = TaskBase::GetCallerTaskHandle();
 		}
-		TaskBase::Take();
+		TaskBase::TakeIndexed(NotifyIndices::CanMessageBuffer);
 	}
 }
 
@@ -94,7 +95,7 @@ void CanMessageBuffer::Free(CanMessageBuffer*& buf) noexcept
 		if (waitingTask != nullptr)
 		{
 			bufferWaitingTask = nullptr;
-			waitingTask->GiveFromISR();
+			waitingTask->GiveFromISR(NotifyIndices::CanMessageBuffer);
 		}
 #endif
 	}
