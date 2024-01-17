@@ -28,9 +28,10 @@ enum class CanMessageType : uint16_t
 	movementLinearShaped = 52,
 
 	// High priority responses sent by expansion boards and Smart Tools
-	inputStateChanged = 100,
+	//unused_was_inputStateChanged = 100,
 	event = 102,
 	enterTestMode = 104,	 	// sent by the ATE to the main board
+	inputStateChangedNew = 105,
 
 	// Configuration messages sent by the main board
 	setAddressAndNormalTiming = 2010,
@@ -95,10 +96,16 @@ enum class CanMessageType : uint16_t
 	writeLedStrip = 6055,
 	m569p4 = 6056,
 
-	createInputMonitorNew = 6057,
-	changeInputMonitorNew = 6058,
+	// In RRF 3.5.0rc3 the message sent to report an input monitor state change has changed.
+	// To prevent users successfully configuring endstops on remote boards which then don't work, we have changed the IDs of createInputMonitorNew and changeInputMonitorNew.
+	// With luck this will abort any moves involving endstops with "Failed to enable endstops".
+
+	//unused_was_createInputMonitorNew = 6057,
+	//unused_was_changeInputMonitorNew = 6058,
 
 	testReport = 6059,
+	createInputMonitorNew = 6060,				// was 6057 before 3.5.0-rc.3
+	changeInputMonitorNew = 6061,				// was 6058 before 3.5.0-rc.3
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,
