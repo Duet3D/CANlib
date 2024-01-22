@@ -348,7 +348,7 @@ struct __attribute__((packed)) CanMessageDiagnosticTest
 	uint16_t testType;								// the M122 P parameter
 	uint16_t invertedTestType;						// the complement of the M122 P parameter
 	uint16_t param16;								// possible 16-bit parameter
-	uint32_t param32[2];							// possible 32-bit parameters
+	uint32_t param32[3];							// possible 32-bit parameters
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
@@ -579,8 +579,8 @@ struct __attribute__((packed)) CanMessageChangeInputMonitorNew
 // Struct to represent an analog handle and the reading from it
 struct __attribute__((packed)) AnalogHandleData
 {
-	uint32_t reading;						// store this first so that if the object is aligned, so is this field
 	RemoteInputHandle handle;
+	uint32_t reading;						// note, this will not be aligned!
 };
 
 // Request to read inputs, including analog inputs
@@ -801,11 +801,7 @@ struct __attribute__((packed)) CanMessageReadInputsReply
 			 resultCode : 4,				// normally a GCodeResult - must be in the same place as in a StandardReply
 			 numReported : 4,				// number of input handles reported
 			 zero : 12;						// spare
-	struct __attribute__((packed))
-	{
-		RemoteInputHandle handle;
-		uint32_t value;
-	} results[10];
+	AnalogHandleData results[10];
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 
@@ -932,25 +928,26 @@ struct __attribute__((packed)) CanMessageFansReport
 };
 
 // Message sent by an expansion board when one of its monitored inputs has changed state
-struct __attribute__((packed)) CanMessageInputChanged
+struct __attribute__((packed)) CanMessageInputChangedNew
 {
-	static constexpr CanMessageType messageType = CanMessageType::inputStateChanged;
+	static constexpr CanMessageType messageType = CanMessageType::inputStateChangedNew;
 
-	uint32_t states;						// 1 bit per reported handle
+	uint16_t states;						// 1 bit per reported handle
 	uint8_t numHandles;
 	uint8_t zero;
-	RemoteInputHandle handles[29];			// the handles reported
+	AnalogHandleData results[10];
 
 	// Add an entry. 'states' and 'numHandles' must be cleared to zero before adding the first one. Return true if successful, false if message is full.
-	bool AddEntry(uint16_t h, bool state) noexcept
+	bool AddEntry(uint16_t h, uint32_t val, bool state) noexcept
 	{
-		if (numHandles < sizeof(handles)/sizeof(handles[0]))
+		if (numHandles < sizeof(results)/sizeof(results[0]))
 		{
 			if (state)
 			{
 				states |= 1ul << numHandles;
 			}
-			handles[numHandles].Set(h);
+			results[numHandles].handle.Set(h);
+			StoreLEU32(&results[numHandles].reading, val);
 			++numHandles;
 			return true;
 		}
@@ -959,7 +956,7 @@ struct __attribute__((packed)) CanMessageInputChanged
 
 	size_t GetActualDataLength() const noexcept
 	{
-		return sizeof(states) + sizeof(numHandles) + sizeof(zero) + (numHandles * sizeof(handles[0]));
+		return sizeof(states) + sizeof(numHandles) + sizeof(zero) + (numHandles * sizeof(results[0]));
 	}
 };
 
@@ -978,6 +975,7 @@ struct __attribute__((packed)) CanMessageBoardStatus
 			 underVoltage : 1,
 			 numAnalogHandles : 3,				// how many instances of AnaloghandleData we append
 			 zero2 : 12;
+	int32_t neverUsedRam;
 	MinCurMax values[3];						// values of Vin, V12 and CPU temperature
 	// After the last present MinCurMax value the data for some analog handles follows (max 4 if all of Vin/V12/mcuTemp are supported)
 
@@ -990,7 +988,7 @@ struct __attribute__((packed)) CanMessageBoardStatus
 	size_t GetAnalogHandlesOffset() const noexcept
 	{
 		const unsigned int numMinCurMaxValues = hasVin + hasV12 + hasMcuTemp;
-		return sizeof(uint32_t) + numMinCurMaxValues * sizeof(values[0]);
+		return 2 * sizeof(uint32_t) + numMinCurMaxValues * sizeof(values[0]);
 	}
 
 	size_t GetActualDataLength() const noexcept
@@ -1243,7 +1241,7 @@ union CanMessage
 	CanMessageSetInputShaping setInputShaping;
 	CanMessageCreateInputMonitorNew createInputMonitorNew;
 	CanMessageChangeInputMonitorNew changeInputMonitorNew;
-	CanMessageInputChanged inputChanged;
+	CanMessageInputChangedNew inputChangedNew;
 	CanMessageFansReport fansReport;
 	CanMessageWriteGpio writeGpio;
 	CanMessageSetAddressAndNormalTiming setAddressAndNormalTiming;
