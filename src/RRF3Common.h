@@ -27,6 +27,8 @@ constexpr uint32_t FanCheckInterval = 500;				// Milliseconds
 constexpr uint32_t OpenLoadTimeout = 500;				// Milliseconds
 constexpr uint32_t MinimumWarningInterval = 4000;		// Milliseconds, must be at least as long as FanCheckInterval
 constexpr uint32_t DriverCoolingTimeout = 4000;			// Milliseconds
+constexpr uint32_t BedOrChamberTuningTargetTemperatureTimeout = 30;	// Minutes
+constexpr uint32_t ToolHeaterTuningTargetTemperatureTimeout = 7;	// Minutes
 
 constexpr uint32_t MinimumOpenLoadFullStepsPerSec = 20;
 
