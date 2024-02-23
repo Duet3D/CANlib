@@ -196,8 +196,8 @@ union StandardDriverStatus
 	static constexpr unsigned int SgresultBitPos = 22;
 
 	static constexpr uint32_t ErrorMask =    0b00'0100'1010'0011'1110;	// bit positions that usually correspond to errors
-	static constexpr uint32_t WarningMask =  0b00'0010'0000'1100'0001;	// bit positions that correspond to warnings
-	static constexpr uint32_t InfoMask =     0b11'1001'0101'0000'0000;	// bit positions that correspond to information
+	static constexpr uint32_t WarningMask =  0b00'0010'0100'1100'0001;	// bit positions that correspond to warnings
+	static constexpr uint32_t InfoMask =     0b11'1001'0001'0000'0000;	// bit positions that correspond to information
 
 	static_assert((ErrorMask & WarningMask) == 0);
 	static_assert((ErrorMask & InfoMask) == 0);
