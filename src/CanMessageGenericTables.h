@@ -159,6 +159,7 @@ constexpr ParamDescriptor M950FanParams[] =
 	UINT16_PARAM('F'),
 	PWM_FREQ_PARAM('Q'),
 	REDUCED_STRING_PARAM('C'),
+	FLOAT_PARAM('K'),					// tacho pulses/rev added at 3.5
 	END_PARAMS
 };
 
