@@ -100,6 +100,8 @@ constexpr PwmFrequency MaxHeaterPwmFrequency = 1000;	// maximum supported heater
 constexpr PwmFrequency DefaultFanPwmFreq = 250;			// increase to 25kHz using M106 command to meet Intel 4-wire PWM fan specification
 constexpr PwmFrequency DefaultPinWritePwmFreq = 500;	// default PWM frequency for M42 pin writes and extrusion ancillary PWM
 constexpr PwmFrequency DefaultServoRefreshFrequency = 50;
+constexpr float MinFanPulsesPerRev = 0.5;				// minimum number of fan tacho pulses per revolution - values below about 0.2 give rise to overflow in the RPM calculation
+constexpr float MaxFanPulsesPerRev = 10.0;				// maximum number of fan tacho pulses per revolution
 constexpr float DefaultFanTachoPulsesPerRev = 2.0;		// default number of fan tacho pulses per revolution
 
 // Slow driver timings
