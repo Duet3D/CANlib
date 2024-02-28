@@ -100,6 +100,9 @@ constexpr PwmFrequency MaxHeaterPwmFrequency = 1000;	// maximum supported heater
 constexpr PwmFrequency DefaultFanPwmFreq = 250;			// increase to 25kHz using M106 command to meet Intel 4-wire PWM fan specification
 constexpr PwmFrequency DefaultPinWritePwmFreq = 500;	// default PWM frequency for M42 pin writes and extrusion ancillary PWM
 constexpr PwmFrequency DefaultServoRefreshFrequency = 50;
+constexpr float MinFanPulsesPerRev = 0.5;				// minimum number of fan tacho pulses per revolution - values below about 0.2 give rise to overflow in the RPM calculation
+constexpr float MaxFanPulsesPerRev = 10.0;				// maximum number of fan tacho pulses per revolution
+constexpr float DefaultFanTachoPulsesPerRev = 2.0;		// default number of fan tacho pulses per revolution
 
 // Slow driver timings
 constexpr float DefaultStepWidthMicroseconds = 2.5;
@@ -196,8 +199,8 @@ union StandardDriverStatus
 	static constexpr unsigned int SgresultBitPos = 22;
 
 	static constexpr uint32_t ErrorMask =    0b00'0100'1010'0011'1110;	// bit positions that usually correspond to errors
-	static constexpr uint32_t WarningMask =  0b00'0010'0000'1100'0001;	// bit positions that correspond to warnings
-	static constexpr uint32_t InfoMask =     0b11'1001'0101'0000'0000;	// bit positions that correspond to information
+	static constexpr uint32_t WarningMask =  0b00'0010'0100'1100'0001;	// bit positions that correspond to warnings
+	static constexpr uint32_t InfoMask =     0b11'1001'0001'0000'0000;	// bit positions that correspond to information
 
 	static_assert((ErrorMask & WarningMask) == 0);
 	static_assert((ErrorMask & InfoMask) == 0);
