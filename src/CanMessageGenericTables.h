@@ -11,6 +11,8 @@
 #include "CanMessageGenericTableFormat.h"
 
 // Parameter tables for various messages that use the generic format.
+// For backwards compatibility, any new parameters added to a table must be added at the end of that table.
+// Maximum length of data is 60 bytes.
 
 constexpr ParamDescriptor M42Params[] =
 {
@@ -54,6 +56,8 @@ constexpr ParamDescriptor M308NewParams[] =
 	CHAR_PARAM('K'),
 	REDUCED_STRING_PARAM('Y'),
 	REDUCED_STRING_PARAM('P'),
+	FLOAT16_PARAM('U'),
+	FLOAT16_PARAM('V'),
 	END_PARAMS
 };
 
