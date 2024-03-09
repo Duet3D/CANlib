@@ -162,6 +162,10 @@ bool CanMessageGenericParser::GetFloatParam(char c, float& v) const noexcept
 		v = LoadLEF32(msg.data + pos);
 		return true;
 
+	case ParamDescriptor::ParamType::float16_p:
+		v = LoadLEF16(msg.data + pos);
+		return true;
+
 	default:
 		return false;
 	}

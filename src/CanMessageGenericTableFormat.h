@@ -51,6 +51,7 @@ struct ParamDescriptor
 		reducedString = 0x20,
 
 		localDriver = 0x40 | length1,
+		float16_p = 0x40 | length2,
 
 		float_array = float_p | isArray,
 #if 0	// these are not used or supported yet
@@ -76,6 +77,7 @@ struct ParamDescriptor
 #define INT8_PARAM(_c) { _c, ParamDescriptor::int8, 0 }
 
 #define FLOAT_PARAM(_c) { _c, ParamDescriptor::float_p, 0 }
+#define FLOAT16_PARAM(_c) { _c, ParamDescriptor::float16_p, 0 }
 #define PWM_FREQ_PARAM(_c) { _c, ParamDescriptor::pwmFreq, 0 }
 #define CHAR_PARAM(_c) { _c, ParamDescriptor::char_p, 0 }
 #define STRING_PARAM(_c) { _c, ParamDescriptor::string, 0 }

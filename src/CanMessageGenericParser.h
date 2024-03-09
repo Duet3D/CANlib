@@ -27,6 +27,7 @@ public:
 	bool GetIntParam(char c, int16_t& v) const noexcept;
 	bool GetIntParam(char c, int8_t& v) const noexcept;
 	bool GetFloatParam(char c, float& v) const noexcept;
+	bool GetFloat16Param(char c, float& v) const noexcept;
 	bool GetCharParam(char c, char& v) const noexcept;
 	bool GetStringParam(char c, const StringRef& v) const noexcept;
 	bool GetBoolParam(char c, bool &v) const noexcept;
