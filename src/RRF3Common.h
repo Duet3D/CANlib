@@ -120,6 +120,8 @@ constexpr float DefaultClosedLoopPositionWarningThreshold = 2.0;
 
 // Accelerometer
 constexpr size_t NumAccelerometerAxes = 3;
+constexpr uint8_t DefaultAccelerometerResolution = 10;
+constexpr uint8_t DefaultAccelerometerOrientation = 20;	// +Z -> +Z, +X -> +X
 
 // Array indices in 'set' commands
 constexpr size_t MaxArrayIndices = 5;
