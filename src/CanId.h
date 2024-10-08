@@ -95,6 +95,9 @@ enum class CanMessageType : uint16_t
 	//unused_was_setInputShaping = 6054,
 	writeLedStrip = 6055,
 	m569p4 = 6056,
+	setStepMode = 6057,
+	setPhaseStepKv = 6058,
+	setPhaseStepKa = 6059,
 
 	// In RRF 3.5.0rc3 the message sent to report an input monitor state change has changed.
 	// To prevent users successfully configuring endstops on remote boards which then don't work, we have changed the IDs of createInputMonitorNew and changeInputMonitorNew.
