@@ -68,7 +68,7 @@ enum class CanMessageType : uint16_t
 	setHeaterFaultDetection = 6030,
 	m308New = 6031,
 	heaterTuningCommand = 6032,
-	heaterFeedForward = 6033,
+	//unused_was_heaterFeedForward = 6033,
 	accelerometerConfig = 6034,
 	m950Led = 6035,
 
@@ -107,6 +107,7 @@ enum class CanMessageType : uint16_t
 	createInputMonitorNew = 6060,				// was 6057 before 3.5.0-rc.3
 	changeInputMonitorNew = 6061,				// was 6058 before 3.5.0-rc.3
 	setInputShapingNew = 6062,
+	heaterFeedForwardNew = 6063,
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,

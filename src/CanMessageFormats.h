@@ -692,16 +692,17 @@ struct __attribute__((packed)) CanMessageHeaterTuningCommand
 };
 
 // Configure heater feedforward
-struct __attribute__((packed)) CanMessageHeaterFeedForward
+struct __attribute__((packed)) CanMessageHeaterFeedForwardNew
 {
-	static constexpr CanMessageType messageType = CanMessageType::heaterFeedForward;
+	static constexpr CanMessageType messageType = CanMessageType::heaterFeedForwardNew;
 
 	uint16_t requestId : 12,
 			 zero : 4;
 	uint32_t heaterNumber : 8,
 			 zero2 : 24;
-	float fanPwmAdjustment;
-	float extrusionAdjustment;
+	float fanPwmFraction;
+	float extrusionPwmBoost;
+	float extrusionTemperatureBoost;
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
 };
@@ -1274,7 +1275,7 @@ union CanMessage
 	CanMessageDeleteFilamentMonitor deleteFilamentMonitor;
 	CanMessageHeaterTuningCommand heaterTuningCommand;
 	CanMessageHeaterTuningReport heaterTuningReport;
-	CanMessageHeaterFeedForward heaterFeedForward;
+	CanMessageHeaterFeedForwardNew heaterFeedForwardNew;
 	CanMessageStartAccelerometer startAccelerometer;
 	CanMessageAccelerometerData accelerometerData;
 	CanMessageStartClosedLoopDataCollection startClosedLoopDataCollection;
