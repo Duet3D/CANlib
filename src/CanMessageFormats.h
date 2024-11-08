@@ -30,6 +30,8 @@ size_t CanAdjustedLength(size_t rawLength) noexcept;
 // Some messages end in strings. For such messages, it is now safe to computing the message length without allowing for a null terminator.
 // This is because when our sending functions need to round up the message length to a supported CAN size, the additional data is now set to zeros.
 // All fields named 'zero' are spare and should be set to 0 for compatibility with future uses
+// Message formats that take a request ID must have a method SetRequestId that sets the request ID and clears the zero fields
+// Message formats that don't take a request ID must have a method ClearReservedFields that clears the zero fields
 
 // Time sync message. The realTime field was added at RRF3.2 so it is not transmitted by main boards running 3.1.1 and earlier.
 struct __attribute__((packed)) CanMessageTimeSync
@@ -47,6 +49,8 @@ struct __attribute__((packed)) CanMessageTimeSync
 	static constexpr size_t SizeWithoutRealTime = 12;	// length of message that doesn't include real time
 	static constexpr size_t SizeWithRealTime = 16;		// minimum length of message that includes real time
 	static constexpr size_t SizeWithRealTimeAndMovementDelay = 20;	// length of message that includes real time and movement delay
+
+	void ClearReservedFields() noexcept { zero = 0; }
 };
 
 // Emergency stop message
@@ -54,7 +58,7 @@ struct __attribute__((packed)) CanMessageEmergencyStop
 {
 	static constexpr CanMessageType messageType = CanMessageType::emergencyStop;
 
-	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't need RIDs
+	void ClearReservedFields() noexcept { }
 };
 
 // Enter test mode message, used to force a main board to behave like a CAN expansion board
@@ -119,67 +123,6 @@ struct __attribute__((packed)) CanMessageRevertPosition
 static_assert(CanMessageRevertPosition::GetActualDataLength(MaxLinearDriversPerCanSlave) == sizeof(CanMessageRevertPosition));
 
 // Movement messages
-
-#if 0
-
-struct __attribute__((packed)) CanMessageMovementLinear
-{
-	static constexpr CanMessageType messageType = CanMessageType::movementLinear;
-
-	uint32_t whenToExecute;							// the master clock time at which this move should start
-	uint32_t accelerationClocks;					// how many clocks the acceleration phase should last
-	uint32_t steadyClocks;							// how many clocks the steady speed phase should last
-	uint32_t decelClocks;							// how many clocks the deceleration phase should last
-
-	uint32_t pressureAdvanceDrives : 8,				// which drivers have pressure advance applied
-			 numDrivers : 4,						// how many drivers we included
-			 seq : 7,								// sequence number
-			 zero : 13;								// unused
-
-	static constexpr uint8_t SeqMask = 0x7f;
-
-	float initialSpeedFraction;						// the initial speed divided by the top speed
-	float finalSpeedFraction;						// the final speed divided by the top speed
-
-	struct PerDriveValues
-	{
-		int32_t steps;								// net steps moved by this drive
-
-		void Init() noexcept
-		{
-			steps = 0;
-		}
-	};
-
-	PerDriveValues perDrive[MaxLinearDriversPerCanSlave];
-
-	void SetRequestId(CanRequestId rid) noexcept	// these messages don't have RIDs
-	{
-		zero = 0;
-	}
-
-	void DebugPrint() const noexcept;
-
-	size_t GetActualDataLength() const noexcept
-	{
-		return (sizeof(*this) - sizeof(perDrive)) + (numDrivers * sizeof(perDrive[0]));
-	}
-
-	// This is called from just one place (in CanMotion::FinishMovement), so inline
-	bool HasMotion() const noexcept
-	{
-		for (size_t drive = 0; drive < numDrivers; ++drive)
-		{
-			if (perDrive[drive].steps != 0)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-};
-
-#endif
 
 struct __attribute__((packed)) CanMessageMovementLinearShaped
 {
@@ -691,20 +634,19 @@ struct __attribute__((packed)) CanMessageHeaterTuningCommand
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
 };
 
-// Configure heater feedforward
+// Set heater feedforward. The receiving board does not reply to this message.
 struct __attribute__((packed)) CanMessageHeaterFeedForwardNew
 {
 	static constexpr CanMessageType messageType = CanMessageType::heaterFeedForwardNew;
 
-	uint16_t requestId : 12,
-			 zero : 4;
-	uint32_t heaterNumber : 8,
-			 zero2 : 24;
+	uint16_t zero;
+	uint16_t heaterNumber : 8,
+			 zero2 : 8;
 	float fanPwmFraction;
 	float extrusionPwmBoost;
 	float extrusionTemperatureBoost;
 
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
+	void ClearReservedFields() noexcept { zero = 0; zero2 = 0; }
 };
 
 // Configure input shaping
@@ -849,6 +791,8 @@ struct __attribute__((packed)) CanMessageSensorTemperatures
 	CanSensorReport temperatureReports[11];	// the error codes and temperatures of the ones we have, lowest sensor number first
 
 	size_t GetActualDataLength(unsigned int numSensors) const noexcept { return numSensors * sizeof(CanSensorReport) + sizeof(uint64_t); }
+
+	void ClearReservedFields() noexcept { }
 };
 
 // Struct used in CanMessageHeaterStatus
@@ -872,6 +816,8 @@ struct __attribute__((packed)) CanMessageHeatersStatus
 	CanHeaterReport reports[9];				// the status and temperatures of the ones we have, lowest sensor number first
 
 	size_t GetActualDataLength(unsigned int numHeaters) const noexcept { return numHeaters * sizeof(CanHeaterReport) + sizeof(uint64_t); }
+
+	void ClearReservedFields() noexcept { }
 };
 
 // Message used by expansion boards running firmware 3.4.0beta4 and earlier to announce their presence on the CAN bus to other boards
@@ -904,12 +850,12 @@ struct __attribute__((packed)) CanMessageAnnounceNew
 			zero : 3;						// for future expansion, set to zero
 	char boardTypeAndFirmwareVersion[43];	// the type short name of this board followed by '|' and the firmware version
 
-	void SetRequestId(CanRequestId rid) noexcept { zero = 0; }	// these messages don't need RIDs
-
 	size_t GetActualDataLength() const noexcept
 			{ return sizeof(timeSinceStarted) + sizeof(uniqueId) + sizeof(uint8_t) + Strnlen(boardTypeAndFirmwareVersion, sizeof(boardTypeAndFirmwareVersion)/sizeof(boardTypeAndFirmwareVersion[0])); }
 
 	static size_t GetMaxTextLength(size_t dataLength) noexcept { return dataLength - (sizeof(timeSinceStarted) + sizeof(uniqueId) + sizeof(uint8_t)); }
+
+	void ClearReservedFields() noexcept { zero = 0; }
 };
 
 // Struct used within the fans report message
@@ -928,6 +874,8 @@ struct __attribute__((packed)) CanMessageFansReport
 	FanReport fanReports[14];				// the actual PWM and RPM readings of the fans
 
 	size_t GetActualDataLength(unsigned int numReported) const noexcept { return numReported * sizeof(fanReports[0]) + sizeof(uint64_t); }
+
+	void ClearReservedFields() noexcept { }
 };
 
 // Message sent by an expansion board when one of its monitored inputs has changed state
@@ -961,6 +909,8 @@ struct __attribute__((packed)) CanMessageInputChangedNew
 	{
 		return sizeof(states) + sizeof(numHandles) + sizeof(zero) + (numHandles * sizeof(results[0]));
 	}
+
+	void ClearReservedFields() noexcept { zero = 0; }
 };
 
 // Message sent by expansion boards to report their general health
@@ -976,7 +926,7 @@ struct __attribute__((packed)) CanMessageBoardStatus
 			 hasInductiveSensor : 1,
 			 zero : 10,							// reserved for future use
 			 hasMovementDelay : 1,
-			 numAnalogHandles : 3,				// how many instances of AnaloghandleData we append
+			 numAnalogHandles : 3,				// how many instances of AnalogHandleData we append
 			 zero2 : 12;
 	union
 	{
@@ -989,7 +939,7 @@ struct __attribute__((packed)) CanMessageBoardStatus
 	void Clear() noexcept
 	{
 		hasVin = hasV12 = hasMcuTemp = hasMovementDelay = hasAccelerometer = hasClosedLoop = hasInductiveSensor = false;
-		zero = zero2 = numAnalogHandles = 0;
+		numAnalogHandles = 0;
 	}
 
 	size_t GetAnalogHandlesOffset() const noexcept
@@ -1007,6 +957,8 @@ struct __attribute__((packed)) CanMessageBoardStatus
 	{
 		return GetAnalogHandlesOffset() + numAnalogHandles * sizeof(AnalogHandleData);
 	}
+
+	void ClearReservedFields() noexcept { zero = 0; zero2 = 0; }
 };
 
 // Message sent by expansion boards to report the status of their drivers
@@ -1049,9 +1001,9 @@ struct __attribute__((packed)) CanMessageDriversStatus
 	{
 		numDriversReported = numReported;
 		hasClosedLoopData = closedLoop;
-		zero = 0;
-		zero2 = 0;
 	}
+
+	void ClearReservedFields() noexcept { zero = 0; zero2 = 0; }
 };
 
 // This has to be declared outside struct CanMessageFilamentMonitorsStatusNew to avoid having to include this file in FilamentMonitor.h
@@ -1089,8 +1041,9 @@ struct __attribute__((packed)) CanMessageFilamentMonitorsStatusNew2
 	void SetStandardFields(Bitmap<uint32_t> drivers) noexcept
 	{
 		driversReported = drivers.GetRaw();
-		zero = 0;
 	}
+
+	void ClearReservedFields() noexcept { zero = 0; }
 };
 
 // Message used by expansion boards to report the results of one heater tuning cycle
@@ -1112,8 +1065,9 @@ struct __attribute__((packed)) CanMessageHeaterTuningReport
 	void SetStandardFields(unsigned int heaterNumber) noexcept
 	{
 		heater = heaterNumber;
-		zero = 0;
 	}
+
+	void ClearReservedFields() noexcept { zero = 0; }
 };
 
 // Message used to send accelerometer data from an expansion board to the master
@@ -1146,6 +1100,8 @@ struct __attribute__((packed)) CanMessageAccelerometerData
 		const unsigned int numAxes = (axes & 1u) + ((axes >> 1) & 1u) + ((axes >> 2) & 1u);
 		return (numAxes * bitsPerSample == 0) ? 0xFFFF : (sizeof(data) * CHAR_BIT)/(numAxes * bitsPerSample);
 	}
+
+	void ClearReservedFields() noexcept { zero = 0; }
 };
 
 // Message used to send closed loop data from an expansion board to the master
@@ -1174,6 +1130,8 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 	{
 		return msglen - 2 * sizeof(uint32_t);
 	}
+
+	void ClearReservedFields() noexcept { zero = 0; zero2 = 0; }
 };
 
 // Message sent by an expansion board to the main board to indicate an event
@@ -1198,6 +1156,8 @@ struct __attribute__((packed)) CanMessageEvent
 	{
 		return msgLen - 2 * sizeof(uint32_t);
 	}
+
+	void ClearReservedFields() noexcept { zero = 0; }
 };
 
 // Debug text message, sent by the expansion board to the main board
@@ -1218,6 +1178,8 @@ struct __attribute__((packed)) CanMessageDebugText
 	{
 		return msgLen;
 	}
+
+	void ClearReservedFields() noexcept { }
 };
 
 // A union of all message types to allow the correct message format to be extracted from a message buffer

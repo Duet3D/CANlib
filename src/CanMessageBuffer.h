@@ -138,10 +138,13 @@ public:
 		remote = 0;
 		reportInFifo = 0;
 		spare = 0;
-		return reinterpret_cast<T*>(&msg);
+		T* rslt = reinterpret_cast<T*>(&msg);
+		rslt->ClearReservedFields();
+		return rslt;
 	}
 
-	// Set up a message buffer to carry a particular non-broadcast status message type, setting the dataLength, priority and code fields.
+	// Set up a message buffer to carry a particular non-broadcast message having no request ID, setting the dataLength, priority and code fields.
+	// Used to set up non-broadcast status messages and commands that do not require a response, e.g. heater feedforward.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
 	template<class T> T* SetupStatusMessage(CanAddress src, CanAddress dest) noexcept
@@ -155,7 +158,9 @@ public:
 		remote = 0;
 		reportInFifo = 0;
 		spare = 0;
-		return reinterpret_cast<T*>(&msg);
+		T* rslt = reinterpret_cast<T*>(&msg);
+		rslt->ClearReservedFields();
+		return rslt;
 	}
 
 	void DebugPrint(const char *prefix) noexcept;
