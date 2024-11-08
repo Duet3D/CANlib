@@ -27,7 +27,7 @@ constexpr unsigned int MaxHeatersPerCanSlave = 6;
 size_t CanAdjustedLength(size_t rawLength) noexcept;
 
 // CAN message formats
-// Some messages end in strings. For such messages, it is now safe to computing the message length without allowing for a null terminator.
+// Some messages end in strings. For such messages, it is now safe to compute the message length without allowing for a null terminator.
 // This is because when our sending functions need to round up the message length to a supported CAN size, the additional data is now set to zeros.
 // All fields named 'zero' are spare and should be set to 0 for compatibility with future uses
 // Message formats that take a request ID must have a method SetRequestId that sets the request ID and clears the zero fields
@@ -82,7 +82,7 @@ struct __attribute__((packed)) CanMessageAcknowledgeAnnounce
 {
 	static constexpr CanMessageType messageType = CanMessageType::acknowledgeAnnounce;
 
-	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't need RIDs
+	void ClearReservedFields() noexcept { }
 };
 
 // Reset message
