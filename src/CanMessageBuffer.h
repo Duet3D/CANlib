@@ -124,6 +124,25 @@ public:
 		return rslt;
 	}
 
+	// Set up a message buffer to carry a particular message type, setting the dataLength, priority and code fields.
+	// Return a pointer to the message data cast to the requested type.
+	// Class T must be one of the supported CAN message types.
+	template<class T> T* SetupResponseMessageNoRid(CanAddress src, CanAddress dest) noexcept
+	{
+		id.SetResponse(T::messageType, src, dest);
+		dataLength = sizeof(T);
+		marker = 0;
+		extId = 1;
+		fdMode = 1;
+		useBrs = 0;
+		remote = 0;
+		reportInFifo = 0;
+		spare = 0;
+		T* rslt = reinterpret_cast<T*>(&msg);
+		rslt->ClearReservedFields();
+		return rslt;
+	}
+
 	// Set up a message buffer to carry a particular broadcast message type, setting the dataLength, priority and code fields.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
@@ -147,7 +166,7 @@ public:
 	// Used to set up non-broadcast status messages and commands that do not require a response, e.g. heater feedforward.
 	// Return a pointer to the message data cast to the requested type.
 	// Class T must be one of the supported CAN message types.
-	template<class T> T* SetupStatusMessage(CanAddress src, CanAddress dest) noexcept
+	template<class T> T* SetupRequestMessageNoRid(CanAddress src, CanAddress dest) noexcept
 	{
 		id.SetRequest(T::messageType, src, dest);
 		dataLength = sizeof(T);

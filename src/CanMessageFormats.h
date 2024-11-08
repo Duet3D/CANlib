@@ -103,7 +103,7 @@ struct __attribute__((packed)) CanMessageStopMovement
 
 	uint16_t whichDrives;							// 0xFFFF if all drives on board to be stopped
 
-	void SetRequestId(CanRequestId rid) noexcept { }			// these messages don't need RIDs
+	void ClearReservedFields() noexcept { }
 };
 
 // Revert position on specific drivers
@@ -116,7 +116,7 @@ struct __attribute__((packed)) CanMessageRevertPosition
 	uint32_t clocksAllowed;										// how many step clocks we allow for the move
 	int32_t finalStepCounts[MaxLinearDriversPerCanSlave];		// the net number of steps of the last move that were required
 
-	void SetRequestId(CanRequestId rid) noexcept { zero = 0; }	// these messages don't need RIDs
+	void ClearReservedFields() noexcept { zero = 0; }
 	static constexpr size_t GetActualDataLength(size_t numReverting) noexcept { return (2 * sizeof(uint32_t)) + (numReverting * sizeof(int32_t)); }
 };
 
@@ -159,7 +159,7 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped
 
 	PerDriveValues perDrive[MaxLinearDriversPerCanSlave];
 
-	void SetRequestId(CanRequestId rid) noexcept	// these messages don't have RIDs
+	void ClearReservedFields() noexcept
 	{
 		extruderDrives = 0;
 		usePressureAdvance = 0;
@@ -683,7 +683,7 @@ struct __attribute__((packed)) CanMessageFirmwareUpdateRequest
 
 	size_t GetActualDataLength() const noexcept { return 2 * sizeof(uint32_t) + Strnlen(boardType, sizeof(boardType)/sizeof(boardType[0])); }
 	size_t GetBoardTypeLength(size_t dataLength) const noexcept { return dataLength - 2 * sizeof(uint32_t); }
-	void SetRequestId(CanRequestId rid) noexcept { }		// these messages don't have RIDs
+	void ClearReservedFields() noexcept { }
 };
 
 // Firmware update response
@@ -704,7 +704,7 @@ struct __attribute__((packed)) CanMessageFirmwareUpdateResponse
 	static constexpr uint32_t ErrOther = 3;
 
 	size_t GetActualDataLength() const noexcept { return dataLength + 2 * sizeof(uint32_t); }
-	void SetRequestId(CanRequestId rid) noexcept { zero = 0; }	// we don't have or need request IDs in this message type
+	void ClearReservedFields() noexcept { zero = 0; }
 };
 
 // This is the standard reply used by many calls. It carries a GCodeResult, some text, and in some cases 8 bits of additional information.
@@ -830,7 +830,7 @@ struct __attribute__((packed)) CanMessageAnnounceOld
 			 zero : 24;						// for future expansion, set to zero
 	char boardTypeAndFirmwareVersion[56];	// the type short name of this board followed by '|' and the firmware version
 
-	void SetRequestId(CanRequestId rid) noexcept { zero = 0; }	// these messages don't need RIDs
+	void ClearReservedFields() noexcept { zero = 0; }
 
 	size_t GetActualDataLength() const noexcept
 			{ return (2 * sizeof(uint32_t)) + Strnlen(boardTypeAndFirmwareVersion, sizeof(boardTypeAndFirmwareVersion)/sizeof(boardTypeAndFirmwareVersion[0])); }
