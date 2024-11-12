@@ -270,9 +270,12 @@ enum class HeaterMode : uint8_t
 	offline,
 	off,
 	suspended,
-	heating,
+	// These next 3 must be the standard modes that the PID controller uses
 	cooling,
 	stable,
+	heating,
+	firstPidMode = cooling,
+	lastPidMode = heating,
 	// All states from here onwards must be PID tuning states because function IsTuning assumes that
 	tuning0,
 	tuning1,
@@ -281,6 +284,11 @@ enum class HeaterMode : uint8_t
 	firstTuningMode = tuning0,
 	lastTuningMode = tuning3
 };
+
+static inline bool IsPidMode(HeaterMode m) noexcept
+{
+	return m >= HeaterMode::firstPidMode && m <= HeaterMode::lastPidMode;
+}
 
 // Enum to represent an event type. Earlier values in the list have higher priority.
 // The type names are also the names of the associated macro files that are run in response to the event.
