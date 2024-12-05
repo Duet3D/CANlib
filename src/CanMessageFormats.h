@@ -265,6 +265,16 @@ struct __attribute__((packed)) DriverStateControl
 	static constexpr uint16_t driverDisabled = 0, driverIdle = 1, driverActive = 2;		// values for 'mode'
 };
 
+// Type of data used to configure stall endstops
+struct __attribute__((packed)) ActivateStallEndstops
+{
+	RemoteInputHandle handle;						// the handle number allocated by the master
+
+	ActivateStallEndstops(RemoteInputHandle h) noexcept : handle(h) { }
+	RemoteInputHandle GetHandle() const noexcept { return handle; }			// these objects should always be 16-bit aligned
+};
+
+// Return information from the expansion board
 struct __attribute__((packed)) CanMessageReturnInfo
 {
 	static constexpr CanMessageType messageType = CanMessageType::returnInfo;
@@ -442,44 +452,6 @@ struct __attribute__((packed)) CanMessageSetFanSpeed
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
-
-#if 0
-
-// Request to create an input monitor
-struct __attribute__((packed)) CanMessageCreateInputMonitorOld
-{
-	static constexpr CanMessageType messageType = CanMessageType::createInputMonitorOld;
-
-	uint16_t requestId : 12,
-			 zero : 4;
-	RemoteInputHandle handle;
-	uint16_t threshold;			// analog threshold, or zero if digital
-	uint16_t minInterval;
-	char pinName[56];			// null terminated
-
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
-	size_t GetActualDataLength() const noexcept { return 3 * sizeof(uint16_t) + sizeof(RemoteInputHandle) + Strnlen(pinName, sizeof(pinName)/sizeof(pinName[0])); }
-	size_t GetMaxPinNameLength(size_t dataLength) const noexcept { return dataLength - (3 * sizeof(uint16_t) + sizeof(RemoteInputHandle)); }
-};
-
-// Request to reconfigure an input monitor
-struct __attribute__((packed)) CanMessageChangeInputMonitorOld
-{
-	static constexpr CanMessageType messageType = CanMessageType::changeInputMonitorOld;
-
-	uint16_t requestId : 12,
-			 zero : 4;
-	RemoteInputHandle handle;
-	uint16_t param;
-	uint8_t action;
-
-	static constexpr uint8_t actionDontMonitor = 0, actionDoMonitor = 1, actionDelete = 2, actionChangeThreshold = 3, actionChangeMinInterval = 4,
-								actionReturnPinName = 5;
-
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
-};
-
-#endif
 
 // Request to create an input monitor
 struct __attribute__((packed)) CanMessageCreateInputMonitorNew
@@ -1196,9 +1168,6 @@ union CanMessage
 	CanMessageStopMovement stopMovement;
 	CanMessageRevertPosition revertPosition;
 	CanMessageReset reset;
-#if 0
-	CanMessageMovementLinear moveLinear;
-#endif
 	CanMessageMovementLinearShaped moveLinearShaped;
 	CanMessageReturnInfo getInfo;
 	CanMessageSetHeaterTemperature setTemp;
@@ -1212,6 +1181,7 @@ union CanMessage
 	CanMessageMultipleDrivesRequest<float> multipleDrivesRequestFloat;
 	CanMessageMultipleDrivesRequest<StepsPerUnitAndMicrostepping> multipleDrivesStepsPerUnitAndMicrostepping;
 	CanMessageMultipleDrivesRequest<DriverStateControl> multipleDrivesRequestDriverState;
+	CanMessageMultipleDrivesRequest<ActivateStallEndstops> multipleDrivesActivateStallEndstops;
 	CanMessageUpdateYourFirmware updateYourFirmware;
 	CanMessageFanParameters fanParameters;
 	CanMessageSetFanSpeed setFanSpeed;
