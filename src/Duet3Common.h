@@ -73,7 +73,10 @@ constexpr uint16_t CL_RECORD_COIL_B_CURRENT 				= 1u << 12;
 constexpr uint16_t CL_RECORD_PID_V_TERM 					= 1u << 13;
 constexpr uint16_t CL_RECORD_PID_A_TERM 					= 1u << 14;
 
+#ifndef FLOAT16_T_DEFINED
+# define FLOAT16_T_DEFINED
 typedef __fp16 float16_t;			///< A 16-bit floating point type
+#endif
 
 // Total of the above is currently 34 bytes, plus 4 bytes for the time stamp = 38 bytes.
 // We can fit 56 bytes of data in each CAN data sample message.
