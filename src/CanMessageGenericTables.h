@@ -223,4 +223,17 @@ constexpr ParamDescriptor M122P1Params[] =
 	END_PARAMS
 };
 
+// M655 parameters
+constexpr ParamDescriptor M655Params[] =
+{
+	FLOAT_PARAM('E'),
+	FLOAT_PARAM('F'),
+	INT32_PARAM('R'),
+	INT32_PARAM('S'),
+	UINT16_PARAM('P'),
+	REDUCED_STRING_PARAM('C'),
+	STRING_PARAM('A'),
+	END_PARAMS
+};
+
 #endif /* SRC_CANMESSAGEGENERICTABLES_H_ */
