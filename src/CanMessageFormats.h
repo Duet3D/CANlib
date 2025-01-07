@@ -10,6 +10,7 @@
 
 #include "CanId.h"
 #include "RRF3Common.h"
+#include "Duet3Common.h"
 #include "CanSettings.h"
 #include "RemoteInputHandle.h"
 
@@ -20,9 +21,6 @@
 #include <climits>
 #include <ctime>
 #include <cstring>
-
-constexpr unsigned int MaxLinearDriversPerCanSlave = 8;
-constexpr unsigned int MaxHeatersPerCanSlave = 6;
 
 size_t CanAdjustedLength(size_t rawLength) noexcept;
 
@@ -509,8 +507,15 @@ struct __attribute__((packed)) CanMessageChangeInputMonitorNew
 	uint32_t param;
 	uint8_t action;
 
-	static constexpr uint8_t actionDontMonitor = 0, actionDoMonitor = 1, actionDelete = 2, actionChangeThreshold = 3, actionChangeMinInterval = 4,
-								actionReturnPinName = 5, actionSetDriveLevel = 6;
+	static constexpr uint8_t actionDontMonitor = 0,					// stop sending status change messages
+							actionDoMonitor = 1,					// send status change messages
+							actionDelete = 2,						// delete this handle
+							actionChangeThreshold = 3,
+							actionChangeMinInterval = 4,
+							actionReturnPinName = 5,
+							actionSetDriveLevel = 6,				// set the drive level, only for scanning Z probes
+							actionSetTouchMode = 7,					// select touch mode, only for scanning Z probes
+							actionSelectScanningMode = 8;			// select scanning mode, only for scanning Z probes
 
 	// When the action is actionSetDriveLevel, some values of param define a special action:
 	static constexpr uint32_t paramAutoCalibrateDriveLevelAndReport = 0xFFFFFFFF, paramReportDriveLevel = 0xFFFFFFFE;

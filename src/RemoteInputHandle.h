@@ -25,12 +25,12 @@ struct __attribute__((packed)) RemoteInputHandle
 		{
 			uint16_t minor : 6,						// endstop switch number within axis (for endstops)
 					major : 6,						// axis number (for endstops), or GPIn number, or Z probe number
-					type : 4;
+					type : 4;						// what the handle is used for, see list of types below
 		} parts;
 		uint16_t all;
 	} u;
 
-	static constexpr uint16_t typeUnset = 0, typeEndstop = 1, typeGpIn = 2, typeZprobe = 3, typeAte = 4, lowestBadType = 5;
+	static constexpr uint16_t typeUnset = 0, typeEndstop = 1, typeGpIn = 2, typeZprobe = 3, typeAte = 4, typeStallEndstop = 5, lowestBadType = 6;
 };
 
 #endif /* SRC_REMOTEINPUTHANDLE_H_ */

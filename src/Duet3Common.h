@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <General/NamedEnum.h>
+#include <General/Bitmap.h>
 
 // Limits of Duet 3 systems
 constexpr size_t MaxSensors = 56;							// limited by the size of bitmap we can store in an ExpressionValue
@@ -22,6 +23,11 @@ constexpr size_t MaxZProbes = 8;
 constexpr size_t MaxFans = 32;
 constexpr size_t MaxGpOutPorts = 64;						// increased in RRF 3.5.0-beta.4
 constexpr size_t MaxLedStrips = 5;
+
+constexpr unsigned int MaxLinearDriversPerCanSlave = 8;
+constexpr unsigned int MaxHeatersPerCanSlave = 6;
+typedef Bitmap<uint8_t> RemoteDriversBitmap;				// represents a set of drivers on a particular remote board
+static_assert(RemoteDriversBitmap::MaxBits() >= MaxLinearDriversPerCanSlave);
 
 // The following currently don't need to be known by expansion boards, but might in future
 constexpr size_t MaxGpInPorts = 56;							// increased in RRF 3.5.0-beta.4, limit this to 56 so that we can report trigger input bitmaps in the object model
