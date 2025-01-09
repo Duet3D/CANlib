@@ -23,7 +23,7 @@ void StandardDriverStatus::AppendText(const StringRef& str, unsigned int severit
 	else
 	{
 		Bitmap<uint32_t> errors(relevantBits);
-		errors.Iterate([&str](unsigned int bitNum, unsigned int index)->void
+		errors.Iterate([&str](unsigned int bitNum, unsigned int index) noexcept
 						{
 							if (index != 0)
 							{
