@@ -671,6 +671,21 @@ struct __attribute__((packed)) CanMessageSetInputShapingNew
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
+// Enable a stall endstop, or clear all stall endstops
+struct __attribute__((packed)) CanMessageEnableStallEndstop
+{
+	static constexpr CanMessageType messageType = CanMessageType::enableStallEndstop;
+
+	uint16_t requestId : 12,
+			 zero : 4;
+	uint16_t driverNumber;								// the number of the driver we want to enable a stall endstop for
+	float speed;										// the speed we will use for the homing move, not relevant if driverNumber == disableAll
+
+	static constexpr uint16_t disableAll = 0xFFFF;		// if driverNumber is this then we disable all stall endstops on this board
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
+};
+
 // Request to send a chunk of a firmware or bootloader file
 struct __attribute__((packed)) CanMessageFirmwareUpdateRequest
 {
@@ -1249,6 +1264,7 @@ union CanMessage
 	CanMessageClosedLoopData closedLoopData;
 	CanMessageEvent event;
 	CanMessageDebugText debugText;
+	CanMessageEnableStallEndstop enableStallEndstop;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large

@@ -109,6 +109,7 @@ enum class CanMessageType : uint16_t
 	setInputShapingNew = 6062,
 	heaterFeedForwardNew = 6063,
 	m655 = 6064,								// for M655, added in RRF 3.6
+	enableStallEndstop = 6065,
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,
