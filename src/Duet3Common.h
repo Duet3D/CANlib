@@ -26,8 +26,16 @@ constexpr size_t MaxLedStrips = 5;
 
 constexpr unsigned int MaxLinearDriversPerCanSlave = 8;
 constexpr unsigned int MaxHeatersPerCanSlave = 6;
-typedef Bitmap<uint8_t> RemoteDriversBitmap;				// represents a set of drivers on a particular remote board
-static_assert(RemoteDriversBitmap::MaxBits() >= MaxLinearDriversPerCanSlave);
+
+typedef Bitmap<uint16_t> LocalDriversBitmap;		// Type of a bitmap representing a set of driver numbers
+typedef Bitmap<uint32_t> HeatersBitmap;				// Type of a bitmap representing a set of heater numbers
+typedef Bitmap<uint32_t> FansBitmap;				// Type of a bitmap representing a set of fan numbers
+typedef Bitmap<uint64_t> SensorsBitmap;				// Type of a bitmap representing sensors
+
+static_assert(LocalDriversBitmap::MaxBits() >= MaxLinearDriversPerCanSlave);
+static_assert(MaxHeaters <= HeatersBitmap::MaxBits());
+static_assert(MaxFans <= FansBitmap::MaxBits());
+static_assert(MaxSensors <= SensorsBitmap::MaxBits());
 
 // The following currently don't need to be known by expansion boards, but might in future
 constexpr size_t MaxGpInPorts = 56;							// increased in RRF 3.5.0-beta.4, limit this to 56 so that we can report trigger input bitmaps in the object model
