@@ -510,12 +510,11 @@ struct __attribute__((packed)) CanMessageChangeInputMonitorNew
 	static constexpr uint8_t actionDontMonitor = 0,					// stop sending status change messages
 							actionDoMonitor = 1,					// send status change messages
 							actionDelete = 2,						// delete this handle
-							actionChangeThreshold = 3,
-							actionChangeMinInterval = 4,
-							actionReturnPinName = 5,
-							actionSetDriveLevel = 6,				// set the drive level, only for scanning Z probes
-							actionSetTouchMode = 7,					// select touch mode, only for scanning Z probes
-							actionSelectScanningMode = 8;			// select scanning mode, only for scanning Z probes
+							actionChangeThreshold = 3,				// change the threshold to param and set standard mode
+							actionChangeMinInterval = 4,			// change the minimum interval to param and set standard mode
+							actionReturnPinName = 5,				// return the pin name
+							actionSetDriveLevel = 6,				// set the drive level to param, only for scanning Z probes
+							actionSelectTouchMode = 7;				// select touch mode and set sensitivity to param, only for scanning Z probes
 
 	// When the action is actionSetDriveLevel, some values of param define a special action:
 	static constexpr uint32_t paramAutoCalibrateDriveLevelAndReport = 0xFFFFFFFF, paramReportDriveLevel = 0xFFFFFFFE;
