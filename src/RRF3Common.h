@@ -45,6 +45,8 @@ constexpr uint32_t DefaultFanBlipTime = 100;			// fan blip time in milliseconds
 // Z probes
 constexpr size_t MaxZProbeProgramBytes = 8;				// maximum number of bytes in a Z probe program
 constexpr uint32_t ScanningSensorBadReadingVal = 999999; // close to 2 ^ (28 - resultBitsDropped)
+constexpr float DefaultScanningProbeTouchModeTriggerHeight = -0.1;
+constexpr float DefaultScanningProbeTouchModeSensitivity = 0.5;
 
 // Heater values
 constexpr uint32_t HeatSampleIntervalMillis = 250;		// interval between taking temperature samples
