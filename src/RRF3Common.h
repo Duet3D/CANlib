@@ -47,7 +47,7 @@ constexpr size_t MaxZProbeProgramBytes = 8;				// maximum number of bytes in a Z
 constexpr uint32_t ScanningSensorBadReadingVal = 999999; // close to 2 ^ (28 - resultBitsDropped)
 constexpr float DefaultScanningProbeTouchModeTriggerHeight = -0.1;
 constexpr float DefaultScanningProbeTouchModeSensitivity = 0.8;
-constexpr float DefaultScanningProbeTouchModeProbeSpeed = 150;	// mm/min
+constexpr float DefaultScanningProbeTouchModeProbeSpeed = 250;	// mm/min
 
 // Heater values
 constexpr uint32_t HeatSampleIntervalMillis = 250;		// interval between taking temperature samples
