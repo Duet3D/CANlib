@@ -5,7 +5,7 @@ Duet 3 uses CAN-FD to connect expansion boards to Duet 3 main boards and to coor
 This document describes the high level operation of the CAN communication. The CAN-FD messages used to implement this can be found in file CANLib/src/CanMessageFormats.h and the corresponding CAN IDs can be found in CANLib/src/CanId.h.
 ## Nomenclature
 *	“CAN” in this document refers to ISO-standard CAN-FD. Plain CAN is not supported because the maximum message length (8 bytes) is too limiting. Pre-ISO versions of CAN-FD are not supported.
-*	“Master” in this document refers to the board on the CAN bus whose job it is to receive GCode (or other) commands and to coordinate the actions of all boards to execute them. There must be exactly on master.
+*	“Master” in this document refers to the board on the CAN bus whose job it is to receive GCode (or other) commands and to coordinate the actions of all boards to execute them. There must be exactly one master.
 *	“Slave” in this document refers to a CAN expansion board which executes commands received from the master. There may be many CAN slaves.
 *	A “request” message is a message sent by the master to a particular slave.
 *	A “response” message is a message sent by a slave in response to a request from the master.
