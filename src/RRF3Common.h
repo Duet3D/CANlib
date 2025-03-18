@@ -126,6 +126,9 @@ constexpr size_t NumAccelerometerAxes = 3;
 constexpr uint8_t DefaultAccelerometerResolution = 10;
 constexpr uint8_t DefaultAccelerometerOrientation = 20;	// +Z -> +Z, +X -> +X
 
+// M670 and heater feedforward advance. The maximum value that will work depends on how far in advance we commit moves.
+constexpr uint32_t MaxAdvanceMillis = 50;				// the maximum M670 or header feedforward advance we can use
+
 // Firmware module numbers in firmware update commands
 enum class FirmwareModule : uint8_t
 {
