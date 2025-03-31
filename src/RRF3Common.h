@@ -48,6 +48,7 @@ constexpr uint32_t ScanningSensorBadReadingVal = 999999; // close to 2 ^ (28 - r
 constexpr float DefaultScanningProbeTouchModeTriggerHeight = -0.1;
 constexpr float DefaultScanningProbeTouchModeThreshold = 0.5;
 constexpr float DefaultScanningProbeTouchModeProbeSpeed = 200;	// mm/min
+constexpr float TouchModeMaxThreshold = 10.0;			// maximum touch mode threshold that can be configured and sent over CAN
 
 // Heater values
 constexpr uint32_t HeatSampleIntervalMillis = 250;		// interval between taking temperature samples
