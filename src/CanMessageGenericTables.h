@@ -236,4 +236,14 @@ constexpr ParamDescriptor M655Params[] =
 	END_PARAMS
 };
 
+// M111 parameters
+constexpr ParamDescriptor M111Params[] =
+{
+	UINT32_PARAM('D'),
+	UINT16_PARAM('F'),					// probably not needed but include it in case
+	UINT8_PARAM('P'),
+	UINT8_PARAM('S'),
+	END_PARAMS
+};
+
 #endif /* SRC_CANMESSAGEGENERICTABLES_H_ */
