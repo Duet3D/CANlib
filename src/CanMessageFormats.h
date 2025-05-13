@@ -929,7 +929,7 @@ struct __attribute__((packed)) CanMessageInputChangedNew
 	RemoteInputHandle GetEntryHandle(size_t index) const noexcept { return results[index].handle; }
 
 	// Get the reading from one of the result values. 'results' is 4-byte allocated and each entry is 6 bytes long, so the 4-byte handle is not always 4-byte aligned.
-	uint32_t GetEntryReading(size_t index) const noexcept { return LoadLEU32(&results[index].handle); }
+	uint32_t GetEntryReading(size_t index) const noexcept { return LoadLEU32(&results[index].reading); }
 
 	size_t GetActualDataLength() const noexcept
 	{
