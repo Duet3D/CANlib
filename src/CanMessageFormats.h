@@ -526,6 +526,7 @@ struct __attribute__((packed)) CanMessageChangeInputMonitorNew
 };
 
 // Struct to represent an analog handle and the reading from it
+// These are allocated in an array starting on a 2-or 4-byte boundary. So field 'handle' is correctly aligned but 'reading' isn't.
 struct __attribute__((packed)) AnalogHandleData
 {
 	RemoteInputHandle handle;
@@ -923,6 +924,12 @@ struct __attribute__((packed)) CanMessageInputChangedNew
 		}
 		return false;
 	}
+
+	// Get the handle from one of the result values. 'results' is 4-byte allocated and each entry is 6 bytes long, so the 2-byte handle is always 2-byte aligned.
+	RemoteInputHandle GetEntryHandle(size_t index) const noexcept { return results[index].handle; }
+
+	// Get the reading from one of the result values. 'results' is 4-byte allocated and each entry is 6 bytes long, so the 4-byte handle is not always 4-byte aligned.
+	uint32_t GetEntryReading(size_t index) const noexcept { return LoadLEU32(&results[index].handle); }
 
 	size_t GetActualDataLength() const noexcept
 	{
