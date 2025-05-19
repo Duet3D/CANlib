@@ -23,11 +23,11 @@ enum class GCodeResult : uint8_t
 	notSupportedInCurrentMode,
 	stopped,						// we are halted because of an emergency stop
 	badOrMissingParameter,
-	remoteInternalError,			// only used if CAN expansion is supported
+	remoteInternalError,			// only used if CAN expansion is supported - can be sent by expansion boards, so don't change its number!
 	m291Cancelled,
-	// The following are only used of CAN expansion is supported
-	noCanBuffer,					// we failed to allocate a CAN buffer to send a message to an expansion board
-	canResponseTimeout				// timed out waiting for a response to a CAN message - the associated reply buffer may contain more info
+	waitingForAckSoIgnored,			// we are waiting for a message box to be acknowledged so the command has been ignored
+	noCanBuffer,					// only used if CAN expansion is supported - we failed to allocate a CAN buffer to send a message to an expansion board
+	canResponseTimeout				// only used if CAN expansion is supported - timed out waiting for a response to a CAN message - the associated reply buffer may contain more info
 };
 
 constexpr const char *_ecv_array NoCanBufferMessage = "no CAN buffer available";
