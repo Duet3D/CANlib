@@ -42,7 +42,7 @@ constexpr ParamDescriptor M280Params[] =
 	END_PARAMS
 };
 
-constexpr ParamDescriptor M308NewParams[] =
+constexpr ParamDescriptor M308V1Params[] =
 {
 	FLOAT_PARAM('T'),
 	FLOAT_PARAM('B'),

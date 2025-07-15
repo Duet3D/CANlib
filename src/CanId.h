@@ -28,10 +28,11 @@ enum class CanMessageType : uint16_t
 	movementLinearShaped = 52,
 
 	// High priority responses sent by expansion boards and Smart Tools
-	//unused_was_inputStateChanged = 100,
+	//unused_was_inputStateChangedV0 = 100,
 	event = 102,
 	enterTestMode = 104,	 	// sent by the ATE to the main board
-	inputStateChangedNew = 105,
+	inputStateChangedV1 = 105,
+	inputStateChangedV2 = 106,
 
 	// Configuration messages sent by the main board
 	setAddressAndNormalTiming = 2010,
@@ -47,7 +48,7 @@ enum class CanMessageType : uint16_t
 	// Configuration messages sent by the main board
 	//unused_was_m950 = 6010,
 	//unused_was_m308 = 6011,
-	//unused_was_updateHeaterModelOld = 6012,
+	//unused_was_updateHeaterModelV0 = 6012,
 	setHeaterTemperature = 6013,
 	//unused_was_setPressureAdvance = 6014,
 	setDateTime = 6015,
@@ -66,14 +67,14 @@ enum class CanMessageType : uint16_t
 	m950Gpio = 6028,
 	setFanSpeed = 6029,
 	setHeaterFaultDetection = 6030,
-	m308New = 6031,
+	m308V1 = 6031,
 	heaterTuningCommand = 6032,
 	//unused_was_heaterFeedForward = 6033,
 	accelerometerConfig = 6034,
 	m950Led = 6035,
 
-	//unused_was_createInputMonitorOld = 6036,
-	//unused_was_changeInputMonitorOld = 6037,
+	//unused_was_createInputMonitorV0 = 6036,
+	//unused_was_changeInputMonitorV0 = 6037,
 
 	acknowledgeAnnounce = 6038,
 	setHeaterMonitors = 6039,
@@ -87,51 +88,53 @@ enum class CanMessageType : uint16_t
 	createFilamentMonitor = 6046,
 	deleteFilamentMonitor = 6047,
 	configureFilamentMonitor = 6048,
-	//unused_was_updateHeaterModelNew = 6049,
+	//unused_was_updateHeaterModelV1 = 6049,
 	m569p2 = 6050,
 	m569p6 = 6051,
 	m569p7 = 6052,
-	heaterModelNewNew = 6053,
+	heaterModelV2 = 6053,
 	//unused_was_setInputShaping = 6054,
 	writeLedStrip = 6055,
 	m569p4 = 6056,
 
 	// In RRF 3.5.0rc3 the message sent to report an input monitor state change has changed.
-	// To prevent users successfully configuring endstops on remote boards which then don't work, we have changed the IDs of createInputMonitorNew and changeInputMonitorNew.
+	// To prevent users successfully configuring endstops on remote boards which then don't work, we have changed the IDs of createInputMonitorV1 and changeInputMonitorV1.
 	// With luck this will abort any moves involving endstops with "Failed to enable endstops".
 
-	//unused_was_createInputMonitorNew = 6057,
-	//unused_was_changeInputMonitorNew = 6058,
+	//unused_was_createInputMonitorV1 = 6057,
+	//unused_was_changeInputMonitorV1 = 6058,
 
 	testReport = 6059,
-	createInputMonitorNew = 6060,				// was 6057 before 3.5.0-rc.3
-	changeInputMonitorNew = 6061,				// was 6058 before 3.5.0-rc.3
-	setInputShapingNew = 6062,
-	heaterFeedForwardNew = 6063,
+	createInputMonitorV1 = 6060,				// was 6057 before 3.5.0-rc.3
+	changeInputMonitorV1 = 6061,				// was 6058 before 3.5.0-rc.3
+	setInputShapingV1 = 6062,
+	heaterFeedForwardV1 = 6063,
 	m655 = 6064,								// for M655, added in RRF 3.6
 	enableStallEndstop = 6065,
 	m111 = 6066,
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,
-	boardStatusReport = 4511,
-	announceOld = 4512,							// announce message sent by firmware 3.4.0beta4 and earlier
+	boardStatusReportV0 = 4511,
+	announceV0 = 4512,							// announce message sent by firmware 3.4.0beta4 and earlier
 	//fanTachoReport = 4513,					// unused
 	sensorTemperaturesReport = 4514,
 	heatersStatusReport = 4515,
 	//unused_was_fansRpmReport = 4516,			// replaced by fansReport
 	fansReport = 4517,
-	readInputsReply = 4518,
+	readInputsReplyV0 = 4518,
 	driversStatusReport = 4519,
-	//unused_was_filamentMonitorsStatusReportOld = 4520,
+	//unused_was_filamentMonitorsStatusReportV0 = 4520,
 	heaterTuningReport = 4521,
 	accelerometerData = 4522,
 	closedLoopData = 4523,
 	logMessage = 4524,
-	announceNew = 4525,							// announce message sent by firmware 3.4.0beta5 and later
+	announceV1 = 4525,							// announce message sent by firmware 3.4.0beta5 and later
 	debugText = 4526,
-	//unused_was_filamentMonitorsStatusReportNew = 4527,
-	filamentMonitorsStatusReportNew2 = 4528,
+	//unused_was_filamentMonitorsStatusReportV1 = 4527,
+	filamentMonitorsStatusReportV2 = 4528,
+	readInputsReplyV1 = 4529,
+	boardStatusReportV1 = 4530,
 
 	// Firmware updates
 	firmwareBlockRequest = 5000,

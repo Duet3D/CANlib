@@ -268,6 +268,15 @@ struct MinCurMax
 	float maximum;
 };
 
+// Version of MinCurMax that uses float16_t for more compact CAN messages
+struct ShortMinCurMax
+{
+	float16_t minimum;
+	float16_t current;
+	float16_t maximum;
+};
+
+
 // Enum to represent a heater state
 enum class HeaterMode : uint8_t
 {

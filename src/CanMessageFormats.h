@@ -330,9 +330,9 @@ struct __attribute__((packed)) CanMessageM303
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
-struct __attribute__((packed)) CanMessageHeaterModelNewNew
+struct __attribute__((packed)) CanMessageHeaterModelV2
 {
-	static constexpr CanMessageType messageType = CanMessageType::heaterModelNewNew;
+	static constexpr CanMessageType messageType = CanMessageType::heaterModelV2;
 
 	uint16_t requestId : 12,
 			 zero : 4;
@@ -444,9 +444,9 @@ struct __attribute__((packed)) CanMessageSetFanSpeed
 #if 0
 
 // Request to create an input monitor
-struct __attribute__((packed)) CanMessageCreateInputMonitorOld
+struct __attribute__((packed)) CanMessageCreateInputMonitorV0
 {
-	static constexpr CanMessageType messageType = CanMessageType::createInputMonitorOld;
+	static constexpr CanMessageType messageType = CanMessageType::createInputMonitorV0;
 
 	uint16_t requestId : 12,
 			 zero : 4;
@@ -461,9 +461,9 @@ struct __attribute__((packed)) CanMessageCreateInputMonitorOld
 };
 
 // Request to reconfigure an input monitor
-struct __attribute__((packed)) CanMessageChangeInputMonitorOld
+struct __attribute__((packed)) CanMessageChangeInputMonitorV0
 {
-	static constexpr CanMessageType messageType = CanMessageType::changeInputMonitorOld;
+	static constexpr CanMessageType messageType = CanMessageType::changeInputMonitorV0;
 
 	uint16_t requestId : 12,
 			 zero : 4;
@@ -480,9 +480,9 @@ struct __attribute__((packed)) CanMessageChangeInputMonitorOld
 #endif
 
 // Request to create an input monitor
-struct __attribute__((packed)) CanMessageCreateInputMonitorNew
+struct __attribute__((packed)) CanMessageCreateInputMonitorV1
 {
-	static constexpr CanMessageType messageType = CanMessageType::createInputMonitorNew;
+	static constexpr CanMessageType messageType = CanMessageType::createInputMonitorV1;
 
 	uint16_t requestId : 12,
 			 zero : 4;
@@ -497,9 +497,9 @@ struct __attribute__((packed)) CanMessageCreateInputMonitorNew
 };
 
 // Request to reconfigure an input monitor
-struct __attribute__((packed)) CanMessageChangeInputMonitorNew
+struct __attribute__((packed)) CanMessageChangeInputMonitorV1
 {
-	static constexpr CanMessageType messageType = CanMessageType::changeInputMonitorNew;
+	static constexpr CanMessageType messageType = CanMessageType::changeInputMonitorV1;
 
 	uint16_t requestId : 12,
 			 zero : 4;
@@ -527,10 +527,19 @@ struct __attribute__((packed)) CanMessageChangeInputMonitorNew
 
 // Struct to represent an analog handle and the reading from it
 // These are allocated in an array starting on a 2-or 4-byte boundary. So field 'handle' is correctly aligned but 'reading' isn't.
-struct __attribute__((packed)) AnalogHandleData
+struct __attribute__((packed)) AnalogHandleDataV0
 {
 	RemoteInputHandle handle;
 	uint32_t reading;						// note, this will not be aligned!
+};
+
+// Struct to represent an analog handle and the reading from it
+// These are allocated in an array starting on a 2-or 4-byte boundary. So field 'handle' is correctly aligned but 'reading' isn't.
+struct __attribute__((packed)) AnalogHandleDataV1
+{
+	RemoteInputHandle handle;
+	uint16_t when;							// lower 16 bits of the system step tick count when the new value was recorded
+	uint32_t reading;						// the handle value
 };
 
 // Request to read inputs, including analog inputs
@@ -640,9 +649,9 @@ struct __attribute__((packed)) CanMessageHeaterTuningCommand
 };
 
 // Set heater feedforward. The receiving board does not reply to this message.
-struct __attribute__((packed)) CanMessageHeaterFeedForwardNew
+struct __attribute__((packed)) CanMessageHeaterFeedForwardV1
 {
-	static constexpr CanMessageType messageType = CanMessageType::heaterFeedForwardNew;
+	static constexpr CanMessageType messageType = CanMessageType::heaterFeedForwardV1;
 
 	uint16_t zero;
 	uint16_t heaterNumber : 8,
@@ -655,9 +664,9 @@ struct __attribute__((packed)) CanMessageHeaterFeedForwardNew
 };
 
 // Configure input shaping
-struct __attribute__((packed)) CanMessageSetInputShapingNew
+struct __attribute__((packed)) CanMessageSetInputShapingV1
 {
-	static constexpr CanMessageType messageType = CanMessageType::setInputShapingNew;
+	static constexpr CanMessageType messageType = CanMessageType::setInputShapingV1;
 
 	struct ShapingPair { float coefficient; uint32_t delay; };
 
@@ -758,15 +767,34 @@ struct __attribute__((packed)) CanMessageStandardReply
 };
 
 // Response to the ReadInputsRequest. The requestID and resultCode must be in the same place as for a standard reply.
-struct __attribute__((packed)) CanMessageReadInputsReply
+struct __attribute__((packed)) CanMessageReadInputsReplyV0
 {
-	static constexpr CanMessageType messageType = CanMessageType::readInputsReply;
+	static constexpr CanMessageType messageType = CanMessageType::readInputsReplyV0;
 
 	uint32_t requestId : 12,				// the request ID of the message we are replying to - must be in the same place as in a StandardReply
 			 resultCode : 4,				// normally a GCodeResult - must be in the same place as in a StandardReply
 			 numReported : 4,				// number of input handles reported
 			 zero : 12;						// spare
-	AnalogHandleData results[10];
+	AnalogHandleDataV0 results[10];
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
+
+	size_t GetActualDataLength() noexcept
+	{
+		return sizeof(uint32_t) + numReported * sizeof(results[0]);
+	}
+};
+
+// Response to the ReadInputsRequest. The requestID and resultCode must be in the same place as for a standard reply.
+struct __attribute__((packed)) CanMessageReadInputsReplyV1
+{
+	static constexpr CanMessageType messageType = CanMessageType::readInputsReplyV1;
+
+	uint32_t requestId : 12,				// the request ID of the message we are replying to - must be in the same place as in a StandardReply
+			 resultCode : 4,				// normally a GCodeResult - must be in the same place as in a StandardReply
+			 numReported : 4,				// number of input handles reported
+			 zero : 12;						// spare
+	AnalogHandleDataV1 results[7];
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 
@@ -841,9 +869,9 @@ struct __attribute__((packed)) CanMessageHeatersStatus
 };
 
 // Message used by expansion boards running firmware 3.4.0beta4 and earlier to announce their presence on the CAN bus to other boards
-struct __attribute__((packed)) CanMessageAnnounceOld
+struct __attribute__((packed)) CanMessageAnnounceV0
 {
-	static constexpr CanMessageType messageType = CanMessageType::announceOld;
+	static constexpr CanMessageType messageType = CanMessageType::announceV0;
 
 	uint32_t timeSinceStarted;				// how long since we started up
 	uint32_t numDrivers: 8,					// the number of motor drivers on this board
@@ -859,9 +887,9 @@ struct __attribute__((packed)) CanMessageAnnounceOld
 };
 
 // Message used by expansion boards running firmware 3.4.0beta5 and later to announce their presence on the CAN bus to other boards
-struct __attribute__((packed)) CanMessageAnnounceNew
+struct __attribute__((packed)) CanMessageAnnounceV1
 {
-	static constexpr CanMessageType messageType = CanMessageType::announceNew;
+	static constexpr CanMessageType messageType = CanMessageType::announceV1;
 
 	uint32_t timeSinceStarted;				// how long since we started up
 	uint8_t uniqueId[16];					// the unique ID of this board
@@ -899,14 +927,55 @@ struct __attribute__((packed)) CanMessageFansReport
 };
 
 // Message sent by an expansion board when one of its monitored inputs has changed state
-struct __attribute__((packed)) CanMessageInputChangedNew
+struct __attribute__((packed)) CanMessageInputChangedV1
 {
-	static constexpr CanMessageType messageType = CanMessageType::inputStateChangedNew;
+	static constexpr CanMessageType messageType = CanMessageType::inputStateChangedV1;
 
 	uint16_t states;						// 1 bit per reported handle
 	uint8_t numHandles;
 	uint8_t zero;
-	AnalogHandleData results[10];
+	AnalogHandleDataV0 results[10];
+
+	// Add an entry. 'states' and 'numHandles' must be cleared to zero before adding the first one. Return true if successful, false if message is full.
+	bool AddEntry(uint16_t h, uint32_t val, bool state) noexcept
+	{
+		if (numHandles < sizeof(results)/sizeof(results[0]))
+		{
+			if (state)
+			{
+				states |= 1ul << numHandles;
+			}
+			results[numHandles].handle.Set(h);
+			StoreLEU32(&results[numHandles].reading, val);
+			++numHandles;
+			return true;
+		}
+		return false;
+	}
+
+	// Get the handle from one of the result values. 'results' is 4-byte allocated and each entry is 6 bytes long, so the 2-byte handle is always 2-byte aligned.
+	RemoteInputHandle GetEntryHandle(size_t index) const noexcept { return results[index].handle; }
+
+	// Get the reading from one of the result values. 'results' is 4-byte allocated and each entry is 6 bytes long, so the 4-byte handle is not always 4-byte aligned.
+	uint32_t GetEntryReading(size_t index) const noexcept { return LoadLEU32(&results[index].reading); }
+
+	size_t GetActualDataLength() const noexcept
+	{
+		return sizeof(states) + sizeof(numHandles) + sizeof(zero) + (numHandles * sizeof(results[0]));
+	}
+
+	void ClearReservedFields() noexcept { zero = 0; }
+};
+
+// Message sent by an expansion board when one of its monitored inputs has changed state
+struct __attribute__((packed)) CanMessageInputChangedV2
+{
+	static constexpr CanMessageType messageType = CanMessageType::inputStateChangedV2;
+
+	uint16_t states;						// 1 bit per reported handle
+	uint8_t numHandles;
+	uint8_t zero;
+	AnalogHandleDataV1 results[7];
 
 	// Add an entry. 'states' and 'numHandles' must be cleared to zero before adding the first one. Return true if successful, false if message is full.
 	bool AddEntry(uint16_t h, uint32_t val, bool state) noexcept
@@ -940,9 +1009,9 @@ struct __attribute__((packed)) CanMessageInputChangedNew
 };
 
 // Message sent by expansion boards to report their general health
-struct __attribute__((packed)) CanMessageBoardStatus
+struct __attribute__((packed)) CanMessageBoardStatusV0
 {
-	static constexpr CanMessageType messageType = CanMessageType::boardStatusReport;
+	static constexpr CanMessageType messageType = CanMessageType::boardStatusReportV0;
 
 	uint32_t hasVin : 1,
 			 hasV12 : 1,
@@ -981,7 +1050,55 @@ struct __attribute__((packed)) CanMessageBoardStatus
 
 	size_t GetActualDataLength() const noexcept
 	{
-		return GetAnalogHandlesOffset() + numAnalogHandles * sizeof(AnalogHandleData);
+		return GetAnalogHandlesOffset() + numAnalogHandles * sizeof(AnalogHandleDataV0);
+	}
+
+	void ClearReservedFields() noexcept { zero = 0; zero2 = 0; }
+};
+
+// Message sent by expansion boards to report their general health
+struct __attribute__((packed)) CanMessageBoardStatusV1
+{
+	static constexpr CanMessageType messageType = CanMessageType::boardStatusReportV1;
+
+	uint32_t hasVin : 1,
+			 hasV12 : 1,
+			 hasMcuTemp : 1,
+			 hasAccelerometer : 1,
+			 hasClosedLoop : 1,
+			 hasInductiveSensor : 1,
+			 zero : 10,							// reserved for future use
+			 hasMovementDelay : 1,
+			 numAnalogHandles : 3,				// how many instances of AnalogHandleData we append
+			 zero2 : 12;
+	union
+	{
+		int32_t neverUsedRam;					// this field present if hasMovementDelay is false
+		uint32_t movementDelay;					// this field present if hasMovementDelay is true
+	};
+	ShortMinCurMax shortValues[3];				// values of none, some or all of Vin, V12 and CPU temperature
+	// After the last present ShortMinCurMax value the data for some analog handles follows (max 5 if all of Vin/V12/mcuTemp are supported)
+
+	void Clear() noexcept
+	{
+		hasVin = hasV12 = hasMcuTemp = hasMovementDelay = hasAccelerometer = hasClosedLoop = hasInductiveSensor = false;
+		numAnalogHandles = 0;
+	}
+
+	size_t GetAnalogHandlesOffset() const noexcept
+	{
+		const unsigned int numMinCurMaxValues = hasVin + hasV12 + hasMcuTemp;
+		return 2 * sizeof(uint32_t) + numMinCurMaxValues * sizeof(shortValues[0]);
+	}
+
+	size_t GetMaxAnalogHandleSpace() const noexcept
+	{
+		return 64 - GetAnalogHandlesOffset();
+	}
+
+	size_t GetActualDataLength() const noexcept
+	{
+		return GetAnalogHandlesOffset() + numAnalogHandles * sizeof(AnalogHandleDataV1);
 	}
 
 	void ClearReservedFields() noexcept { zero = 0; zero2 = 0; }
@@ -1032,8 +1149,8 @@ struct __attribute__((packed)) CanMessageDriversStatus
 	void ClearReservedFields() noexcept { zero = 0; zero2 = 0; }
 };
 
-// This has to be declared outside struct CanMessageFilamentMonitorsStatusNew to avoid having to include this file in FilamentMonitor.h
-struct __attribute__((packed)) FilamentMonitorDataNew2
+// This has to be declared outside struct CanMessageFilamentMonitorsStatusV2 to avoid having to include this file in FilamentMonitor.h
+struct __attribute__((packed)) FilamentMonitorDataV2
 {
 	uint32_t position : 12,				// raw position from the sensor
 			 zero1 : 12,				// reserved for future use
@@ -1051,13 +1168,13 @@ struct __attribute__((packed)) FilamentMonitorDataNew2
 };
 
 // Message sent by expansion boards to report the status of their filament monitors
-struct __attribute__((packed)) CanMessageFilamentMonitorsStatusNew2
+struct __attribute__((packed)) CanMessageFilamentMonitorsStatusV2
 {
-	static constexpr CanMessageType messageType = CanMessageType::filamentMonitorsStatusReportNew2;
+	static constexpr CanMessageType messageType = CanMessageType::filamentMonitorsStatusReportV2;
 
 	uint32_t driversReported : 8,			// bitmap of driver numbers with associated filament monitors reported in this message
 			 zero : 24;
-	FilamentMonitorDataNew2 data[5];
+	FilamentMonitorDataV2 data[5];
 
 	size_t GetActualDataLength() const noexcept
 	{
@@ -1233,7 +1350,7 @@ union CanMessage
 	CanMessageFirmwareUpdateResponse firmwareUpdateResponse;
 	CanMessageSensorTemperatures sensorTemperaturesBroadcast;
 	CanMessageHeatersStatus heatersStatusBroadcast;
-	CanMessageHeaterModelNewNew heaterModelNewNew;
+	CanMessageHeaterModelV2 heaterModelV2;
 	CanMessageMultipleDrivesRequest<uint16_t> multipleDrivesRequestUint16;
 	CanMessageMultipleDrivesRequest<float> multipleDrivesRequestFloat;
 	CanMessageMultipleDrivesRequest<StepsPerUnitAndMicrostepping> multipleDrivesStepsPerUnitAndMicrostepping;
@@ -1243,27 +1360,30 @@ union CanMessage
 	CanMessageSetFanSpeed setFanSpeed;
 	CanMessageSetHeaterFaultDetectionParameters setHeaterFaultDetection;
 	CanMessageSetHeaterMonitors setHeaterMonitors;
-	CanMessageSetInputShapingNew setInputShapingNew;
-	CanMessageCreateInputMonitorNew createInputMonitorNew;
-	CanMessageChangeInputMonitorNew changeInputMonitorNew;
-	CanMessageInputChangedNew inputChangedNew;
+	CanMessageSetInputShapingV1 setInputShapingV1;
+	CanMessageCreateInputMonitorV1 createInputMonitorV1;
+	CanMessageChangeInputMonitorV1 changeInputMonitorV1;
+	CanMessageInputChangedV1 inputChangedV1;
+	CanMessageInputChangedV2 inputChangedV2;
 	CanMessageFansReport fansReport;
 	CanMessageWriteGpio writeGpio;
 	CanMessageSetAddressAndNormalTiming setAddressAndNormalTiming;
-	CanMessageAnnounceOld announceOld;
-	CanMessageAnnounceNew announceNew;
+	CanMessageAnnounceV0 announceV0;
+	CanMessageAnnounceV1 announceV1;
 	CanMessageAcknowledgeAnnounce acknowledgeAnnounce;
 	CanMessageDiagnosticTest diagnosticTest;
 	CanMessageReadInputsRequest readInputsRequest;
-	CanMessageReadInputsReply readInputsReply;
-	CanMessageBoardStatus boardStatus;
+	CanMessageReadInputsReplyV0 readInputsReplyV0;
+	CanMessageReadInputsReplyV1 readInputsReplyV1;
+	CanMessageBoardStatusV0 boardStatusV0;
+	CanMessageBoardStatusV1 boardStatusV1;
 	CanMessageDriversStatus driversStatus;
-	CanMessageFilamentMonitorsStatusNew2 filamentMonitorsStatusNew2;
+	CanMessageFilamentMonitorsStatusV2 filamentMonitorsStatusV2;
 	CanMessageCreateFilamentMonitor createFilamentMonitor;
 	CanMessageDeleteFilamentMonitor deleteFilamentMonitor;
 	CanMessageHeaterTuningCommand heaterTuningCommand;
 	CanMessageHeaterTuningReport heaterTuningReport;
-	CanMessageHeaterFeedForwardNew heaterFeedForwardNew;
+	CanMessageHeaterFeedForwardV1 heaterFeedForwardV1;
 	CanMessageStartAccelerometer startAccelerometer;
 	CanMessageAccelerometerData accelerometerData;
 	CanMessageStartClosedLoopDataCollection startClosedLoopDataCollection;
