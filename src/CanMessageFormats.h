@@ -441,44 +441,6 @@ struct __attribute__((packed)) CanMessageSetFanSpeed
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
-#if 0
-
-// Request to create an input monitor
-struct __attribute__((packed)) CanMessageCreateInputMonitorV0
-{
-	static constexpr CanMessageType messageType = CanMessageType::createInputMonitorV0;
-
-	uint16_t requestId : 12,
-			 zero : 4;
-	RemoteInputHandle handle;
-	uint16_t threshold;			// analog threshold, or zero if digital
-	uint16_t minInterval;
-	char pinName[56];			// null terminated
-
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
-	size_t GetActualDataLength() const noexcept { return 3 * sizeof(uint16_t) + sizeof(RemoteInputHandle) + Strnlen(pinName, sizeof(pinName)/sizeof(pinName[0])); }
-	size_t GetMaxPinNameLength(size_t dataLength) const noexcept { return dataLength - (3 * sizeof(uint16_t) + sizeof(RemoteInputHandle)); }
-};
-
-// Request to reconfigure an input monitor
-struct __attribute__((packed)) CanMessageChangeInputMonitorV0
-{
-	static constexpr CanMessageType messageType = CanMessageType::changeInputMonitorV0;
-
-	uint16_t requestId : 12,
-			 zero : 4;
-	RemoteInputHandle handle;
-	uint16_t param;
-	uint8_t action;
-
-	static constexpr uint8_t actionDontMonitor = 0, actionDoMonitor = 1, actionDelete = 2, actionChangeThreshold = 3, actionChangeMinInterval = 4,
-								actionReturnPinName = 5;
-
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
-};
-
-#endif
-
 // Request to create an input monitor
 struct __attribute__((packed)) CanMessageCreateInputMonitorV1
 {
