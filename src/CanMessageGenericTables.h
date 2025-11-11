@@ -87,11 +87,12 @@ constexpr ParamDescriptor M569Point1Params[] =
 	FLOAT_PARAM('R'),
 	FLOAT_PARAM('I'),
 	FLOAT_PARAM('D'),
-	FLOAT_PARAM('H'),					// no longer used, retained for backwards compatibility
+	FLOAT_PARAM('h'),					// was 'H', no longer used, position retained for backwards compatibility (using lowercase 'h' means it won't be matched)
 	UINT16_PARAM('S'),					// steps/rev added for EXP1HCL firmware 3.5 compatibility
 	FLOAT_PARAM('V'),					// velocity feedforward term added in 3.5beta2
 	FLOAT_PARAM('A'),					// acceleration feedforward term added in 3.5beta4
 	FLOAT_PARAM('Q'),					// torque constant in Nm per A added in 3.5 post beta4
+	REDUCED_STRING_PARAM('Y'),			// magnetic encoder type, added at 3.6.2
 	END_PARAMS
 };
 
