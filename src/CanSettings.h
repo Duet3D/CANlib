@@ -26,7 +26,12 @@ struct CanTiming
 	static constexpr uint16_t DefaultTseg1_1M = 26;
 	static constexpr uint16_t DefaultJumpWidth_1M = 8;
 
-	// Defaults for secondary port, plain CAN at 250kbit/sec
+	// Defaults for Duet boards at reduced speed, CAN-FD at 500kbit/sec
+	static constexpr uint16_t DefaultPeriod_500k = 96;
+	static constexpr uint16_t DefaultTseg1_500k = 52;
+	static constexpr uint16_t DefaultJumpWidth_500k = 16;
+
+	// Defaults for secondary port, plain CAN at 250kbit/sec (also suitable for Duet boards at 250kb/sec)
 	static constexpr uint16_t DefaultPeriod_250k = 192;
 	static constexpr uint16_t DefaultTseg1_250k = 104;
 	static constexpr uint16_t DefaultJumpWidth_250k = 32;
@@ -46,11 +51,23 @@ struct CanTiming
 		jumpWidth = DefaultJumpWidth_1M;
 	}
 
+	void SetDefaults_500kb() noexcept
+	{
+		period = DefaultPeriod_500k;
+		tseg1 = DefaultTseg1_500k;
+		jumpWidth = DefaultJumpWidth_500k;
+	}
+
 	void SetDefaults_250kb() noexcept
 	{
 		period = DefaultPeriod_250k;
 		tseg1 = DefaultTseg1_250k;
 		jumpWidth = DefaultJumpWidth_250k;
+	}
+
+	bool operator==(const CanTiming& other) const noexcept
+	{
+		return period == other.period && tseg1 == other.tseg1 && jumpWidth == other.jumpWidth;
 	}
 };
 
@@ -84,5 +101,9 @@ private:
 };
 
 static_assert(sizeof(CanUserAreaData) == 16);
+
+// Where we store the CAN data
+constexpr uint32_t CanUserAreaDataOffset_SAME5x = 512 - sizeof(CanUserAreaData);
+constexpr uint32_t CanUserAreaDataOffset_SAMC21 = 256 - sizeof(CanUserAreaData);
 
 #endif /* SRC_CANTIMINGDATA_H_ */

@@ -52,22 +52,23 @@ NamedEnum(EncoderType, uint8_t, none, linearComposite, rotaryQuadrature, rotaryM
 // Error codes, presented as a number of flashes of the DIAG LED, used by both the bootloader and by expansion boards
 enum class FirmwareFlashErrorCode : unsigned int
 {
-	ok = 0,
-	invalidFirmware = 2,
-	badCRC = 3,
-	blockReceiveTimeout = 4,
-	noFile = 5,
-	badOffset = 6,
-	hostOther = 7,
-	noMemory = 8,
-	flashInitFailed = 9,
-	unlockFailed = 10,
-	eraseFailed = 11,
-	writeFailed = 12,
-	lockFailed = 13,
-	vinTooLow = 14,
-	unknownBoard = 15,
-	vAssertCalled = 16
+	ok = 0,								// used as a function return code, not used to flash the LED
+	invalidFirmware = 2,				// bootloader determined that the installed firmware is invalid
+	badCRC = 3,							// bootloader determined that the installed firmware fails the CRC check
+	blockReceiveTimeout = 4,			// bootloader requested a firmware block from the master but didn't receive a reply
+	noFile = 5,							// bootloader requested firmware but the master responded that it didn't have the requested file
+	badOffset = 6,						// master reported that the file offset requested by the bootloader is out of range
+	hostOther = 7,						// master reported it was unable to supply the requested block for some other reason
+	noMemory = 8,						// bootloader ran out of RAM
+	flashInitFailed = 9,				// failed to initialise flash memory
+	unlockFailed = 10,					// failed to unlock flash memory
+	eraseFailed = 11,					// failed to erase flash memory
+	writeFailed = 12,					// failed to write flash memory
+	lockFailed = 13,					// failed to lock flash memory
+	vinTooLow = 14,						// expansion board was asked to update the bootloader but VIN is too low to do that safely
+	unknownBoard = 15,					// bootloader failed to identify the board type
+	vAssertCalled = 16,					// assertion failure in the bootloader
+	noTimeSyncMessageSeen = 17			// bootloader didn't hear a clock message at any of the standard speeds (added for new bootloader)
 };
 
 // Variables available for recording in closed-loop mode
