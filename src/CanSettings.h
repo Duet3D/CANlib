@@ -13,61 +13,29 @@
 #include "CanId.h"
 
 // In the following structure, the time quantum is 1 cycle of the 48MHz CAN clock that is used on all types of Duet 3 expansion and tool board.
-// The default bit timing is: TSEG1 26, period 48, SJW 8. The CAN bit time is NTSEG1 + NTSEG2 + 1 time quanta, so the default bit rate is 1MHz.
-// Currently we use a prescaler of 2, so the CAN clock runs at 24MHz and we need to halve these values. But we have the option to switch to 48MHz in future.
+// The tseg1 field excludes the 1-clock sync phase for historical reasons. We retain it for compatibility with existing date stored in NVRAM.
 struct CanTiming
 {
 	uint16_t period;				// number of time quanta in 1 bit time, or 0xFFFF if this and the following fields have not been set
-	uint16_t tseg1;					// now far into the period the sample point is, minimum 1, maximum period-2
-	uint16_t jumpWidth;				// the (re)synchronisation jump width
+	uint16_t tseg1;					// how far into the bit period the sample point is (minimum 1, maximum period-2) less 1
+	uint16_t jumpWidth;				// the (re)synchronisation jump width. The maximum is (period - (tseg1 + 1) but we check that when we program the CAN peripheral.
 
-	// Defaults for Duet boards, CAN-FD at 1Mbit/sec
-	static constexpr uint16_t DefaultPeriod_1M = 48;
-	static constexpr uint16_t DefaultTseg1_1M = 26;
-	static constexpr uint16_t DefaultJumpWidth_1M = 8;
+	static constexpr uint32_t ClockFrequency = 48'000'000;					// CAN clock used by all Duet 3 boards
+	static constexpr uint32_t DefaultCanBitRate = 1'000'000;
+	static constexpr float DefaultSamplePoint = 0.78;						// how far we sample into the bit
+	static constexpr float DefaultJumpWidth = 0.25;							// how much of the bit the receive clock can jump to resync. Gets limited when we program the CAN peripheral
 
-	// Defaults for Duet boards at reduced speed, CAN-FD at 500kbit/sec
-	static constexpr uint16_t DefaultPeriod_500k = 96;
-	static constexpr uint16_t DefaultTseg1_500k = 52;
-	static constexpr uint16_t DefaultJumpWidth_500k = 16;
-
-	// Defaults for secondary port, plain CAN at 250kbit/sec (also suitable for Duet boards at 250kb/sec)
-	static constexpr uint16_t DefaultPeriod_250k = 192;
-	static constexpr uint16_t DefaultTseg1_250k = 104;
-	static constexpr uint16_t DefaultJumpWidth_250k = 32;
-
-	static constexpr uint32_t ClockFrequency = 48000000;
-
-	bool IsValid() const noexcept
+	constexpr bool IsValid() const noexcept
 	{
 		return period >= 24 && period <= 4800
 			&& tseg1 != 0 && tseg1 <= period - 2;
 	}
 
-	void SetDefaults_1Mb() noexcept
+	constexpr void SetDefaults(uint32_t bitRate) noexcept
 	{
-		period = DefaultPeriod_1M;
-		tseg1 = DefaultTseg1_1M;
-		jumpWidth = DefaultJumpWidth_1M;
-	}
-
-	void SetDefaults_500kb() noexcept
-	{
-		period = DefaultPeriod_500k;
-		tseg1 = DefaultTseg1_500k;
-		jumpWidth = DefaultJumpWidth_500k;
-	}
-
-	void SetDefaults_250kb() noexcept
-	{
-		period = DefaultPeriod_250k;
-		tseg1 = DefaultTseg1_250k;
-		jumpWidth = DefaultJumpWidth_250k;
-	}
-
-	bool operator==(const CanTiming& other) const noexcept
-	{
-		return period == other.period && tseg1 == other.tseg1 && jumpWidth == other.jumpWidth;
+		period = (uint32_t)(ClockFrequency + (bitRate/2)/bitRate);
+		tseg1 = (uint32_t)(period * DefaultSamplePoint) - 1;				// this excludes the 1-clock sync phase for historical reasons, hence the -1
+		jumpWidth = period - (tseg1 + 1);									// this is the maximum possible, as recommended by CiA
 	}
 };
 
@@ -87,7 +55,7 @@ private:
 	uint16_t GetChecksum() const noexcept;
 	void UpdateChecksum() noexcept;
 
-	static constexpr uint16_t magic = 0x4321;	// the expected XOR of all 8 words
+	static constexpr uint16_t magic = 0x4321;	// the expected XOR of all eight 16-bit words
 
 	// Total 16 bytes
 	uint16_t canIdV1NotSet : 1,					// set if canAddress does not contain the CAN address to use
@@ -97,7 +65,7 @@ private:
 	uint8_t invertedCanAddress;					// the inverted CAN address of this board, or 0xFF if it has not been set
 	CanTiming timing;							// this is 6 bytes long
 	uint16_t spare1, spare2;					// make up to 14 bytes for future expansion
-	uint16_t checksum;							// checksum word to make
+	uint16_t checksum;							// checksum word to make the XOR of all eight 16-bit words the magic value
 };
 
 static_assert(sizeof(CanUserAreaData) == 16);
