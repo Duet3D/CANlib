@@ -41,16 +41,9 @@ struct CanTiming
 
 	void SetDefaults_1Mb() noexcept
 	{
-		period = DefaultPeriod_1M;
-		tseg1 = DefaultTseg1_1M;
-		jumpWidth = DefaultJumpWidth_1M;
-	}
-
-	void SetDefaults_250kb() noexcept
-	{
-		period = DefaultPeriod_250k;
-		tseg1 = DefaultTseg1_250k;
-		jumpWidth = DefaultJumpWidth_250k;
+		period = (uint32_t)((ClockFrequency + (bitRate/2))/bitRate);
+		tseg1 = (uint32_t)(period * DefaultSamplePoint) - 1;				// this excludes the 1-clock sync phase for historical reasons, hence the -1
+		jumpWidth = period - (tseg1 + 1);									// this is the maximum possible, as recommended by CiA
 	}
 };
 
