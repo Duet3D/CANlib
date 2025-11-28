@@ -33,7 +33,7 @@ struct CanTiming
 
 	constexpr void SetDefaults(uint32_t bitRate) noexcept
 	{
-		period = (uint32_t)(ClockFrequency + (bitRate/2)/bitRate);
+		period = (uint32_t)((ClockFrequency + (bitRate/2))/bitRate);
 		tseg1 = (uint32_t)(period * DefaultSamplePoint) - 1;				// this excludes the 1-clock sync phase for historical reasons, hence the -1
 		jumpWidth = period - (tseg1 + 1);									// this is the maximum possible, as recommended by CiA
 	}
