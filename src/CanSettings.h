@@ -11,6 +11,7 @@
 #define SRC_CANTIMINGDATA_H_
 
 #include "CanId.h"
+#include <General/SimpleMath.h>
 
 // In the following structure, the time quantum is 1 cycle of the 48MHz CAN clock that is used on all types of Duet 3 expansion and tool board.
 // The default bit timing is: TSEG1 26, period 48, SJW 8. The CAN bit time is NTSEG1 + NTSEG2 + 1 time quanta, so the default bit rate is 1MHz.
@@ -39,10 +40,22 @@ struct CanTiming
 			&& tseg1 != 0 && tseg1 <= period - 2;
 	}
 
-	void SetDefaults_1Mb() noexcept
+	// Set the sample point. The period must be set first.
+	constexpr void SetSamplePoint(float samplePoint) noexcept
+	{
+		tseg1 = (uint16_t)(period * samplePoint) - 1;						// this excludes the 1-clock sync phase for historical reasons, hence the -1
+	}
+
+	// Set the jump width. The bit rate and sample point must be set first.
+	constexpr void SetJumpWidth(float jw) noexcept
+	{
+		jumpWidth = constrain<uint16_t>((uint16_t)(period * jw), 1, period - tseg1 - 1);
+	}
+
+	constexpr void SetDefaults(uint32_t bitRate) noexcept
 	{
 		period = (uint16_t)((ClockFrequency + (bitRate/2))/bitRate);
-		tseg1 = (uint16_t)(period * DefaultSamplePoint) - 1;				// this excludes the 1-clock sync phase for historical reasons, hence the -1
+		SetSamplePoint(DefaultSamplePoint);
 		jumpWidth = period - (tseg1 + 1);									// this is the maximum possible, as recommended by CiA
 	}
 };
