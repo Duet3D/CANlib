@@ -40,7 +40,8 @@ struct __attribute__((packed)) CanMessageTimeSync
 	uint32_t lastTimeSent;							// when we tried to send the previous message
 	uint32_t lastTimeAcknowledgeDelay : 16,			// the delay from that time before the previous message was acknowledged
 			 isPrinting : 1,						// set if we are printing and filament monitor should collect data
-			 zero : 15;								// unused
+			 fastDataRate : 2,						// CAN-FD data bit rate divided by nominal bit rate, minus 1. 0 (= multiplier 1) means don't use bit rate switching.
+			 zero : 13;								// unused
 	uint32_t realTime;								// seconds since 00:00:00 UTC on 1 January 1970, unsigned to avoid year 2038 problem. Not always present.
 	uint32_t movementDelay;							// cumulative hiccup time. Not always present.
 
