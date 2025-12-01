@@ -44,10 +44,13 @@ struct CanTiming
 		jumpWidth = constrain<uint16_t>((uint16_t)(period * jw), 1, period - tseg1 - 1);
 	}
 
+	// The following is called by the bootloader, so it must not use any run-time floating point maths in order to keep the SAMC21 bootloader small
 	constexpr void SetDefaults(uint32_t bitRate) noexcept
 	{
+		constexpr uint32_t DefaultSamplePointTimesOneThousand = (uint32_t)(1000 * DefaultSamplePoint);
+
 		period = (uint16_t)((ClockFrequency + (bitRate/2))/bitRate);
-		SetSamplePoint(DefaultSamplePoint);
+		tseg1 = (uint16_t)((period * DefaultSamplePointTimesOneThousand)/1000) + 1;
 		jumpWidth = period - (tseg1 + 1);									// this is the maximum possible, as recommended by CiA
 	}
 };
