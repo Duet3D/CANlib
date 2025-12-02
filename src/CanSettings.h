@@ -22,19 +22,12 @@ struct CanTiming
 	uint16_t tseg1;					// now far into the period the sample point is, minimum 1, maximum period-2
 	uint16_t jumpWidth;				// the (re)synchronisation jump width
 
-	// Defaults for Duet boards, CAN-FD at 1Mbit/sec
-	static constexpr uint16_t DefaultPeriod_1M = 48;
-	static constexpr uint16_t DefaultTseg1_1M = 26;
-	static constexpr uint16_t DefaultJumpWidth_1M = 8;
+	static constexpr uint32_t ClockFrequency = 48'000'000;					// CAN clock used by all Duet 3 boards
+	static constexpr uint32_t DefaultCanBitRate = 1'000'000;
+	static constexpr float DefaultSamplePoint = 0.78;						// how far we sample into the bit
+	static constexpr float DefaultJumpWidth = 0.25;							// how much of the bit the receive clock can jump to resync. Gets limited when we program the CAN peripheral
 
-	// Defaults for secondary port, plain CAN at 250kbit/sec
-	static constexpr uint16_t DefaultPeriod_250k = 192;
-	static constexpr uint16_t DefaultTseg1_250k = 104;
-	static constexpr uint16_t DefaultJumpWidth_250k = 32;
-
-	static constexpr uint32_t ClockFrequency = 48000000;
-
-	bool IsValid() const noexcept
+	constexpr bool IsValid() const noexcept
 	{
 		return period >= 24 && period <= 4800
 			&& tseg1 != 0 && tseg1 <= period - 2;
