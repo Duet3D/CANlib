@@ -15,6 +15,7 @@
 
 // In the following structure, the time quantum is 1 cycle of the 48MHz CAN clock that is used on all types of Duet 3 expansion and tool board.
 // The tseg1 field excludes the 1-clock sync phase for historical reasons. We retain it for compatibility with existing date stored in NVRAM.
+// The CAN bit time is tseg1 + tseg2 + 1 time quanta, so for the default bit rate of 1Mbit/sec this must add up to 48.
 struct CanTiming
 {
 	uint16_t period;				// number of time quanta in 1 bit time, or 0xFFFF if this and the following fields have not been set
