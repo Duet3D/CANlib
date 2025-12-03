@@ -14,8 +14,7 @@
 #include <General/SimpleMath.h>
 
 // In the following structure, the time quantum is 1 cycle of the 48MHz CAN clock that is used on all types of Duet 3 expansion and tool board.
-// The default bit timing is: TSEG1 26, period 48, SJW 8. The CAN bit time is NTSEG1 + NTSEG2 + 1 time quanta, so the default bit rate is 1MHz.
-// Currently we use a prescaler of 2, so the CAN clock runs at 24MHz and we need to halve these values. But we have the option to switch to 48MHz in future.
+// The CAN bit time is tseg1 + tseg2 + 1 time quanta, so for the default bit rate of 1Mbit/sec this must add up to 48.
 struct CanTiming
 {
 	uint16_t period;				// number of time quanta in 1 bit time, or 0xFFFF if this and the following fields have not been set
