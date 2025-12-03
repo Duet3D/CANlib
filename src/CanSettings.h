@@ -35,7 +35,7 @@ struct CanTiming
 	// Set the sample point. The period must be set first.
 	constexpr void SetSamplePoint(float samplePoint) noexcept
 	{
-		tseg1 = (uint16_t)(period * samplePoint) - 1;						// this excludes the 1-clock sync phase for historical reasons, hence the -1
+		tseg1 = (uint16_t)(period * samplePoint) - 1;						// tseg1 excludes the 1-clock sync phase for historical reasons, hence the -1
 	}
 
 	// Set the jump width. The bit rate and sample point must be set first.
@@ -47,10 +47,10 @@ struct CanTiming
 	// The following is called by the bootloader, so it must not use any run-time floating point maths in order to keep the SAMC21 bootloader small
 	constexpr void SetDefaults(uint32_t bitRate) noexcept
 	{
-		constexpr uint32_t DefaultSamplePointTimesOneThousand = (uint32_t)(1000 * DefaultSamplePoint);
+		constexpr uint32_t DefaultSamplePointTimes1024 = (uint32_t)(DefaultSamplePoint * 1024);
 
 		period = (uint16_t)((ClockFrequency + (bitRate/2))/bitRate);
-		tseg1 = (uint16_t)((period * DefaultSamplePointTimesOneThousand)/1000) + 1;
+		tseg1 = (uint16_t)((period * DefaultSamplePointTimes1024)/1024) - 1;
 		jumpWidth = period - (tseg1 + 1);									// this is the maximum possible, as recommended by CiA
 	}
 };
