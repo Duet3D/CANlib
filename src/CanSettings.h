@@ -19,7 +19,7 @@
 struct CanTiming
 {
 	uint16_t period;				// number of time quanta in 1 bit time, or 0xFFFF if this and the following fields have not been set
-	uint16_t tseg1;					// now far into the period the sample point is, minimum 1, maximum period-2
+	uint16_t tseg1;					// how far into the period the sample point is minus 1, minimum 1, maximum period-2
 	uint16_t jumpWidth;				// the (re)synchronisation jump width
 
 	static constexpr uint32_t ClockFrequency = 48'000'000;					// CAN clock used by all Duet 3 boards
@@ -36,7 +36,7 @@ struct CanTiming
 	// Set the sample point. The period must be set first.
 	constexpr void SetSamplePoint(float samplePoint) noexcept
 	{
-		tseg1 = (uint16_t)(period * samplePoint) - 1;						// this excludes the 1-clock sync phase for historical reasons, hence the -1
+		tseg1 = (uint16_t)(period * samplePoint) - 1;						// tseg1 excludes the 1-clock sync phase for historical reasons, hence the -1
 	}
 
 	// Set the jump width. The bit rate and sample point must be set first.
@@ -48,10 +48,10 @@ struct CanTiming
 	// The following is called by the bootloader, so it must not use any run-time floating point maths in order to keep the SAMC21 bootloader small
 	constexpr void SetDefaults(uint32_t bitRate) noexcept
 	{
-		constexpr uint32_t DefaultSamplePointTimesOneThousand = (uint32_t)(1000 * DefaultSamplePoint);
+		constexpr uint32_t DefaultSamplePointTimes1024 = (uint32_t)(DefaultSamplePoint * 1024);
 
 		period = (uint16_t)((ClockFrequency + (bitRate/2))/bitRate);
-		tseg1 = (uint16_t)((period * DefaultSamplePointTimesOneThousand)/1000) + 1;
+		tseg1 = (uint16_t)((period * DefaultSamplePointTimes1024)/1024) - 1;
 		jumpWidth = period - (tseg1 + 1);									// this is the maximum possible, as recommended by CiA
 	}
 };
