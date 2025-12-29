@@ -276,7 +276,6 @@ struct ShortMinCurMax
 	float16_t maximum;
 };
 
-
 // Enum to represent a heater state
 enum class HeaterMode : uint8_t
 {
