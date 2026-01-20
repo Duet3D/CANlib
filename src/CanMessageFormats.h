@@ -450,7 +450,7 @@ struct __attribute__((packed)) CanMessageCreateInputMonitorV1
 	uint16_t requestId : 12,
 			 zero : 4;
 	RemoteInputHandle handle;
-	uint32_t threshold;			// analog threshold, or zero if digital
+	int32_t threshold;			// analog threshold, or zero if digital
 	uint16_t minInterval;
 	char pinName[54];			// null terminated
 
@@ -502,7 +502,7 @@ struct __attribute__((packed)) AnalogHandleDataV1
 {
 	RemoteInputHandle handle;
 	uint16_t when;							// lower 16 bits of the system step tick count when the new value was recorded
-	uint32_t reading;						// the handle value
+	int32_t reading;						// the handle value
 };
 
 // Request to read inputs, including analog inputs
@@ -920,7 +920,7 @@ struct __attribute__((packed)) CanMessageInputChangedV1
 	RemoteInputHandle GetEntryHandle(size_t index) const noexcept { return results[index].handle; }
 
 	// Get the reading from one of the result values. 'results' is 4-byte allocated and each entry is 6 bytes long, so the 4-byte handle is not always 4-byte aligned.
-	int32_t GetEntryReading(size_t index) const noexcept { return LoadLEU32(&results[index].reading); }
+	int32_t GetEntryReading(size_t index) const noexcept { return LoadLEI32(&results[index].reading); }
 
 	size_t GetActualDataLength() const noexcept
 	{
@@ -941,7 +941,7 @@ struct __attribute__((packed)) CanMessageInputChangedV2
 	AnalogHandleDataV1 results[7];
 
 	// Add an entry. 'states' and 'numHandles' must be cleared to zero before adding the first one. Return true if successful, false if message is full.
-	bool AddEntry(uint16_t h, uint32_t val, bool state) noexcept
+	bool AddEntry(uint16_t h, int32_t val, bool state) noexcept
 	{
 		if (numHandles < sizeof(results)/sizeof(results[0]))
 		{
@@ -950,7 +950,7 @@ struct __attribute__((packed)) CanMessageInputChangedV2
 				states |= 1ul << numHandles;
 			}
 			results[numHandles].handle.Set(h);
-			StoreLEU32(&results[numHandles].reading, val);
+			StoreLEI32(&results[numHandles].reading, val);
 			++numHandles;
 			return true;
 		}
@@ -961,7 +961,7 @@ struct __attribute__((packed)) CanMessageInputChangedV2
 	RemoteInputHandle GetEntryHandle(size_t index) const noexcept { return results[index].handle; }
 
 	// Get the reading from one of the result values. 'results' is 4-byte allocated and each entry is 6 bytes long, so the 4-byte handle is not always 4-byte aligned.
-	uint32_t GetEntryReading(size_t index) const noexcept { return LoadLEU32(&results[index].reading); }
+	int32_t GetEntryReading(size_t index) const noexcept { return LoadLEI32(&results[index].reading); }
 
 	size_t GetActualDataLength() const noexcept
 	{
