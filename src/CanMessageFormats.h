@@ -493,7 +493,7 @@ struct __attribute__((packed)) CanMessageChangeInputMonitorV1
 struct __attribute__((packed)) AnalogHandleDataV0
 {
 	RemoteInputHandle handle;
-	uint32_t reading;						// note, this will not be aligned!
+	int32_t reading;						// note, this will not be aligned!
 };
 
 // Struct to represent an analog handle and the reading from it
@@ -900,7 +900,7 @@ struct __attribute__((packed)) CanMessageInputChangedV1
 	AnalogHandleDataV0 results[10];
 
 	// Add an entry. 'states' and 'numHandles' must be cleared to zero before adding the first one. Return true if successful, false if message is full.
-	bool AddEntry(uint16_t h, uint32_t val, bool state) noexcept
+	bool AddEntry(uint16_t h, int32_t val, bool state) noexcept
 	{
 		if (numHandles < sizeof(results)/sizeof(results[0]))
 		{
@@ -909,7 +909,7 @@ struct __attribute__((packed)) CanMessageInputChangedV1
 				states |= 1ul << numHandles;
 			}
 			results[numHandles].handle.Set(h);
-			StoreLEU32(&results[numHandles].reading, val);
+			StoreLEI32(&results[numHandles].reading, val);
 			++numHandles;
 			return true;
 		}
@@ -920,7 +920,7 @@ struct __attribute__((packed)) CanMessageInputChangedV1
 	RemoteInputHandle GetEntryHandle(size_t index) const noexcept { return results[index].handle; }
 
 	// Get the reading from one of the result values. 'results' is 4-byte allocated and each entry is 6 bytes long, so the 4-byte handle is not always 4-byte aligned.
-	uint32_t GetEntryReading(size_t index) const noexcept { return LoadLEU32(&results[index].reading); }
+	int32_t GetEntryReading(size_t index) const noexcept { return LoadLEU32(&results[index].reading); }
 
 	size_t GetActualDataLength() const noexcept
 	{
