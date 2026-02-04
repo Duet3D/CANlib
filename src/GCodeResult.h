@@ -12,6 +12,7 @@
 #include <cstdint>
 
 // Enumeration to specify the result of attempting to process a GCode command
+// Note that this enum needs to stay in sync with DSF!
 enum class GCodeResult : uint8_t
 {
 	notFinished,					// we haven't finished processing this command
