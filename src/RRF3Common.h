@@ -319,7 +319,7 @@ enum class HeaterFaultType : uint8_t
 };
 
 // Text descriptions of the above, with an extra one to handle out-of-range parameters
-static constexpr const char *_ecv_array HeaterFaultText[] =
+constexpr const char *_ecv_array HeaterFaultText[] =
 {
 	"failed to read sensor: ",						// the sensor error message will be appended
 	"temperature rising too slowly: ",				// "expected ... measured ..." will be appended
