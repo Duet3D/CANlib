@@ -67,6 +67,7 @@ constexpr unsigned int MaxDhtBadTemperatureCount = 2;		// Number of consecutive 
 constexpr float BadLowTemperature = -10.0;				// Celsius
 constexpr float DefaultHotEndTemperatureLimit = 285.0;	// Celsius - E3D say to tighten the hot end at 285C
 constexpr float DefaultBedTemperatureLimit = 125.0;		// Celsius
+constexpr float DefaultChamberTemperatureLimit = 100.0;
 constexpr float DefaultHotEndFanTemperature = 45.0;		// Temperature at which a thermostatic hot end fan comes on
 constexpr float ThermostatHysteresis = 1.0;				// How much hysteresis we use to prevent noise turning fans on/off too often
 constexpr float BadErrorTemperature = 2000.0;			// Must exceed any reasonable temperature limit including DefaultHotEndTemperatureLimit
