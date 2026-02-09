@@ -141,8 +141,9 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped
 
 	static constexpr uint8_t SeqMask = 0x0f;
 
-	float acceleration;								// the base acceleration during the acceleration segment, when the total distance is normalised to 1.0
+	float acceleration;									// the base acceleration during the acceleration segment, when the total distance is normalised to 1.0
 	float deceleration;								// the base deceleration during the deceleration segment, when the total distance is normalised to 1.0
+	float pressureAdvanceClocks;							// PA to apply to extruders in this move, in step clocks
 
 	union PerDriveValues
 	{
@@ -162,6 +163,7 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped
 		extruderDrives = 0;
 		usePressureAdvance = 0;
 		useLateInputShaping = 0;
+		pressureAdvanceClocks = 0.0;
 		zero1 = zero2 = 0;
 	}
 
