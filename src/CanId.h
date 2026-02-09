@@ -49,7 +49,7 @@ enum class CanMessageType : uint16_t
 	//unused_was_m950 = 6010,
 	//unused_was_m308 = 6011,
 	//unused_was_updateHeaterModelV0 = 6012,
-	setHeaterTemperature = 6013,
+	//unused was setHeaterTemperatureV0 = 6013,
 	//unused_was_setPressureAdvance = 6014,
 	setDateTime = 6015,
 	updateDeltaParameters = 6016,
@@ -112,6 +112,8 @@ enum class CanMessageType : uint16_t
 	m655 = 6064,								// for M655, added in RRF 3.6
 	enableStallEndstop = 6065,
 	m111 = 6066,
+	setDefaultHeaterModel = 6067,				// added in RRF 3.7
+	setHeaterTemperatureV1 = 6068,				// added in RRV 3.8
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,
@@ -135,6 +137,7 @@ enum class CanMessageType : uint16_t
 	filamentMonitorsStatusReportV2 = 4528,
 	readInputsReplyV1 = 4529,
 	boardStatusReportV1 = 4530,
+	heaterModelReport = 4531,					// added in firmware 3.7
 
 	// Firmware updates
 	firmwareBlockRequest = 5000,

@@ -13,6 +13,7 @@
 #include "Duet3Common.h"
 #include "CanSettings.h"
 #include "RemoteInputHandle.h"
+#include "HeaterModel.h"
 
 #include <General/Bitmap.h>
 #include <General/Strnlen.h>
@@ -297,15 +298,15 @@ struct __attribute__((packed)) CanMessageDiagnosticTest
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
-struct __attribute__((packed)) CanMessageSetHeaterTemperature
+struct __attribute__((packed)) CanMessageSetHeaterTemperatureV1
 {
-	static constexpr CanMessageType messageType = CanMessageType::setHeaterTemperature;
+	static constexpr CanMessageType messageType = CanMessageType::setHeaterTemperatureV1;
 
 	uint16_t requestId : 12,
 			 zero : 4;
 	uint16_t heaterNumber : 8,
-			 zero2 : 7,
-			 isBedOrChamber : 1;
+			 zero2 : 5,
+			 function : 3;
 	float setPoint;
 	uint8_t command : 4,
 			zero3 : 4;
@@ -658,6 +659,34 @@ struct __attribute__((packed)) CanMessageEnableStallEndstop
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
+// Request to set and return the default model for a heater
+struct __attribute__((packed)) CanMessageSetDefaultHeaterModel
+{
+	static constexpr CanMessageType messageType = CanMessageType::setDefaultHeaterModel;
+
+	uint16_t requestId : 12,
+			 zero : 4;
+	uint16_t heater: 6,
+			 heaterFunction : 3,
+			 zero2 : 8;
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
+};
+
+// Reply to SetDefaultHeaterModel
+struct __attribute__((packed)) CanMessageHeaterModelReport
+{
+	static constexpr CanMessageType messageType = CanMessageType::heaterModelReport;
+
+	uint32_t requestId : 12,				// the request ID of the message we are replying to - must be in the same place as in a StandardReply
+			 resultCode : 4,				// normally a GCodeResult - must be in the same place as in a StandardReply
+			 heaterNumber : 6,				// number of the heater reported
+			 zero : 10;						// spare
+	HeaterModel model;						// the returned model
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
+};
+
 // Request to send a chunk of a firmware or bootloader file
 struct __attribute__((packed)) CanMessageFirmwareUpdateRequest
 {
@@ -726,7 +755,7 @@ struct __attribute__((packed)) CanMessageStandardReply
 		return textLength + sizeof(uint32_t);
 	}
 
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; extra = 0; }
 };
 
 // Response to the ReadInputsRequest. The requestID and resultCode must be in the same place as for a standard reply.
@@ -1307,7 +1336,7 @@ union CanMessage
 #endif
 	CanMessageMovementLinearShaped moveLinearShaped;
 	CanMessageReturnInfo getInfo;
-	CanMessageSetHeaterTemperature setTemp;
+	CanMessageSetHeaterTemperatureV1 setTemp;
 	CanMessageStandardReply standardReply;
 	CanMessageFirmwareUpdateRequest firmwareUpdateRequest;
 	CanMessageFirmwareUpdateResponse firmwareUpdateResponse;
@@ -1354,6 +1383,8 @@ union CanMessage
 	CanMessageEvent event;
 	CanMessageDebugText debugText;
 	CanMessageEnableStallEndstop enableStallEndstop;
+	CanMessageSetDefaultHeaterModel setDefaultHeaterModel;
+	CanMessageHeaterModelReport heaterModelReport;
 };
 
 static_assert(sizeof(CanMessage) <= 64, "CAN message too big");		// check none of the messages is too large

@@ -72,19 +72,6 @@ constexpr float ThermostatHysteresis = 1.0;				// How much hysteresis we use to 
 constexpr float BadErrorTemperature = 2000.0;			// Must exceed any reasonable temperature limit including DefaultHotEndTemperatureLimit
 constexpr float FanFeedForwardMultiplier = 0.7;			// how much we under- or over-compensate feedforward to allow for heat reservoirs during tuning
 
-// Heating model default parameters. For the chamber heater, we use the same values as for the bed heater.
-// These parameters are about right for an E3Dv6 hot end with 30W heater, cooling time constant is about 140 seconds with the fan off
-constexpr float DefaultToolHeaterHeatingRate = 2.43;
-constexpr float DefaultToolHeaterBasicCoolingRate = 0.56;
-constexpr float DefaultToolHeaterCoolingRateExponent = 1.35;
-constexpr float DefaultToolHeaterDeadTime = 5.5;
-
-// These parameters are about right for a typical PCB bed heater that maxes out at 110C and has a cooling time constant of 700 seconds
-constexpr float DefaultBedHeaterHeatingRate = 0.13;
-constexpr float DefaultBedHeaterBasicCoolingRate = 0.15;
-constexpr float DefaultBedHeaterCoolingRateExponent = 1.35;
-constexpr float DefaultBedHeaterDeadTime = 10.0;
-
 // Parameters used to detect heating errors
 constexpr float DefaultMaxHeatingFaultTime = 5.0;		// How many seconds we allow a heating fault to persist
 constexpr float AllowedTemperatureDerivativeNoise = 0.12;	// How much fluctuation in the averaged temperature derivative we allow
@@ -93,8 +80,6 @@ constexpr float NormalAmbientTemperature = 25.0;		// The ambient temperature we 
 constexpr float LowAmbientTemperature = 15.0;			// A lower ambient temperature that we assume when checking heater performance
 constexpr float DefaultMaxTempExcursion = 15.0;			// How much error we tolerate when maintaining temperature before deciding that a heater fault has occurred
 constexpr float MinimumConnectedTemperature = -5.0;		// Temperatures below this we treat as a disconnected thermistor
-constexpr float MinToolTemperatureRiseFactor = 0.6;		// Minimum actual/expected temperature rise to not trigger a heater fault for hot end heaters
-constexpr float MinBedTemperatureRiseFactor = 0.3;		// Minimum actual/expected temperature rise to not trigger a heater fault for bed and chamber heaters. One user needs <= 0.333.
 
 static_assert(DefaultMaxTempExcursion > TemperatureCloseEnough, "DefaultMaxTempExcursion is too low");
 
@@ -299,6 +284,17 @@ enum class HeaterMode : uint8_t
 	firstTuningMode = tuning0,
 	lastTuningMode = tuning3
 };
+
+// Types of heater function. This currently needs only 2 bits to represent it but we allow 3 bits in CAN messages for future expansion.
+enum class HeaterFunction : uint8_t
+{
+	tool, bed, chamber,
+	numValues
+};
+
+// Minimum actual/expected temperature rise to not trigger a heater fault for the various heater functions
+constexpr float MinTemperatureRiseFactors[] = { 0.6, 0.3, 0.3 };
+static_assert(sizeof(MinTemperatureRiseFactors)/sizeof(MinTemperatureRiseFactors)[0] == (unsigned int)HeaterFunction::numValues);
 
 static inline bool IsPidMode(HeaterMode m) noexcept
 {
