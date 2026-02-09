@@ -831,7 +831,8 @@ struct __attribute__((packed)) CanMessageAnnounceNew
 	uint8_t uniqueId[16];					// the unique ID of this board
 	uint8_t numDrivers: 4,					// the number of motor drivers on this board
 			usesUf2Binary : 1,				// set if this board takes a main firmware binary in .uf2 format
-			zero : 3;						// for future expansion, set to zero
+			supportsMovementPaSnapshot : 1,	// set if this board supports per-move PA snapshot in movement frames
+			zero : 2;					// for future expansion, set to zero
 	char boardTypeAndFirmwareVersion[43];	// the type short name of this board followed by '|' and the firmware version
 
 	size_t GetActualDataLength() const noexcept
