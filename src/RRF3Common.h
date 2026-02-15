@@ -10,6 +10,7 @@
 #ifndef SRC_RRF3COMMON_H_
 #define SRC_RRF3COMMON_H_
 
+#include <ecv_duet3d.h>
 #include <cstdint>
 #include <CoreTypes.h>				// for PwmFrequency
 #include <General/NamedEnum.h>

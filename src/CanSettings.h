@@ -10,6 +10,7 @@
 #ifndef SRC_CANTIMINGDATA_H_
 #define SRC_CANTIMINGDATA_H_
 
+#include <ecv_duet3d.h>
 #include "CanId.h"
 #include <General/SimpleMath.h>
 

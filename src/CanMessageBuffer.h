@@ -8,6 +8,7 @@
 #ifndef SRC_CAN_CANMESSAGEBUFFER_H_
 #define SRC_CAN_CANMESSAGEBUFFER_H_
 
+#include <ecv_duet3d.h>
 #include <cstdint>
 #include <cstddef>
 #include <new>

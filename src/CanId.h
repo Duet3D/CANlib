@@ -8,6 +8,7 @@
 #ifndef SRC_CAN_CANID_H_
 #define SRC_CAN_CANID_H_
 
+#include <ecv_duet3d.h>
 #include <cstdint>
 #include <CoreTypes.h>		// for CanAddress
 
