@@ -247,12 +247,16 @@ private:
 
 static_assert(sizeof(StandardDriverStatus) == sizeof(uint32_t));
 
+struct ShortMinCurMax;
+
 // Structure to represent the minimum, current and maximum values of a floating point quantity
 struct MinCurMax
 {
 	float minimum;
 	float current;
 	float maximum;
+
+	MinCurMax& operator=(const ShortMinCurMax& arg) noexcept;
 };
 
 // Version of MinCurMax that uses float16_t for more compact CAN messages
@@ -261,6 +265,8 @@ struct ShortMinCurMax
 	float16_t minimum;
 	float16_t current;
 	float16_t maximum;
+
+	ShortMinCurMax& operator=(const MinCurMax& arg) noexcept;
 };
 
 // Enum to represent a heater state
