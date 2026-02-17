@@ -332,26 +332,19 @@ struct __attribute__((packed)) CanMessageM303
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
-struct __attribute__((packed)) CanMessageHeaterModelV2
+struct __attribute__((packed)) CanMessageHeaterModelV3
 {
-	static constexpr CanMessageType messageType = CanMessageType::heaterModelV2;
+	static constexpr CanMessageType messageType = CanMessageType::heaterModelV3;
 
 	uint16_t requestId : 12,
 			 zero : 4;
 	uint16_t heater : 8,
 			 enabled : 1,
-			 usePid : 1,
 			 inverted : 1,
 			 pidParametersOverridden : 1,
-			 zero2 : 4;
-	float heatingRate;
-	float basicCoolingRate;
-	float fanCoolingRate;
-	float coolingRateExponent;
-	float fZero;							// earmarked for extra cooling rate due to extrusion
-	float deadTime;
+			 zero2 : 5;
+	HeaterModel basicModel;
 	float maxPwm;
-	float standardVoltage;					// power voltage reading at which tuning was done, or 0 if unknown
 
 	// The next 3 are used only if pidParametersOverridden is true
 	float kP;								// controller (not model) gain
@@ -1344,7 +1337,7 @@ union CanMessage
 	CanMessageFirmwareUpdateResponse firmwareUpdateResponse;
 	CanMessageSensorTemperatures sensorTemperaturesBroadcast;
 	CanMessageHeatersStatus heatersStatusBroadcast;
-	CanMessageHeaterModelV2 heaterModelV2;
+	CanMessageHeaterModelV3 heaterModelV3;
 	CanMessageMultipleDrivesRequest<uint16_t> multipleDrivesRequestUint16;
 	CanMessageMultipleDrivesRequest<float> multipleDrivesRequestFloat;
 	CanMessageMultipleDrivesRequest<StepsPerUnitAndMicrostepping> multipleDrivesStepsPerUnitAndMicrostepping;

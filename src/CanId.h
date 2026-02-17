@@ -93,7 +93,7 @@ enum class CanMessageType : uint16_t
 	m569p2 = 6050,
 	m569p6 = 6051,
 	m569p7 = 6052,
-	heaterModelV2 = 6053,
+	//unused_was_heaterModelV2 = 6053,
 	//unused_was_setInputShaping = 6054,
 	writeLedStrip = 6055,
 	m569p4 = 6056,
@@ -114,7 +114,8 @@ enum class CanMessageType : uint16_t
 	enableStallEndstop = 6065,
 	m111 = 6066,
 	setDefaultHeaterModel = 6067,				// added in RRF 3.7
-	setHeaterTemperatureV1 = 6068,				// added in RRV 3.8
+	setHeaterTemperatureV1 = 6068,				// added in RRF 3.7
+	heaterModelV3 = 6069,						// added in RRF 3.7
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,

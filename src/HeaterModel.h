@@ -21,6 +21,8 @@ struct HeaterModel
 	float deadTime;							// how long between the heating power changing and the temperature sensor noticing it
 	float temperatureCoefficient;			// how much the heating power increases per degC above 25C. Negative for PTC heaters.
 	float typicalTemperature;				// temperature at which the PID parameters are calculated
+	float standardVoltage;					// power voltage reading at which tuning was done, or 0 if unknown
+	float fzero;							// reserved for expansion, e.g. cooling rate due to extrusion
 	uint32_t usePid : 1,
 			 zero : 31;
 };
@@ -35,6 +37,8 @@ constexpr HeaterModel DefaultToolHeaterModel =
 	.deadTime = 5.5,
 	.temperatureCoefficient = 0.0,
 	.typicalTemperature = 220.0,
+	.standardVoltage = 0.0,
+	.fzero = 0.0,
 	.usePid = true,
 	.zero = 0
 };
@@ -49,6 +53,8 @@ constexpr HeaterModel DefaultBedHeaterModel =
 	.deadTime = 10.0,
 	.temperatureCoefficient = 0.0,
 	.typicalTemperature = 60.0,
+	.standardVoltage = 0.0,
+	.fzero = 0.0,
 	.usePid = false,
 	.zero = 0
 };
