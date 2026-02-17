@@ -22,7 +22,7 @@ size_t CanAdjustedLength(size_t rawLength)
 					: 64;
 }
 
-void CanMessageGeneric::DebugPrint(const ParamDescriptor *pt) const noexcept
+void CanMessageGeneric::DebugPrint(const ParamDescriptor *_ecv_array _ecv_null pt) const noexcept
 {
 	if (pt == nullptr)
 	{

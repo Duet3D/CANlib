@@ -260,7 +260,7 @@ struct __attribute__((packed)) DriverStateControl
 			 idlePercent : 8;
 
 	DriverStateControl() noexcept : mode(0), zero(0), idlePercent(0) { }
-	DriverStateControl(uint16_t m, uint16_t idlePc = 0) noexcept : mode(m), zero(0), idlePercent(idlePc) { }
+	explicit DriverStateControl(uint16_t m, uint16_t idlePc = 0) noexcept : mode(m), zero(0), idlePercent(idlePc) { }
 
 	static constexpr uint16_t driverDisabled = 0, driverIdle = 1, driverActive = 2;		// values for 'mode'
 };
@@ -481,7 +481,7 @@ struct __attribute__((packed)) CanMessageChangeInputMonitorV1
 							actionSelectTouchMode = 7;				// select touch mode and set sensitivity to param, only for scanning Z probes
 
 	// When the action is actionSetDriveLevel, some values of param define a special action:
-	static constexpr uint32_t paramAutoCalibrateDriveLevelAndReport = 0xFFFFFFFF, paramReportDriveLevel = 0xFFFFFFFE;
+	static constexpr uint32_t paramAutoCalibrateDriveLevelAndReport = 0xFFFFFFFFu, paramReportDriveLevel = 0xFFFFFFFEu;
 	static constexpr uint32_t paramDriveLevelMask = 0x1F;			// bottom 5 bits are the drive level
 	static constexpr unsigned int paramOffsetShift = 5;				// remaining bits are the offset
 	static constexpr uint32_t maxParamOffset = ((uint32_t)1 << (32 - paramOffsetShift)) - 1;
@@ -796,6 +796,8 @@ struct __attribute__((packed)) CanMessageReadInputsReplyV1
 	}
 };
 
+struct ParamDescriptor;
+
 // Generic message. These are always used in conjunction with a ParamTable that is know to both sender and receiver.
 // The table lists the parameters, each one defined by the parameter letter and the type of parameter.
 // The paramMap bitmap indicates which parameters are present in the data. They are provided in the same order as in the ParamTable.
@@ -805,7 +807,7 @@ struct __attribute__((packed)) CanMessageGeneric
 			 paramMap : 20;
 	uint8_t data[60];
 
-	void DebugPrint(const struct ParamDescriptor *pt = nullptr) const noexcept;
+	void DebugPrint(const ParamDescriptor *_ecv_array _ecv_null pt = nullptr) const noexcept;
 
 	static size_t GetActualDataLength(size_t paramLength) noexcept { return paramLength + sizeof(uint32_t); }
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; }

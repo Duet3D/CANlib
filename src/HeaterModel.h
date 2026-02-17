@@ -35,7 +35,8 @@ constexpr HeaterModel DefaultToolHeaterModel =
 	.deadTime = 5.5,
 	.temperatureCoefficient = 0.0,
 	.typicalTemperature = 220.0,
-	.usePid = true
+	.usePid = true,
+	.zero = 0
 };
 
 // These parameters are about right for a typical PCB bed heater that maxes out at 110C and has a cooling time constant of 700 seconds
@@ -48,7 +49,8 @@ constexpr HeaterModel DefaultBedHeaterModel =
 	.deadTime = 10.0,
 	.temperatureCoefficient = 0.0,
 	.typicalTemperature = 60.0,
-	.usePid = false
+	.usePid = false,
+	.zero = 0
 };
 
 // These parameters are copied from the bed heater parameters, except that the dead time is increased
