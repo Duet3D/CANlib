@@ -31,6 +31,10 @@ NamedEnum(TemperatureError, uint8_t,
 	overOrUnderVoltage,
 	badVref,
 	badVssa,
+	readingTooLow,
+	readingTooHigh,
+	ambientReadingTooLow,			// for composite sensors that need to read ambient temperature to calculate object temperature
+	ambientReadingTooHigh,			// for composite sensors that need to read ambient temperature to calculate object temperature
 	unknownError
 );
 

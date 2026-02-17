@@ -16,7 +16,7 @@ bool CanMessageGenericParser::GetStringParam(char c, const StringRef& v) const n
 	const ParamDescriptor::ParamType type = FindParameter(c, pos);
 	if (type == ParamDescriptor::ParamType::string || type == ParamDescriptor::ParamType::reducedString)
 	{
-		v.copy((const char *)msg.data + pos);
+		v.copy((const char *_ecv_array)msg.data + pos);
 		return true;
 	}
 	return false;
@@ -27,7 +27,7 @@ ParamDescriptor::ParamType CanMessageGenericParser::FindParameter(char c, unsign
 {
 	pos = 0;
 	uint32_t paramMap = msg.paramMap;
-	for (const ParamDescriptor *d = paramTable; d->letter != 0 && paramMap != 0; ++d)
+	for (const ParamDescriptor *_ecv_array d = paramTable; d->letter != 0 && paramMap != 0; ++d)
 	{
 		const bool present = (paramMap & 1) != 0;
 		if (d->letter == c)
@@ -221,7 +221,7 @@ bool CanMessageGenericParser::GetBoolParam(char c, bool &v) const noexcept
 	}
 }
 
-bool CanMessageGenericParser::GetArrayParam(char c, ParamDescriptor::ParamType pt, size_t& numValues, const uint8_t*& values) const noexcept
+bool CanMessageGenericParser::GetArrayParam(char c, ParamDescriptor::ParamType pt, size_t& numValues, const uint8_t *_ecv_array & values) const noexcept
 {
 	unsigned int pos;
 	const ParamDescriptor::ParamType type = FindParameter(c, pos);
@@ -237,9 +237,9 @@ bool CanMessageGenericParser::GetArrayParam(char c, ParamDescriptor::ParamType p
 	return false;
 }
 
-bool CanMessageGenericParser::GetUint16ArrayParam(char c, size_t& numValues, uint16_t *values) const noexcept
+bool CanMessageGenericParser::GetUint16ArrayParam(char c, size_t& numValues, uint16_t *_ecv_array values) const noexcept
 {
-	const uint8_t *p;
+	const uint8_t *_ecv_array p;
 	if (GetArrayParam(c, ParamDescriptor::ParamType::uint16_array, numValues, p))
 	{
 		for (size_t i = 0; i < numValues; ++i)
@@ -255,9 +255,9 @@ bool CanMessageGenericParser::GetUint16ArrayParam(char c, size_t& numValues, uin
 // Get a float array parameter. We copy the float array to a user array because the array in the message may be misaligned.
 // On entry, numValues is the size of the user array
 // On return, numValue is the number passed in the message
-bool CanMessageGenericParser::GetFloatArrayParam(char c, size_t& numValues, float *values) const noexcept
+bool CanMessageGenericParser::GetFloatArrayParam(char c, size_t& numValues, float *_ecv_array values) const noexcept
 {
-	const uint8_t *p;
+	const uint8_t *_ecv_array p;
 	if (GetArrayParam(c, ParamDescriptor::ParamType::float_array, numValues, p))
 	{
 		for (size_t i = 0; i < numValues; ++i)
