@@ -17,7 +17,7 @@ class StringRef;
 class CanMessageGenericParser
 {
 public:
-	CanMessageGenericParser(const CanMessageGeneric& p_msg, const ParamDescriptor *p_param) noexcept : msg(p_msg), paramTable(p_param) { }
+	CanMessageGenericParser(const CanMessageGeneric& p_msg, const ParamDescriptor *_ecv_array p_param) noexcept : msg(p_msg), paramTable(p_param) { }
 
 	// Methods to extract parameters from a CAN message. Each returns true if the specified parameter was present.
 	bool GetUintParam(char c, uint32_t& v) const noexcept;
@@ -41,7 +41,7 @@ private:
 	ParamDescriptor::ParamType FindParameter(char c, unsigned int& pos) const noexcept;
 
 	const CanMessageGeneric& msg;
-	const ParamDescriptor * const paramTable;
+	const ParamDescriptor *_ecv_array const paramTable;
 };
 
 #endif /* SRC_CANMESSAGEGENERICPARSER_H_ */

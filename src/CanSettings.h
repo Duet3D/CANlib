@@ -31,7 +31,7 @@ struct CanTiming
 	constexpr bool IsValid() const noexcept
 	{
 		return period >= 24 && period <= 4800
-			&& tseg1 != 0 && tseg1 <= period - 2;
+			&& tseg1 != 0 && tseg1 <= period - 2u;
 	}
 
 	// Set the sample point. The period must be set first.

@@ -10,14 +10,14 @@
 #include "CANlibNotifyIndices.h"
 #include <cinttypes>
 
-extern "C" void debugPrintf(const char* fmt, ...) __attribute__ ((format (printf, 1, 2)));
+extern "C" void debugPrintf(const char *_ecv_array fmt, ...) __attribute__ ((format (printf, 1, 2)));
 
-CanMessageBuffer * volatile CanMessageBuffer::freelist = nullptr;
+CanMessageBuffer *_ecv_null volatile CanMessageBuffer::freelist = nullptr;
 volatile unsigned int CanMessageBuffer::numFree = 0;
 volatile unsigned int CanMessageBuffer::minNumFree = 0;
 
 #ifdef RTOS
-TaskBase * volatile CanMessageBuffer::bufferWaitingTask = nullptr;
+TaskBase *_ecv_from _ecv_null volatile CanMessageBuffer::bufferWaitingTask = nullptr;
 #endif
 
 void CanMessageBuffer::Init(unsigned int numCanBuffers) noexcept
@@ -36,7 +36,7 @@ CanMessageBuffer *CanMessageBuffer::Allocate() noexcept
 {
 	TaskCriticalSectionLocker lock;
 
-	CanMessageBuffer *ret = freelist;
+	CanMessageBuffer *_ecv_null ret = freelist;
 	if (ret != nullptr)
 	{
 		freelist = ret->next;
@@ -47,7 +47,7 @@ CanMessageBuffer *CanMessageBuffer::Allocate() noexcept
 			minNumFree = numFree;
 		}
 	}
-	return ret;
+	return _ecv_not_null(ret);
 }
 
 #ifdef RTOS
@@ -60,7 +60,7 @@ CanMessageBuffer *CanMessageBuffer::BlockingAllocate() noexcept
 		{
 			TaskCriticalSectionLocker lock;
 
-			CanMessageBuffer *ret = freelist;
+			CanMessageBuffer *_ecv_null ret = freelist;
 			if (ret != nullptr)
 			{
 				freelist = ret->next;
@@ -70,7 +70,7 @@ CanMessageBuffer *CanMessageBuffer::BlockingAllocate() noexcept
 				{
 					minNumFree = numFree;
 				}
-				return ret;
+				return _ecv_not_null(ret);
 			}
 
 			bufferWaitingTask = TaskBase::GetCallerTaskHandle();
@@ -81,7 +81,7 @@ CanMessageBuffer *CanMessageBuffer::BlockingAllocate() noexcept
 
 #endif
 
-void CanMessageBuffer::Free(CanMessageBuffer*& buf) noexcept
+void CanMessageBuffer::Free(CanMessageBuffer*_ecv_null & buf) noexcept
 {
 	if (buf != nullptr && buf->managed)
 	{
@@ -91,7 +91,7 @@ void CanMessageBuffer::Free(CanMessageBuffer*& buf) noexcept
 		buf = nullptr;
 		++numFree;
 #ifdef RTOS
-		TaskBase * const waitingTask = bufferWaitingTask;
+		TaskBase *_ecv_null const waitingTask = bufferWaitingTask;
 		if (waitingTask != nullptr)
 		{
 			bufferWaitingTask = nullptr;
@@ -101,7 +101,7 @@ void CanMessageBuffer::Free(CanMessageBuffer*& buf) noexcept
 	}
 }
 
-void CanMessageBuffer::DebugPrint(const char *prefix) noexcept
+void CanMessageBuffer::DebugPrint(const char *_ecv_array prefix) noexcept
 {
 	debugPrintf("%s%08" PRIx32 " %02x %02x %02x %02x %02x %02x %02x %02x\n", prefix, id.GetWholeId(), msg.raw[0], msg.raw[1], msg.raw[2], msg.raw[3], msg.raw[4], msg.raw[5], msg.raw[6], msg.raw[7]);
 }

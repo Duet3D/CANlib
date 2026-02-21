@@ -48,7 +48,7 @@ constexpr size_t MaxZProbeProgramBytes = 8;				// maximum number of bytes in a Z
 constexpr uint32_t ScanningSensorBadReadingVal = 999999; // close to 2 ^ (28 - resultBitsDropped)
 constexpr float DefaultScanningProbeTouchModeTriggerHeight = -0.1;
 constexpr float DefaultScanningProbeTouchModeThreshold = 0.5;
-constexpr float DefaultScanningProbeTouchModeProbeSpeed = 200;	// mm/min
+constexpr float DefaultScanningProbeTouchModeProbeSpeed = 200.0;	// mm/min
 constexpr float TouchModeMaxThreshold = 10.0;			// maximum touch mode threshold that can be configured and sent over CAN
 
 // Heater values
@@ -250,7 +250,7 @@ static_assert(sizeof(StandardDriverStatus) == sizeof(uint32_t));
 struct ShortMinCurMax;
 
 // Structure to represent the minimum, current and maximum values of a floating point quantity
-struct MinCurMax
+struct MinCurMax final
 {
 	float minimum;
 	float current;
@@ -260,7 +260,7 @@ struct MinCurMax
 };
 
 // Version of MinCurMax that uses float16_t for more compact CAN messages
-struct ShortMinCurMax
+struct ShortMinCurMax final
 {
 	float16_t minimum;
 	float16_t current;

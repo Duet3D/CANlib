@@ -11,10 +11,10 @@
 #include <cinttypes>
 #include <cstring>
 
-extern "C" void debugPrintf(const char* fmt, ...) noexcept __attribute__ ((format (printf, 1, 2)));
+extern "C" void debugPrintf(const char *_ecv_array fmt, ...) noexcept __attribute__ ((format (printf, 1, 2)));
 
 // Round up a message length to the size that will actually be sent. Used to ensure that we include trailing null terminators.
-size_t CanAdjustedLength(size_t rawLength)
+size_t CanAdjustedLength(size_t rawLength) noexcept
 {
 	return (rawLength <= 8) ? rawLength
 			: (rawLength <= 24) ? (rawLength + 3) & ~3
@@ -35,7 +35,7 @@ void CanMessageGeneric::DebugPrint(const ParamDescriptor *_ecv_array _ecv_null p
 	{
 		debugPrintf("CanG");
 		uint32_t pm = paramMap;
-		const uint8_t *dp = data;
+		const uint8_t *_ecv_array dp = data;
 		while (pt->letter != 0 && pm != 0)
 		{
 			if ((pm & 1) != 0)
@@ -52,11 +52,11 @@ void CanMessageGeneric::DebugPrint(const ParamDescriptor *_ecv_array _ecv_null p
 				case ParamDescriptor::uint8:	debugPrintf(" %c%u", pt->letter, *(const uint8_t*)dp); dp += sizeof(uint8_t); break;
 				case ParamDescriptor::int8:		debugPrintf(" %c%d", pt->letter, *(const int8_t*)dp); dp += sizeof(int8_t); break;
 				case ParamDescriptor::float_p:	debugPrintf(" %c%.2f", pt->letter, (double)*(const float*)dp); dp += sizeof(float); break;
-				case ParamDescriptor::char_p:	debugPrintf(" %c\"%c\"", pt->letter, *(const char*)dp); dp += sizeof(char); break;
+				case ParamDescriptor::char_p:	debugPrintf(" %c\"%c\"", pt->letter, *(const char *)dp); dp += sizeof(char); break;
 
 				case ParamDescriptor::string:
 				case ParamDescriptor::reducedString:
-					debugPrintf(" %c\"%s\"", pt->letter, (const char*)dp); dp += strlen((const char*)dp) + 1;
+					debugPrintf(" %c\"%s\"", pt->letter, (const char*)dp); dp += strlen((const char *_ecv_array)dp) + 1;
 					break;
 
 				default:
