@@ -123,7 +123,7 @@ constexpr uint8_t ClosedLoopSampleLength(uint16_t valuesToCollect) noexcept
 	uint8_t ret = sizeof(float);									// space for the time stamp
 	for (unsigned int i = 0; valuesToCollect != 0 ; ++i)
 	{
-		if (valuesToCollect & 1u)
+		if ((valuesToCollect & 1u) != 0)
 		{
 			ret += ClosedLoopDataSizes[i];
 		}

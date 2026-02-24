@@ -69,7 +69,10 @@ constexpr HeaterModel DefaultChamberHeaterModel =
 	.deadTime = 30.0,
 	.temperatureCoefficient = 0.0,
 	.typicalTemperature = 60.0,
-	.usePid = false
+	.standardVoltage = 0.0,
+	.fzero = 0.0,
+	.usePid = false,
+	.zero = 0
 };
 
 #endif /* SRC_HEATERMODEL_H_ */
