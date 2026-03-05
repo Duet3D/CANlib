@@ -11,7 +11,7 @@
 
 uint16_t CanUserAreaData::GetChecksum() const noexcept
 {
-	const uint16_t *p = reinterpret_cast<const uint16_t*>(this);
+	const uint16_t *_ecv_array p = reinterpret_cast<const uint16_t *_ecv_array>(this);
 	uint16_t csum = 0;
 	for (unsigned int i = 0; i < sizeof(*this)/sizeof(uint16_t); ++i)
 	{

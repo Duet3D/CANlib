@@ -42,7 +42,7 @@ public:
 	static CanMessageBuffer *BlockingAllocate() noexcept;
 #endif
 
-	static void Free(CanMessageBuffer*& buf) noexcept;
+	static void Free(CanMessageBuffer*_ecv_null & buf) noexcept;
 	static unsigned int GetFreeBuffers() noexcept { return numFree; }
 	static unsigned int GetAndClearMinFreeBuffers() noexcept
 	{
@@ -183,9 +183,9 @@ public:
 		return rslt;
 	}
 
-	void DebugPrint(const char *prefix) noexcept;
+	void DebugPrint(const char *_ecv_array prefix) noexcept;
 
-	CanMessageBuffer *next;
+	CanMessageBuffer *_ecv_null next;
 	CanId id;
 	size_t dataLength;
 	uint16_t timeStamp;
@@ -200,12 +200,12 @@ public:
 	CanMessage msg;
 
 private:
-	static CanMessageBuffer * volatile freelist;
+	static CanMessageBuffer *_ecv_null volatile freelist;
 	static volatile unsigned int numFree;
 	static volatile unsigned int minNumFree;
 
 #ifdef RTOS
-	static TaskBase * volatile bufferWaitingTask;
+	static TaskBase *_ecv_from _ecv_null volatile bufferWaitingTask;
 #endif
 
 	CanMessageBuffer(CanMessageBuffer *prev) noexcept : next(prev), managed(true) { }
@@ -218,11 +218,11 @@ public:
 	CanMessageBufferHandle(CanMessageBuffer *b) : buf(b) { }
 	~CanMessageBufferHandle() { if (buf != nullptr) { CanMessageBuffer::Free(buf); } }
 
-	CanMessageBuffer *Access() const { return buf; }
-	CanMessageBuffer *HandOver() { CanMessageBuffer *ret = buf; buf = nullptr; return ret; }
+	CanMessageBuffer *_ecv_null Access() const { return buf; }
+	CanMessageBuffer *_ecv_null HandOver() { CanMessageBuffer *_ecv_null ret = buf; buf = nullptr; return ret; }
 
 private:
-	CanMessageBuffer *buf;
+	CanMessageBuffer *_ecv_null buf;
 };
 
 #endif /* SRC_CAN_CANMESSAGEBUFFER_H_ */

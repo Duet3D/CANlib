@@ -23,7 +23,7 @@ void StandardDriverStatus::AppendText(const StringRef& str, unsigned int severit
 	else
 	{
 		Bitmap<uint32_t> errors(relevantBits);
-		errors.Iterate([&str](unsigned int bitNum, unsigned int index) noexcept
+		errors.Iterate([&str](unsigned int bitNum, unsigned int index) noexcept -> void
 						{
 							if (index != 0)
 							{
@@ -33,6 +33,22 @@ void StandardDriverStatus::AppendText(const StringRef& str, unsigned int severit
 						}
 					);
 	}
+}
+
+MinCurMax& MinCurMax::operator=(const ShortMinCurMax& arg) noexcept
+{
+	minimum = (float)arg.minimum;
+	current = (float)arg.current;
+	maximum = (float)arg.maximum;
+	return *this;
+}
+
+ShortMinCurMax& ShortMinCurMax::operator=(const MinCurMax& arg) noexcept
+{
+	minimum = (float16_t)arg.minimum;
+	current = (float16_t)arg.current;
+	maximum = (float16_t)arg.maximum;
+	return *this;
 }
 
 // End
