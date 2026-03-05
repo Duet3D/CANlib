@@ -188,6 +188,73 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped
 	}
 };
 
+// Extended movement message, currently intended for extruder-only remote motion with richer PA profile data.
+// We keep this message <= 64 bytes by limiting the number of drives that can be encoded.
+struct __attribute__((packed)) CanMessageMovementLinearShapedV2
+{
+	static constexpr CanMessageType messageType = CanMessageType::movementLinearShapedV2;
+	static constexpr uint8_t SeqMask = 0x0f;
+	static constexpr uint8_t MaxV2Drivers = MaxLinearDriversPerCanSlave - 3;		// 5 with current MaxLinearDriversPerCanSlave=8
+
+	uint32_t whenToExecute;							// the master clock time at which this move should start
+	uint32_t accelerationClocks;					// how many clocks the acceleration phase should last
+	uint32_t steadyClocks;							// how many clocks the steady speed phase should last
+	uint32_t decelClocks;							// how many clocks the deceleration phase should last
+
+	uint32_t extruderDrives : 8,					// which drivers are for extruders
+			 numDrivers : 4,						// how many drivers we included (maximum is MaxV2Drivers)
+			 seq : 4,								// sequence number
+			 zero1 : 8,								// reserved
+			 usePressureAdvance : 1,				// true to apply PA to the extruders and accumulate partial steps
+			 useLateInputShaping : 1,
+			 zero2 : 6;								// reserved
+
+	float acceleration;								// the base acceleration during the acceleration segment, when the total distance is normalised to 1.0
+	float deceleration;								// the base deceleration during the deceleration segment, when the total distance is normalised to 1.0
+	float accelPressureAdvanceClocks;				// PA to apply in the acceleration phase, in step clocks
+	float decelPressureAdvanceClocks;				// PA to apply in the deceleration phase, in step clocks
+	float pressureAdvanceSmoothClocks;				// PA smoothing time, in step clocks
+
+	union PerDriveValues
+	{
+		int32_t steps;								// net steps moved by this drive (for non-extruders)
+		float extrusion;							// how many steps of extrusion to do (for extruders) including fractional parts
+
+		void Init() noexcept
+		{
+			steps = 0;
+		}
+	};
+
+	PerDriveValues perDrive[MaxV2Drivers];
+
+	void ClearReservedFields() noexcept
+	{
+		extruderDrives = 0;
+		usePressureAdvance = 0;
+		useLateInputShaping = 0;
+		accelPressureAdvanceClocks = decelPressureAdvanceClocks = pressureAdvanceSmoothClocks = 0.0;
+		zero1 = zero2 = 0;
+	}
+
+	size_t GetActualDataLength() const noexcept
+	{
+		return (sizeof(*this) - sizeof(perDrive)) + (numDrivers * sizeof(perDrive[0]));
+	}
+
+	bool HasMotion() const noexcept
+	{
+		for (size_t drive = 0; drive < numDrivers; ++drive)
+		{
+			if (perDrive[drive].steps != 0)				// we rely on this being valid even if perDrive[drive] contains [positive] floating point zero
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+};
+
 // Change CAN address and normal timing message
 struct __attribute__((packed)) CanMessageSetAddressAndNormalTiming
 {
@@ -832,7 +899,8 @@ struct __attribute__((packed)) CanMessageAnnounceNew
 	uint8_t numDrivers: 4,					// the number of motor drivers on this board
 			usesUf2Binary : 1,				// set if this board takes a main firmware binary in .uf2 format
 			supportsMovementPaSnapshot : 1,	// set if this board supports per-move PA snapshot in movement frames
-			zero : 2;					// for future expansion, set to zero
+			supportsMovementLinearShapedV2 : 1,	// set if this board supports CanMessageMovementLinearShapedV2
+			zero : 1;					// for future expansion, set to zero
 	char boardTypeAndFirmwareVersion[43];	// the type short name of this board followed by '|' and the firmware version
 
 	size_t GetActualDataLength() const noexcept
@@ -1191,6 +1259,7 @@ union CanMessage
 	CanMessageMovementLinear moveLinear;
 #endif
 	CanMessageMovementLinearShaped moveLinearShaped;
+	CanMessageMovementLinearShapedV2 moveLinearShapedV2;
 	CanMessageReturnInfo getInfo;
 	CanMessageSetHeaterTemperature setTemp;
 	CanMessageStandardReply standardReply;
