@@ -625,7 +625,7 @@ struct __attribute__((packed)) CanMessageSetInputShapingV1
 {
 	static constexpr CanMessageType messageType = CanMessageType::setInputShapingV1;
 
-	struct ShapingPair { float coefficient; uint32_t delay; };
+	struct ShapingPair { float coefficient; uint32_t impulseDelay; };
 
 	uint16_t requestId : 12,
 			 zero : 4;
