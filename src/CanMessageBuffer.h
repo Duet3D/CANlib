@@ -215,11 +215,11 @@ private:
 class CanMessageBufferHandle
 {
 public:
-	explicit CanMessageBufferHandle(CanMessageBuffer *b) : buf(b) { }
+	explicit CanMessageBufferHandle(CanMessageBuffer *b) noexcept : buf(b) { }
 	~CanMessageBufferHandle() { if (buf != nullptr) { CanMessageBuffer::Free(buf); } }
 
-	CanMessageBuffer *_ecv_null Access() const { return buf; }
-	CanMessageBuffer *_ecv_null HandOver() { CanMessageBuffer *_ecv_null ret = buf; buf = nullptr; return ret; }
+	CanMessageBuffer *_ecv_null Access() const noexcept { return buf; }
+	CanMessageBuffer *_ecv_null HandOver() noexcept { CanMessageBuffer *_ecv_null ret = buf; buf = nullptr; return ret; }
 
 private:
 	CanMessageBuffer *_ecv_null buf;
