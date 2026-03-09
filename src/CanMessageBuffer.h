@@ -208,18 +208,18 @@ private:
 	static TaskBase *_ecv_from _ecv_null volatile bufferWaitingTask;
 #endif
 
-	CanMessageBuffer(CanMessageBuffer *prev) noexcept : next(prev), managed(true) { }
+	explicit CanMessageBuffer(CanMessageBuffer *prev) noexcept : next(prev), managed(true) { }
 };
 
 // Helper class to manage CAN message buffer pointers, to ensure they get released if an exception occurs
 class CanMessageBufferHandle
 {
 public:
-	CanMessageBufferHandle(CanMessageBuffer *b) : buf(b) { }
+	explicit CanMessageBufferHandle(CanMessageBuffer *b) noexcept : buf(b) { }
 	~CanMessageBufferHandle() { if (buf != nullptr) { CanMessageBuffer::Free(buf); } }
 
-	CanMessageBuffer *_ecv_null Access() const { return buf; }
-	CanMessageBuffer *_ecv_null HandOver() { CanMessageBuffer *_ecv_null ret = buf; buf = nullptr; return ret; }
+	CanMessageBuffer *_ecv_null Access() const noexcept { return buf; }
+	CanMessageBuffer *_ecv_null HandOver() noexcept { CanMessageBuffer *_ecv_null ret = buf; buf = nullptr; return ret; }
 
 private:
 	CanMessageBuffer *_ecv_null buf;

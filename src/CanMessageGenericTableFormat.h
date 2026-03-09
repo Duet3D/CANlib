@@ -89,6 +89,6 @@ struct ParamDescriptor
 #define UINT32_ARRAY_PARAM(_c, _n) { _c, ParamDescriptor::uint32_array, _n }
 #define FLOAT_ARRAY_PARAM(_c, _n) { _c, ParamDescriptor::float_array, _n }
 
-#define END_PARAMS { 0 }
+#define END_PARAMS { 0, ParamDescriptor::none, 0 }
 
 #endif /* SRC_CANMESSAGEGENERICTABLEFORMAT_H_ */
