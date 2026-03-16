@@ -124,7 +124,7 @@ static_assert(CanMessageRevertPosition::GetActualDataLength(MaxLinearDriversPerC
 
 // Movement messages
 
-struct __attribute__((packed)) CanMessageMovementLinearShaped
+struct __attribute__((packed)) CanMessageMovementLinearShaped final
 {
 	static constexpr CanMessageType messageType = CanMessageType::movementLinearShaped;
 
