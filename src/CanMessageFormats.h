@@ -124,7 +124,7 @@ static_assert(CanMessageRevertPosition::GetActualDataLength(MaxLinearDriversPerC
 
 // Movement messages
 
-struct __attribute__((packed)) CanMessageMovementLinearShaped
+struct __attribute__((packed)) CanMessageMovementLinearShaped final
 {
 	static constexpr CanMessageType messageType = CanMessageType::movementLinearShaped;
 
@@ -491,7 +491,7 @@ struct __attribute__((packed)) AnalogHandleDataV0
 };
 
 // Struct to represent an analog handle and the reading from it
-// These are allocated in an array starting on a 2-or 4-byte boundary. So field 'handle' is correctly aligned but 'reading' isn't.
+// These are allocated in an array starting on 4-byte boundary. So all fields will be aligned correctly.
 struct __attribute__((packed)) AnalogHandleDataV1
 {
 	RemoteInputHandle handle;
@@ -962,10 +962,10 @@ struct __attribute__((packed)) CanMessageInputChangedV2
 	uint16_t states;						// 1 bit per reported handle
 	uint8_t numHandles;
 	uint8_t zero;
-	AnalogHandleDataV1 results[7];
+	AnalogHandleDataV1 results[7];			// this is on a 4-byte boundary
 
 	// Add an entry. 'states' and 'numHandles' must be cleared to zero before adding the first one. Return true if successful, false if message is full.
-	bool AddEntry(uint16_t h, int32_t val, bool state) noexcept
+	bool AddEntry(uint16_t h, uint32_t whenStateChanged, int32_t val, bool state) noexcept
 	{
 		if (numHandles < sizeof(results)/sizeof(results[0]))
 		{
@@ -974,18 +974,22 @@ struct __attribute__((packed)) CanMessageInputChangedV2
 				states |= 1ul << numHandles;
 			}
 			results[numHandles].handle.Set(h);
-			StoreLEI32(&results[numHandles].reading, val);
+			results[numHandles].reading = val;
+			results[numHandles].when = (uint16_t)whenStateChanged;
 			++numHandles;
 			return true;
 		}
 		return false;
 	}
 
-	// Get the handle from one of the result values. 'results' is 4-byte allocated and each entry is 6 bytes long, so the 2-byte handle is always 2-byte aligned.
+	// Get the handle from one of the result values
 	RemoteInputHandle GetEntryHandle(size_t index) const noexcept { return results[index].handle; }
 
-	// Get the reading from one of the result values. 'results' is 4-byte allocated and each entry is 6 bytes long, so the 4-byte handle is not always 4-byte aligned.
-	int32_t GetEntryReading(size_t index) const noexcept { return LoadLEI32(&results[index].reading); }
+	// Get the reading from one of the result values
+	int32_t GetEntryReading(size_t index) const noexcept { return results[index].reading; }
+
+	// Get the change time stamp for one of the result values
+	uint16_t GetWhen(size_t index) const noexcept { return results[index].when; }
 
 	size_t GetActualDataLength() const noexcept
 	{
