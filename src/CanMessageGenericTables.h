@@ -187,6 +187,7 @@ constexpr ParamDescriptor M950LedParams[] =
 	UINT8_PARAM('T'),					// Type (0 = DotStar, 1 = RGB Neopixel, 2 = RGBW Neopixel)
 	REDUCED_STRING_PARAM('C'),			// Port name
 	UINT16_ARRAY_PARAM('L', 4),			// Timing parameters, used by STM implementation only, implies bit-banged if present
+	UINT8_PARAM('K'),
 	END_PARAMS
 };
 
