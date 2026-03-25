@@ -33,17 +33,10 @@ CXXFLAGS := -c -std=gnu++17 \
 	-nostdlib \
 	-Wundef \
 	-Wdouble-promotion \
-	-Wfloat-conversion \
 	-Werror=return-type \
-	-Wsuggest-override \
 	-fsingle-precision-constant \
 	-fstack-usage \
 	-O2 \
-	-Wall \
-	-Werror \
-	-Wnoexcept \
-	-Wshadow \
-	-Wsign-promo \
 	$(INCLUDES) \
 	$(DEFINES)
 
