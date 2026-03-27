@@ -36,7 +36,9 @@ CXXFLAGS := -c -std=gnu++17 \
 	-Werror=return-type \
 	-fsingle-precision-constant \
 	-fstack-usage \
+	-fdump-rtl-expand \
 	-O2 \
+	-Wall \
 	$(INCLUDES) \
 	$(DEFINES)
 
