@@ -356,10 +356,6 @@ struct __attribute__((packed)) ShortPressureAdvanceParameters
 // Structure used to pass pressure advance parameters around
 struct PressureAdvanceParameters
 {
-	PressureAdvanceParameters() noexcept = default;
-	PressureAdvanceParameters(float k0) noexcept;
-
-	PressureAdvanceParameters(const ShortPressureAdvanceParameters& p) noexcept;
 	float k[2];
 	float dk;
 };
