@@ -143,8 +143,8 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped final
 
 	static constexpr uint8_t SeqMask = 0x0f;
 
-	float acceleration;								// the base acceleration during the acceleration segment, when the total distance is normalised to 1.0
-	float deceleration;								// the base deceleration during the deceleration segment, when the total distance is normalised to 1.0
+	float acceleration;								// the base acceleration during the acceleration segment, when the total distance is normalised to 1.0. Always positive or zero.
+	float deceleration;								// the negative of the base deceleration during the deceleration segment, when the total distance is normalised to 1.0. Always positive or zero.
 
 	union PerDriveValues
 	{
