@@ -51,4 +51,11 @@ ShortMinCurMax& ShortMinCurMax::operator=(const MinCurMax& arg) noexcept
 	return *this;
 }
 
+ShortPressureAdvanceParameters::ShortPressureAdvanceParameters(const PressureAdvanceParameters& p) noexcept
+	: dk((float16_t)p.dk)
+{
+	k[0] = (float16_t)p.k[0];
+	k[1] = (float16_t)p.k[1];
+}
+
 // End
