@@ -90,6 +90,14 @@ struct CanTiming
 		dJumpWidth = dataBitPeriod - (dTseg1 + 1);
 	}
 
+	// Set the data phase sample point directly and set maximum jump width
+	constexpr void SetDataSamplePointDirect(uint16_t samplePoint) noexcept
+	{
+		const uint16_t dataBitPeriod = period/(dataRateMultiplier + 1);
+		dTseg1 = samplePoint;				// tseg1 excludes the 1-clock sync phase for historical reasons, hence the -1
+		dJumpWidth = dataBitPeriod - (dTseg1 + 1);
+	}
+
 	// Set the data phase jump width. The bit rate and sample point must be set first.
 	constexpr void SetDataJumpWidth(float jw) noexcept
 	{
