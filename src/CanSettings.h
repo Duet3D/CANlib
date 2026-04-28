@@ -33,7 +33,7 @@ struct CanTiming
 	static constexpr uint32_t ClockFrequency = 48'000'000;					// CAN clock used by all Duet 3 boards
 	static constexpr uint32_t DefaultCanBitRate = 1'000'000;
 	static constexpr float DefaultNormalSamplePoint = 0.78;					// how far we sample into the bit during the arbitration and CRC phases
-	static constexpr float DefaultDataSamplePoint = 0.50;					// how far we sample into the bit during the data phase when BRS is used
+	static constexpr float DefaultDataSamplePoint = 0.78;					// how far we sample into the bit during the data phase when BRS is used
 
 	constexpr bool IsValid() const noexcept
 	{
