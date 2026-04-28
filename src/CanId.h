@@ -51,7 +51,7 @@ enum class CanMessageType : uint16_t
 	//unused_was_m308 = 6011,
 	//unused_was_updateHeaterModelV0 = 6012,
 	//unused was setHeaterTemperatureV0 = 6013,
-	//unused_was_setPressureAdvance = 6014,
+	//unused_was_setPressureAdvanceV0 = 6014,
 	setDateTime = 6015,
 	updateDeltaParameters = 6016,
 	//unused_was_setMotorCurrents = 6017,
@@ -84,7 +84,7 @@ enum class CanMessageType : uint16_t
 	m569p1 = 6041,
 	setStepsPerMmAndMicrostepping = 6042,
 	setMotorCurrents = 6043,
-	setPressureAdvance = 6044,
+	setPressureAdvanceV1 = 6044,
 	setStandstillCurrentFactor = 6045,
 	createFilamentMonitor = 6046,
 	deleteFilamentMonitor = 6047,
@@ -116,6 +116,7 @@ enum class CanMessageType : uint16_t
 	setDefaultHeaterModel = 6067,				// added in RRF 3.7
 	setHeaterTemperatureV1 = 6068,				// added in RRF 3.7
 	heaterModelV3 = 6069,						// added in RRF 3.7
+	setPressureAdvanceV2 = 6070,
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,

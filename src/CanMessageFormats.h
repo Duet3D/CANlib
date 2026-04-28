@@ -143,8 +143,8 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped final
 
 	static constexpr uint8_t SeqMask = 0x0f;
 
-	float acceleration;								// the base acceleration during the acceleration segment, when the total distance is normalised to 1.0
-	float deceleration;								// the base deceleration during the deceleration segment, when the total distance is normalised to 1.0
+	float acceleration;								// the base acceleration during the acceleration segment, when the total distance is normalised to 1.0. Always positive or zero.
+	float deceleration;								// the negative of the base deceleration during the deceleration segment, when the total distance is normalised to 1.0. Always positive or zero.
 
 	union PerDriveValues
 	{
@@ -219,7 +219,8 @@ template<class T> struct __attribute__((packed)) CanMessageMultipleDrivesRequest
 	uint16_t driversToUpdate;
 	T values[MaxLinearDriversPerCanSlave];
 
-	size_t GetActualDataLength(size_t numDrivers) const noexcept { return sizeof(uint16_t) * 2 + numDrivers * sizeof(T); }
+	static constexpr size_t GetActualDataLength(size_t numDrivers) noexcept { return sizeof(uint16_t) * 2 + numDrivers * sizeof(T); }
+	static constexpr size_t MaxDrivesPerMessage() noexcept { return (64 - 2 * sizeof(uint16_t))/sizeof(T); }
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
 
@@ -1330,9 +1331,6 @@ union CanMessage
 	CanMessageStopMovement stopMovement;
 	CanMessageRevertPosition revertPosition;
 	CanMessageReset reset;
-#if 0
-	CanMessageMovementLinear moveLinear;
-#endif
 	CanMessageMovementLinearShaped moveLinearShaped;
 	CanMessageReturnInfo getInfo;
 	CanMessageSetHeaterTemperatureV1 setTemp;
@@ -1346,6 +1344,7 @@ union CanMessage
 	CanMessageMultipleDrivesRequest<float> multipleDrivesRequestFloat;
 	CanMessageMultipleDrivesRequest<StepsPerUnitAndMicrostepping> multipleDrivesStepsPerUnitAndMicrostepping;
 	CanMessageMultipleDrivesRequest<DriverStateControl> multipleDrivesRequestDriverState;
+	CanMessageMultipleDrivesRequest<ShortPressureAdvanceParameters> multipleDrivesRequestPressureAdvance;
 	CanMessageUpdateYourFirmware updateYourFirmware;
 	CanMessageFanParameters fanParameters;
 	CanMessageSetFanSpeed setFanSpeed;

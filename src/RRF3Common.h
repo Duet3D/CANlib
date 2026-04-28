@@ -338,4 +338,26 @@ NamedEnum(LedStripType, uint8_t, DotStar, NeoPixel_RGB, NeoPixel_RGBW);
 
 const LedStripType DefaultLedStripType(LedStripType::NeoPixel_RGB);
 
+// Structure used to pass pressure advance parameters around
+struct PressureAdvanceParameters;
+
+// Smaller version of the above for passing over CAN. This must be declared as packed so that it can be used in a CAN message whose structure is declared packed.
+struct __attribute__((packed)) ShortPressureAdvanceParameters
+{
+	ShortPressureAdvanceParameters() noexcept = default;
+	ShortPressureAdvanceParameters(const ShortPressureAdvanceParameters&) noexcept = default;
+
+	ShortPressureAdvanceParameters(const PressureAdvanceParameters& p) noexcept;
+
+	float16_t k[2];
+	float16_t dk;
+};
+
+// Structure used to pass pressure advance parameters around
+struct PressureAdvanceParameters
+{
+	float k[2];
+	float dk;
+};
+
 #endif /* SRC_RRF3COMMON_H_ */

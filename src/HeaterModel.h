@@ -14,7 +14,7 @@
 // CAUTION! This struct is sent as-is in CanMessageHeaterModelReport, therefore if it is changed then that message must be replaced.
 struct HeaterModel
 {
-	float heatingRate;						// the rate at which the heater heats up at full at 25C PWM with no cooling
+	float heatingRate;						// the rate at which the heater heats up at 25C and full PWM with no cooling
 	float basicCoolingRate;					// the rate at which the heater cools down when it is 100C above ambient and the print cooling fan is off
 	float fanCoolingRate;					// the additional cooling rate at 100C above ambient with the print cooling fan on at full PWM
 	float coolingRateExponent;				// how the basic cooling rate varies with temperature difference
