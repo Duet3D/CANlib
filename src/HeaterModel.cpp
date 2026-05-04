@@ -43,7 +43,7 @@ float HeaterModel::GetExpectedPwm(float temperatureRise, float fanPwm, float act
 {
 	const float coolingRate = GetTotalCoolingRate(temperatureRise, fanPwm);
 	const float virtualPwm = coolingRate/heatingRate + filamentPwm;
-	return (standardVoltage < 10.0 || actualVoltage < 10.0) ? virtualPwm : virtualPwm * fastSqrtf(standardVoltage/actualVoltage);
+	return (standardVoltage < 10.0 || actualVoltage < 10.0) ? virtualPwm : virtualPwm * fsquare(standardVoltage/actualVoltage);
 }
 
 // End
