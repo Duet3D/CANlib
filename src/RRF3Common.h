@@ -76,6 +76,7 @@ constexpr float FanFeedForwardMultiplier = 0.7;			// how much we under- or over-
 
 // Parameters used to detect heating errors
 constexpr float DefaultMaxHeatingFaultTime = 5.0;		// How many seconds we allow a heating fault to persist
+constexpr float DefaultMaxPwmFaultTime = 20.0;			// How many seconds we allow a heating excess pwm fault to persist
 constexpr float AllowedTemperatureDerivativeNoise = 0.12;	// How much fluctuation in the averaged temperature derivative we allow
 constexpr float MaxAmbientTemperature = 45.0;			// We expect heaters to cool to this temperature or lower when switched off
 constexpr float NormalAmbientTemperature = 25.0;		// The ambient temperature we assume - allow for the printer heating its surroundings a little
@@ -318,7 +319,7 @@ NamedEnum(EventType, uint8_t, main_board_power_fail, expansion_reconnect, expans
 // Type of heater fault
 enum class HeaterFaultType : uint8_t
 {
-	failedToReadSensor = 0, temperatureRisingTooSlowly, exceededAllowedExcursion, monitorTriggered,
+	failedToReadSensor = 0, temperatureRisingTooSlowly, exceededAllowedExcursion, monitorTriggered, pwmTooHigh,
 	heaterFaultTypeLimit
 };
 
@@ -328,6 +329,7 @@ constexpr const char *_ecv_array HeaterFaultText[] =
 	"failed to read sensor: ",						// the sensor error message will be appended
 	"temperature rising too slowly: ",				// "expected ... measured ..." will be appended
 	"exceeded allowed temperature excursion: ",		// "target ... actual ..." will be appended
+	"pwm higher than expected",						// "expected ... actual ..." will be appended
 	"",												// "monitor ... was triggered" will be appended
 	"unknown error: "								// this is used if the parameter is not a valid heater fault type
 };
