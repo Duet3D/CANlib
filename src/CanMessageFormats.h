@@ -33,6 +33,8 @@ size_t CanAdjustedLength(size_t rawLength) noexcept;
 // Message formats that don't take a request ID must have a method ClearReservedFields that clears the zero fields
 
 // Time sync message. The realTime field was added at RRF3.2 so it is not transmitted by main boards running 3.1.1 and earlier.
+// Note, time sync messages are always transmitted without using BRS. We should look at making this message smaller,
+// for example by re-ordering the fields so that we can send the movement delay without also sending real time.
 struct __attribute__((packed)) CanMessageTimeSync
 {
 	static constexpr CanMessageType messageType = CanMessageType::timeSync;
@@ -41,8 +43,9 @@ struct __attribute__((packed)) CanMessageTimeSync
 	uint32_t lastTimeSent;							// when we tried to send the previous message
 	uint32_t lastTimeAcknowledgeDelay : 16,			// the delay from that time before the previous message was acknowledged
 			 isPrinting : 1,						// set if we are printing and filament monitor should collect data
-			 fastDataRate : 2,						// CAN-FD data bit rate divided by nominal bit rate, minus 1. 0 (= multiplier 1) means don't use bit rate switching.
-			 zero : 13;								// unused
+			 fastDataRate : 3,						// CAN-FD data bit rate divided by nominal bit rate, minus 1. 0 (= multiplier 1) means don't use bit rate switching.
+			 tseg1Minus1 : 8,						// the tseg1 value for the data phase minus 1
+			 zero: 4;								// unused
 	uint32_t realTime;								// seconds since 00:00:00 UTC on 1 January 1970, unsigned to avoid year 2038 problem. Not always present.
 	uint32_t movementDelay;							// cumulative hiccup time. Not always present.
 
