@@ -1118,6 +1118,9 @@ struct __attribute__((packed)) CanMessageDriversStatus
 		float16_t maxCurrentFraction;
 		float16_t rmsPositionError;
 		float16_t maxAbsPositionError;
+		float16_t meanPositionError;
+		float16_t lastPositionError;
+		float16_t stdDevPositionError;
 	};
 
 	uint16_t numDriversReported : 4,
@@ -1127,7 +1130,7 @@ struct __attribute__((packed)) CanMessageDriversStatus
 	union
 	{
 		OpenLoopStatus openLoopData[15];			// status of each driver if not closed loop
-		ClosedLoopStatus closedLoopData[5];			// status of each driver if closed loop
+		ClosedLoopStatus closedLoopData[3];			// status of each driver if closed loop
 	};
 
 	size_t GetActualDataLength() const noexcept
