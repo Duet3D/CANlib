@@ -1099,26 +1099,26 @@ struct __attribute__((packed)) CanMessageBoardStatusV1
 	void ClearReservedFields() noexcept { zero = 0; zero2 = 0; }
 };
 
+// Struct to represent driver status. If this is changed then CanMessageDriversStatus must be replaced by a new version.
+struct __attribute__((packed)) OpenLoopStatus
+{
+	uint32_t status;
+};
+
+// Struct to represent driver status including closed loop data. If this is changed then CanMessageDriversStatus must be replaced by a new version.
+struct __attribute__((packed)) ClosedLoopStatus
+{
+	uint32_t status;
+	float16_t averageCurrentFraction;
+	float16_t maxCurrentFraction;
+	float16_t rmsPositionError;
+	float16_t maxAbsPositionError;
+};
+
 // Message sent by expansion boards to report the status of their drivers
 struct __attribute__((packed)) CanMessageDriversStatus
 {
 	static constexpr CanMessageType messageType = CanMessageType::driversStatusReport;
-
-	// Struct to represent driver status
-	struct __attribute__((packed)) OpenLoopStatus
-	{
-		uint32_t status;
-	};
-
-	// Struct to represent driver status including closed loop data
-	struct __attribute__((packed)) ClosedLoopStatus
-	{
-		uint32_t status;
-		float16_t averageCurrentFraction;
-		float16_t maxCurrentFraction;
-		float16_t rmsPositionError;
-		float16_t maxAbsPositionError;
-	};
 
 	uint16_t numDriversReported : 4,
 			 hasClosedLoopData : 1,
