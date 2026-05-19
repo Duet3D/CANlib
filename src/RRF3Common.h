@@ -175,7 +175,7 @@ union StandardDriverStatus
 				closedLoopNotTuned : 1,					// closed loop driver has not been tuned
 				closedLoopTuningError : 1,				// closed loop tuning failed
 				closedLoopIllegalMove : 1,				// move attempted in closed loop mode when driver not tuned
-				zero1 : 1,								// reserved for future use
+				closedLoopTrainingMode : 1,			// closed loop training mode active
 				// bits 16-31 (these are not passed in driver event messages)
 				standstill : 1,							// standstill indicator
 				notPresent : 1,							// smart driver not present
@@ -236,7 +236,7 @@ private:
 		"not tuned/calibrated",
 		"tuning/calibration failed",
 		"move attempted when not tuned/calibrated",
-		"unused bit",
+		"training mode active",
 		// Bits 16-17
 		"standstill",
 		"not present",

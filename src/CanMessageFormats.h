@@ -1116,6 +1116,7 @@ struct __attribute__((packed)) CanMessageDriversStatus
 		uint32_t status;
 		float16_t averageCurrentFraction;
 		float16_t maxCurrentFraction;
+		float16_t currentPosition;
 		float16_t rmsPositionError;
 		float16_t maxAbsPositionError;
 		float16_t meanPositionError;

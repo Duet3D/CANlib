@@ -141,6 +141,14 @@ constexpr ParamDescriptor M569Point7Params[] =
 	END_PARAMS
 };
 
+constexpr ParamDescriptor M569Point9Params[] =
+{
+	LOCAL_DRIVER_PARAM('P'),			// drive number
+	UINT8_PARAM('E'),					// enable manual follow mode
+	FLOAT_PARAM('B'),					// deadband in full steps
+	END_PARAMS
+};
+
 constexpr ParamDescriptor M915Params[] =
 {
 	UINT16_PARAM('d'),					// this is the bitmap of driver numbers to change the parameters for
