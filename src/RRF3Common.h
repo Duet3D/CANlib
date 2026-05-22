@@ -51,6 +51,9 @@ constexpr float DefaultScanningProbeTouchModeThreshold = 0.5;
 constexpr float DefaultScanningProbeTouchModeProbeSpeed = 200.0;	// mm/min
 constexpr float TouchModeMaxThreshold = 10.0;			// maximum touch mode threshold that can be configured and sent over CAN
 
+// LED strips
+constexpr size_t DefaultMaxLedsPerStrip = 60;			// maximum Neopixel or DotStar LEDs per strip
+
 // Heater values
 constexpr uint32_t HeatSampleIntervalMillis = 250;		// interval between taking temperature samples
 constexpr float HeatPwmAverageTime = 5.0;				// Seconds
