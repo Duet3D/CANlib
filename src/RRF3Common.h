@@ -79,7 +79,7 @@ constexpr float FanFeedForwardMultiplier = 0.7;			// how much we under- or over-
 
 // Parameters used to detect heating errors
 constexpr float DefaultMaxHeatingFaultTime = 5.0;		// How many seconds we allow a heating fault to persist
-constexpr float DefaultMaxPwmFaultTime = 20.0;			// How many seconds we allow a heating excess pwm fault to persist
+constexpr float DefaultMaxPwmFaultTime = 10.0;			// How many seconds we allow a heating excess pwm fault to persist
 constexpr float AllowedTemperatureDerivativeNoise = 0.12;	// How much fluctuation in the averaged temperature derivative we allow
 constexpr float PwmFaultLevel = 1.3;					// Raise a PWM fault if the	PWM divided by the expected WM exceeds this value
 constexpr float MaxAmbientTemperature = 45.0;			// We expect heaters to cool to this temperature or lower when switched off
