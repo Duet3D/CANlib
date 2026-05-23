@@ -51,6 +51,9 @@ constexpr float DefaultScanningProbeTouchModeThreshold = 0.5;
 constexpr float DefaultScanningProbeTouchModeProbeSpeed = 200.0;	// mm/min
 constexpr float TouchModeMaxThreshold = 10.0;			// maximum touch mode threshold that can be configured and sent over CAN
 
+// LED strips
+constexpr size_t DefaultMaxLedsPerStrip = 60;			// maximum Neopixel or DotStar LEDs per strip
+
 // Heater values
 constexpr uint32_t HeatSampleIntervalMillis = 250;		// interval between taking temperature samples
 constexpr float HeatPwmAverageTime = 5.0;				// Seconds
@@ -76,9 +79,9 @@ constexpr float FanFeedForwardMultiplier = 0.7;			// how much we under- or over-
 
 // Parameters used to detect heating errors
 constexpr float DefaultMaxHeatingFaultTime = 5.0;		// How many seconds we allow a heating fault to persist
-constexpr float DefaultMaxPwmFaultTime = 20.0;			// How many seconds we allow a heating excess pwm fault to persist
+constexpr float DefaultMaxPwmFaultTime = 10.0;			// How many seconds we allow a heating excess pwm fault to persist
 constexpr float AllowedTemperatureDerivativeNoise = 0.12;	// How much fluctuation in the averaged temperature derivative we allow
-constexpr float PwmFaultLevel = 1.25;					// Raise a PWM fault if the	PWM divided by the expected WM exceeds this value
+constexpr float PwmFaultLevel = 1.225;					// Raise a PWM fault if the	PWM accumulator divided by the expected PWM exceeds this value for long enough
 constexpr float MaxAmbientTemperature = 45.0;			// We expect heaters to cool to this temperature or lower when switched off
 constexpr float NormalAmbientTemperature = 25.0;		// The ambient temperature we assume - allow for the printer heating its surroundings a little
 constexpr float LowAmbientTemperature = 15.0;			// A lower ambient temperature that we assume when checking heater performance
@@ -330,8 +333,8 @@ constexpr const char *_ecv_array HeaterFaultText[] =
 	"failed to read sensor: ",						// the sensor error message will be appended
 	"temperature rising too slowly: ",				// "expected ... measured ..." will be appended
 	"exceeded allowed temperature excursion: ",		// "target ... actual ..." will be appended
-	"pwm higher than expected",						// "expected ... actual ..." will be appended
 	"",												// "monitor ... was triggered" will be appended
+	"high PWM: ",									// "expected ... actual ..." will be appended
 	"unknown error: "								// this is used if the parameter is not a valid heater fault type
 };
 
