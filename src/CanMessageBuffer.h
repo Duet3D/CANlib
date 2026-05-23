@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <new>
+#include <atomic>
 
 #include "CanId.h"
 #include "CanMessageFormats.h"
@@ -201,7 +202,7 @@ public:
 
 private:
 	static CanMessageBuffer *_ecv_null volatile freelist;
-	static volatile unsigned int numFree;
+	static std::atomic<unsigned int> numFree;
 	static volatile unsigned int minNumFree;
 
 #ifdef RTOS

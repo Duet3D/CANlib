@@ -13,7 +13,7 @@
 extern "C" void debugPrintf(const char *_ecv_array fmt, ...) __attribute__ ((format (printf, 1, 2)));
 
 CanMessageBuffer *_ecv_null volatile CanMessageBuffer::freelist = nullptr;
-volatile unsigned int CanMessageBuffer::numFree = 0;
+std::atomic<unsigned int> CanMessageBuffer::numFree = 0;
 volatile unsigned int CanMessageBuffer::minNumFree = 0;
 
 #ifdef RTOS
