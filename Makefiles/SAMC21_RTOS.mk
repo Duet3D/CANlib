@@ -18,7 +18,7 @@ DEFINES := \
 	-D__SAMC21G18A__ \
 	-DRTOS
 
-CXXFLAGS := -c -std=gnu++17 \
+CXXFLAGS := -c -std=c++20 \
 	-mcpu=cortex-m0plus \
 	-mthumb \
 	-fno-math-errno \
@@ -34,6 +34,7 @@ CXXFLAGS := -c -std=gnu++17 \
 	-Wfloat-conversion \
 	-Werror=return-type \
 	-Wsuggest-override \
+	-Werror -Wnoexcept -Wshadow -Wsign-promo \
 	-fsingle-precision-constant \
 	-fstack-usage \
 	-O2 \

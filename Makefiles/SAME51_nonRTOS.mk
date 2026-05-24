@@ -15,7 +15,7 @@ INCLUDES := \
 DEFINES := \
 	-D__SAME51N19A__
 
-CXXFLAGS := -c -std=gnu++17 \
+CXXFLAGS := -c -std=c++20 \
 	-mcpu=cortex-m4 \
 	-mthumb \
 	-fno-math-errno \
@@ -33,6 +33,7 @@ CXXFLAGS := -c -std=gnu++17 \
 	-Wfloat-conversion \
 	-Werror=return-type \
 	-Wsuggest-override \
+	-Werror -Wnoexcept -Wshadow -Wsign-promo \
 	-fsingle-precision-constant \
 	-fstack-usage \
 	-O2 \
