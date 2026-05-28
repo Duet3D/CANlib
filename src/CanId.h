@@ -26,6 +26,7 @@ enum class CanMessageType : uint16_t
 	//unused_was_movement = 50,
 	//unused_was_movementLinear = 51,
 	movementLinearShaped = 52,
+	movementLinearShapedV2 = 53,
 
 	// High priority responses sent by expansion boards and Smart Tools
 	//unused_was_inputStateChanged = 100,
