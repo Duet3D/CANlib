@@ -18,7 +18,7 @@ DEFINES := \
 	-D__SAME70Q20B__ \
 	-DRTOS
 
-CXXFLAGS := -c -std=gnu++17 \
+CXXFLAGS := -c -std=c++20 \
 	-mcpu=cortex-m7 \
 	-mthumb \
 	-fno-math-errno \
@@ -35,6 +35,7 @@ CXXFLAGS := -c -std=gnu++17 \
 	-Wundef \
 	-Wdouble-promotion \
 	-Werror=return-type \
+	-Werror -Wnoexcept -Wshadow -Wsign-promo \
 	-fsingle-precision-constant \
 	-O2 \
 	-Wall \
