@@ -1,6 +1,6 @@
-# CANlib SAM4S_RTOS Configuration Makefile
+# CANlib RP2040_RTOS Configuration Makefile
 
-BUILD_DIR := SAM4S_RTOS
+BUILD_DIR := RP2040_RTOS
 TARGET := $(BUILD_DIR)/libCANlib.a
 
 SRC_DIR := src
@@ -12,14 +12,14 @@ INCLUDES := \
 	-I../RRFLibraries/src \
 	-I../CoreN2G/src \
 	-I../FreeRTOS/src/include \
-	-I../FreeRTOS/src/portable/GCC/ARM_CM7/r0p1
+	-I../FreeRTOS/src/portable/GCC/ARM_CM0
 
 DEFINES := \
-	-D__SAM4S8C__ \
+	-D__RP2040__ \
 	-DRTOS
 
 CXXFLAGS := -c -std=c++20 \
-	-mcpu=cortex-m4 \
+	-mcpu=cortex-m0plus \
 	-mthumb \
 	-fno-math-errno \
 	-mfp16-format=ieee \
@@ -37,7 +37,7 @@ CXXFLAGS := -c -std=c++20 \
 	-Werror -Wnoexcept -Wshadow -Wsign-promo \
 	-fsingle-precision-constant \
 	-fstack-usage \
-	-Os \
+	-O2 \
 	-Wall \
 	-Werror \
 	-Wnoexcept \
@@ -49,8 +49,8 @@ CXXFLAGS := -c -std=c++20 \
 OBJS := $(CPP_SRCS:%.cpp=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
-.PHONY: SAM4S_RTOS
-SAM4S_RTOS: $(TARGET)
+.PHONY: RP2040_RTOS
+RP2040_RTOS: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(Q)echo "  AR      $@"
@@ -64,7 +64,7 @@ $(BUILD_DIR)/%.o: %.cpp
 
 -include $(DEPS)
 
-.PHONY: clean-SAM4S_RTOS
-clean-SAM4S_RTOS:
+.PHONY: clean-RP2040_RTOS
+clean-RP2040_RTOS:
 	$(Q)echo "  RM      $(BUILD_DIR)"
 	$(Q)rm -rf $(BUILD_DIR)
