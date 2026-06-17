@@ -9,7 +9,17 @@
 #include <General/SimpleMath.h>
 #include <cmath>
 
-#define SQRT_FAN_SCALING		(1)
+#define SQRT_FAN_SCALING		(0)				// Prusa apparently thinks that cooling goes as the square root of fan speed, but I can't find any evidence of thia
+
+// Calculate the cooling rate excluding the fan contribution
+float HeaterModel::GetBasicCoolingRate(float temperatureRise) const noexcept
+{
+	temperatureRise *= 0.01;
+
+	// If the temperature rise is negative then we must not try to raise it to a non-integral power!
+	const float adjustedTemperatureRise = (temperatureRise < 0.0) ? -powf(-temperatureRise, coolingRateExponent) : powf(temperatureRise, coolingRateExponent);
+	return basicCoolingRate * adjustedTemperatureRise;
+}
 
 // Calculate the extra cooling rate provided by the part cooling fan
 float HeaterModel::GetFanCoolingRate(float temperatureRise, float fanPwm) const noexcept
@@ -24,10 +34,7 @@ float HeaterModel::GetFanCoolingRate(float temperatureRise, float fanPwm) const 
 // Calculate the total cooling rate, excluding cooling caused by the filament
 float HeaterModel::GetTotalCoolingRate(float temperatureRise, float fanPwm) const noexcept
 {
-	temperatureRise *= 0.01;
-	// If the temperature rise is negative then we must not try to raise it to a non-integral power!
-	const float adjustedTemperatureRise = (temperatureRise < 0.0) ? -powf(-temperatureRise, coolingRateExponent) : powf(temperatureRise, coolingRateExponent);
-	return basicCoolingRate * adjustedTemperatureRise + GetFanCoolingRate(temperatureRise, fanPwm);
+	return GetBasicCoolingRate(temperatureRise) + GetFanCoolingRate(temperatureRise, fanPwm);
 }
 
 // Calculate the expected heating rate
@@ -44,6 +51,22 @@ float HeaterModel::GetExpectedPwm(float temperatureRise, float fanPwm, float act
 	const float coolingRate = GetTotalCoolingRate(temperatureRise, fanPwm);
 	const float virtualPwm = coolingRate/heatingRate + filamentPwm;
 	return (standardVoltage < 10.0 || actualVoltage < 10.0) ? virtualPwm : virtualPwm * fsquare(standardVoltage/actualVoltage);
+}
+
+// Calculate the change in required heater PWM due to a change in fan PWM
+float HeaterModel::GetPwmCorrectionForFan(float temperatureRise, float oldFanPwm, float newFanPwm) const noexcept
+{
+#if SQRT_FAN_SCALING
+	return temperatureRise * 0.01 * fanCoolingRate * (fastSqrtf(newFanPwm) - fastSqrtf(oldFanPwm)) / heatingRate;
+#else
+	return temperatureRise * 0.01 * fanCoolingRate * (newFanPwm - oldFanPwm) / heatingRate;
+#endif
+}
+
+// Estimate the maximum temperature rise that this heater gives at full power
+float HeaterModel::EstimateMaxTemperatureRise() const noexcept
+{
+	return 100.0 * powf(heatingRate/basicCoolingRate, 1.0/coolingRateExponent);
 }
 
 // End
