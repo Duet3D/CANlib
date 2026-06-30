@@ -26,10 +26,15 @@ struct HeaterModel
 	uint32_t usePid : 1,
 			 zero : 31;
 
-	float GetFanCoolingRate(float temperatureRise, float fanPwm) const noexcept;						// Calculate the extra cooling rate provided by the part cooling fan
-	float GetTotalCoolingRate(float temperatureRise, float fanPwm) const noexcept;						// Calculate the total cooling rate, excluding cooling caused by the filament
+	float GetBasicCoolingRate(float temperatureRise) const noexcept;										// Calculate the cooling rate excluding the fan contribution
+	float GetFanCoolingRate(float temperatureRise, float fanPwm) const noexcept;							// Calculate the extra cooling rate provided by the part cooling fan
+	float GetTotalCoolingRate(float temperatureRise, float fanPwm) const noexcept;							// Calculate the total cooling rate, excluding cooling caused by the filament
 	float GetExpectedHeatingRate(float temperatureRise, float fanPwm, float heaterPwm, float actualVoltage, float filamentPwm) const noexcept;		// Calculate the expected heating rate
 	float GetExpectedPwm(float temperatureRise, float fanPwm, float actualVoltage, float filamentPwm) const noexcept;	// Calculate the required PWM to maintain the temperature rise
+	float GetPwmCorrectionForFan(float temperatureRise, float oldFanPwm, float newFanPwm) const noexcept;	// Calculate the change in heating power required to compensate for a change in fan speed
+	float EstimateMaxTemperatureRise() const noexcept;														// Estimate the maximum temperature rise that this heater will produce at full power
+	float CalculateBasicCoolingRate(float temperatureRise, float coolingRate) const noexcept;				// Calculate the basic cooling rate from measurements
+	float CalculateFanCoolingRate(float temperatureRise, float coolingRate, float fanPwm) const noexcept;	// Calculate the fan cooling rate from measurements
 };
 
 // These parameters are about right for an E3Dv6 hot end with 30W heater, cooling time constant is about 140 seconds with the fan off

@@ -345,17 +345,17 @@ struct __attribute__((packed)) CanMessageHeaterModelV3
 	uint16_t heater : 8,
 			 enabled : 1,
 			 inverted : 1,
-			 pidParametersOverridden : 1,
+			 _obsolete_was_pidParametersOverridden : 1,	// this is now unused because we no longer support overriding PID parameters
 			 zero2 : 5;
 	HeaterModel basicModel;
 	float maxPwm;
 
 	// The next 3 are used only if pidParametersOverridden is true
-	float kP;								// controller (not model) gain
-	float recipTi;							// reciprocal of controller integral time
-	float tD;								// controller differential time
+	float _obsolete_was_kP;								// controller (not model) gain
+	float _obsolete_was_recipTi;						// reciprocal of controller integral time
+	float _obsolete_was_tD;								// controller differential time
 
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; zero2 = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; _obsolete_was_pidParametersOverridden = 0; zero2 = 0; }
 };
 
 // M570 parameters
