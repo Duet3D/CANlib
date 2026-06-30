@@ -168,7 +168,19 @@ constexpr CanRequestId CanRequestIdAcceptAlways = 0x0FFF;		// special ID means a
 // Lowest 7 bits: destination address
 class CanId
 {
-	uint32_t all;
+	// The union is only used to make it easier to debug the code.
+	union
+	{
+		uint32_t all;
+		struct __attribute__((packed))
+		{
+			uint32_t dstAddress : 7,
+					 unused : 1,
+					 srcAddress : 7,
+					 response : 1,
+					 messageType : 13;
+		};
+	};
 
 public:
 	static constexpr CanAddress MasterAddress = 0;							// main boards (except ATE main boards) have address 0
