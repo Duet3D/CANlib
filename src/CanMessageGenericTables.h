@@ -158,6 +158,7 @@ constexpr ParamDescriptor M950HeaterParams[] =
 	PWM_FREQ_PARAM('Q'),
 	UINT16_PARAM('T'),
 	REDUCED_STRING_PARAM('C'),
+	INT16_PARAM('B'),					// ambient temperature sensor number, added at 3.7.0-beta.2
 	END_PARAMS
 };
 

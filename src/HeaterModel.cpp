@@ -69,4 +69,21 @@ float HeaterModel::EstimateMaxTemperatureRise() const noexcept
 	return 100.0 * powf(heatingRate/basicCoolingRate, 1.0/coolingRateExponent);
 }
 
+// Calculate the basic cooling rate from measurements. This is the inverse of GetBasicCoolingRate but we can assume that temperatureRise is positive.
+float HeaterModel::CalculateBasicCoolingRate(float temperatureRise, float coolingRate) const noexcept
+{
+	const float adjustedTemperatureRise = powf(temperatureRise * 0.01, coolingRateExponent);
+	return coolingRate/adjustedTemperatureRise;
+}
+
+// Calculate the fan cooling rate from measurements. This is the inverse of GetFanCoolingRate.
+float HeaterModel::CalculateFanCoolingRate(float temperatureRise, float coolingRate, float fanPwm) const noexcept
+{
+#if SQRT_FAN_SCALING
+	return (coolingRate * 100.0)/(temperatureRise * fastSqrtf(fanPwm));
+#else
+	return (coolingRate * 100.0)/(temperatureRise * fanPwm);
+#endif
+}
+
 // End
