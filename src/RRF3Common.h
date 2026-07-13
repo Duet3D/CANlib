@@ -291,6 +291,7 @@ enum class HeaterMode : uint8_t
 	lastPidMode = heating,
 	// All states from here onwards must be PID tuning states because function IsTuning assumes that
 	tuning0_settling,
+	tuning0a_calibrating_heater,
 	tuning1_heating_up,
 	tuning2_heater_off,
 	tuning3_heater_on,

@@ -592,6 +592,9 @@ struct __attribute__((packed)) CanMessageDeleteFilamentMonitor
 };
 
 // Enter tuning mode (used by M303). This causes the heater to cycle between two temperatures, reporting data at the end of each cycle.
+// If just the 'on' bit is set, we are asking for heater tuning to start.
+// If 'on' and 'calibrate' are both set, we are asking for calibration to start.
+// If just 'calibrate' is set, we are asking whether calibration has completed.
 struct __attribute__((packed)) CanMessageHeaterTuningCommand
 {
 	static constexpr CanMessageType messageType = CanMessageType::heaterTuningCommand;
@@ -600,7 +603,8 @@ struct __attribute__((packed)) CanMessageHeaterTuningCommand
 			 zero : 4;
 	uint32_t heaterNumber : 8,
 			 on : 1,
-			 zero2 : 23;
+			 calibrate : 1,						// added for 3.7.0-beta.2
+			 zero2 : 22;
 	float pwm;
 	float lowTemp;
 	float highTemp;
