@@ -290,12 +290,13 @@ enum class HeaterMode : uint8_t
 	firstPidMode = cooling,
 	lastPidMode = heating,
 	// All states from here onwards must be PID tuning states because function IsTuning assumes that
-	tuning0,
-	tuning1,
-	tuning2,
-	tuning3,
-	firstTuningMode = tuning0,
-	lastTuningMode = tuning3
+	tuning0_settling,
+	tuning0a_calibrating_heater,
+	tuning1_heating_up,
+	tuning2_heater_off,
+	tuning3_heater_on,
+	firstTuningMode = tuning0_settling,
+	lastTuningMode = tuning3_heater_on
 };
 
 // Types of heater function. This currently needs only 2 bits to represent it but we allow 3 bits in CAN messages for future expansion.
