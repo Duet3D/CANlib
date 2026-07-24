@@ -592,6 +592,9 @@ struct __attribute__((packed)) CanMessageDeleteFilamentMonitor
 };
 
 // Enter tuning mode (used by M303). This causes the heater to cycle between two temperatures, reporting data at the end of each cycle.
+// If just the 'on' bit is set, we are asking for heater tuning to start.
+// If 'on' and 'calibrate' are both set, we are asking for calibration to start.
+// If just 'calibrate' is set, we are asking whether calibration has completed.
 struct __attribute__((packed)) CanMessageHeaterTuningCommand
 {
 	static constexpr CanMessageType messageType = CanMessageType::heaterTuningCommand;
@@ -600,7 +603,8 @@ struct __attribute__((packed)) CanMessageHeaterTuningCommand
 			 zero : 4;
 	uint32_t heaterNumber : 8,
 			 on : 1,
-			 zero2 : 23;
+			 calibrate : 1,						// added for 3.7.0-beta.2
+			 zero2 : 22;
 	float pwm;
 	float lowTemp;
 	float highTemp;
@@ -886,7 +890,9 @@ struct __attribute__((packed)) CanMessageAnnounceV1
 	uint8_t uniqueId[16];					// the unique ID of this board
 	uint8_t numDrivers: 4,					// the number of motor drivers on this board
 			usesUf2Binary : 1,				// set if this board takes a main firmware binary in .uf2 format
-			zero : 3;						// for future expansion, set to zero
+			isReconnect : 1,				// set if this board didn't reset but is re-announcing after losing and regaining time sync
+			wasShutDown : 1,				// set if this board switched its heaters off because time sync was lost for longer than the connection timeout
+			zero : 1;						// for future expansion, set to zero
 	char boardTypeAndFirmwareVersion[43];	// the type short name of this board followed by '|' and the firmware version
 
 	size_t GetActualDataLength() const noexcept

@@ -249,4 +249,11 @@ constexpr ParamDescriptor M111Params[] =
 	END_PARAMS
 };
 
+// M959 parameters. The B parameter selects the board and is consumed by the main board
+constexpr ParamDescriptor M959Params[] =
+{
+	UINT16_PARAM('T'),					// connection timeout in seconds
+	END_PARAMS
+};
+
 #endif /* SRC_CANMESSAGEGENERICTABLES_H_ */

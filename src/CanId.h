@@ -117,6 +117,7 @@ enum class CanMessageType : uint16_t
 	setHeaterTemperatureV1 = 6068,				// added in RRF 3.7
 	heaterModelV3 = 6069,						// added in RRF 3.7
 	setPressureAdvanceV2 = 6070,
+	setConnectionTimeout = 6071,				// for M959, added in RRF 3.7
 
 	// Responses, broadcasts etc. sent by expansion boards
 	standardReply = 4510,
