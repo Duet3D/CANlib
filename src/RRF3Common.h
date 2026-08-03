@@ -51,6 +51,9 @@ constexpr float DefaultScanningProbeTouchModeThreshold = 0.5;
 constexpr float DefaultScanningProbeTouchModeProbeSpeed = 200.0;	// mm/min
 constexpr float TouchModeMaxThreshold = 10.0;			// maximum touch mode threshold that can be configured and sent over CAN
 
+// Filament monitors
+constexpr uint32_t FilamentMonitorMotionLatchTime = 500;	// how long detected filament movement keeps being reported, in milliseconds
+
 // LED strips
 constexpr size_t DefaultMaxLedsPerStrip = 60;			// maximum Neopixel or DotStar LEDs per strip
 

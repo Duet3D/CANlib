@@ -1154,7 +1154,10 @@ struct __attribute__((packed)) CanMessageDriversStatus
 struct __attribute__((packed)) FilamentMonitorDataV2
 {
 	uint32_t position : 12,				// raw position from the sensor
-			 zero1 : 12,				// reserved for future use
+			 filamentPresentValid : 1,	// true if the filamentPresent bit is meaningful
+			 filamentPresent : 1,		// true if the sensor reports filament present, only valid if filamentPresentValid is set
+			 motionDetected : 1,		// true if filament movement was detected within the last FilamentMonitorMotionLatchTime
+			 zero1 : 9,					// reserved for future use
 			 status : 4,				// standard filament status
 			 zero2 : 2,					// reserved for future use
 			 hasLiveData : 1;			// true if the following fields are meaningful for this sensor
