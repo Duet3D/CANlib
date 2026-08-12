@@ -448,7 +448,7 @@ struct __attribute__((packed)) CanMessageCreateInputMonitorV1
 	uint16_t requestId : 12,
 			 zero : 4;
 	RemoteInputHandle handle;
-	int32_t threshold;			// analog threshold, or zero if digital
+	int32_t threshold;			// analog threshold, or zero if digital. Negative means the reading falls to the threshold on trigger instead of rising to it
 	uint16_t minInterval;
 	char pinName[54];			// null terminated
 
@@ -471,7 +471,7 @@ struct __attribute__((packed)) CanMessageChangeInputMonitorV1
 	static constexpr uint8_t actionDontMonitor = 0,					// stop sending status change messages
 							actionDoMonitor = 1,					// send status change messages
 							actionDelete = 2,						// delete this handle
-							actionChangeThreshold = 3,				// change the threshold to param and set standard mode
+							actionChangeThreshold = 3,				// change the threshold to param (a signed value, see CanMessageCreateInputMonitorV1) and set standard mode
 							actionChangeMinInterval = 4,			// change the minimum interval to param and set standard mode
 							actionReturnPinName = 5,				// return the pin name
 							actionSetDriveLevel = 6,				// set the drive level to param, only for scanning Z probes
@@ -482,6 +482,19 @@ struct __attribute__((packed)) CanMessageChangeInputMonitorV1
 	static constexpr uint32_t paramDriveLevelMask = 0x1F;			// bottom 5 bits are the drive level
 	static constexpr unsigned int paramOffsetShift = 5;				// remaining bits are the offset
 	static constexpr uint32_t maxParamOffset = ((uint32_t)1 << (32 - paramOffsetShift)) - 1;
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
+};
+
+// Request to latch the current averaged reading of an analog input monitor as its baseline, so that the threshold is compared against
+// the change since the tare. The baseline comes back in the reply because only the expansion board knows the raw reading
+struct __attribute__((packed)) CanMessageTareInputMonitor
+{
+	static constexpr CanMessageType messageType = CanMessageType::tareInputMonitor;
+
+	uint16_t requestId : 12,
+			 zero : 4;
+	RemoteInputHandle handle;
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
@@ -795,6 +808,21 @@ struct __attribute__((packed)) CanMessageReadInputsReplyV1
 	{
 		return sizeof(uint32_t) + numReported * sizeof(results[0]);
 	}
+};
+
+// Response to the TareInputMonitor request. The requestID and resultCode must be in the same place as for a standard reply
+struct __attribute__((packed)) CanMessageTareInputMonitorReply
+{
+	static constexpr CanMessageType messageType = CanMessageType::tareInputMonitorReply;
+
+	uint32_t requestId : 12,				// the request ID of the message we are replying to - must be in the same place as in a StandardReply
+			 resultCode : 4,				// normally a GCodeResult - must be in the same place as in a StandardReply
+			 zero : 16;						// spare
+	int32_t baseline;						// the reading that was latched, in raw counts
+
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
+
+	size_t GetActualDataLength() const noexcept { return sizeof(uint32_t) + sizeof(int32_t); }
 };
 
 struct ParamDescriptor;
@@ -1366,6 +1394,8 @@ union CanMessage
 	CanMessageSetInputShapingV1 setInputShapingV1;
 	CanMessageCreateInputMonitorV1 createInputMonitorV1;
 	CanMessageChangeInputMonitorV1 changeInputMonitorV1;
+	CanMessageTareInputMonitor tareInputMonitor;
+	CanMessageTareInputMonitorReply tareInputMonitorReply;
 	CanMessageInputChangedV1 inputChangedV1;
 	CanMessageInputChangedV2 inputChangedV2;
 	CanMessageFansReport fansReport;

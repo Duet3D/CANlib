@@ -45,6 +45,7 @@ enum class CanMessageType : uint16_t
 	readInputsRequest = 4013,
 	startAccelerometer = 4014,
 	startClosedLoopDataCollection = 4015,
+	tareInputMonitor = 4016,
 
 	// Configuration messages sent by the main board
 	//unused_was_m950 = 6010,
@@ -142,6 +143,7 @@ enum class CanMessageType : uint16_t
 	readInputsReplyV1 = 4529,
 	boardStatusReportV1 = 4530,
 	heaterModelReport = 4531,					// added in firmware 3.7
+	tareInputMonitorReply = 4532,				// added in firmware 3.7
 
 	// Firmware updates
 	firmwareBlockRequest = 5000,
