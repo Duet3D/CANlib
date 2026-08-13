@@ -495,6 +495,11 @@ struct __attribute__((packed)) CanMessageTareInputMonitor
 	uint16_t requestId : 12,
 			 zero : 4;
 	RemoteInputHandle handle;
+	uint8_t mode;
+
+	static constexpr uint8_t modeTareAndHold = 0,			// latch the baseline and hold it until the next tare, used while a probing move is in progress
+							modeTareAndTrack = 1,			// latch the baseline and let it track slow drift afterwards
+							modeTrackOnly = 2;				// resume tracking from the held baseline without latching, used when a probing move ends with the nozzle possibly still loaded
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
