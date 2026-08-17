@@ -1154,7 +1154,11 @@ struct __attribute__((packed)) CanMessageDriversStatus
 struct __attribute__((packed)) FilamentMonitorDataV2
 {
 	uint32_t position : 12,				// raw position from the sensor
-			 zero1 : 12,				// reserved for future use
+			 filamentPresentValid : 1,	// true if the filamentPresent bit is meaningful
+			 filamentPresent : 1,		// true if the sensor reports filament present, only valid if filamentPresentValid is set
+			 motionDetected : 1,		// true if filament movement was detected within the last FilamentMonitorMotionLatchTime
+			 extraDataValid : 1,		// true if the extraData field is meaningful
+			 extraData : 8,				// AGC of a rotating magnet monitor or shutter of a laser monitor, only valid if extraDataValid is set
 			 status : 4,				// standard filament status
 			 zero2 : 2,					// reserved for future use
 			 hasLiveData : 1;			// true if the following fields are meaningful for this sensor
@@ -1165,7 +1169,7 @@ struct __attribute__((packed)) FilamentMonitorDataV2
 			lastPercentage : 10,		// declaring this struct with attribute packed allows this to straddle word boundaries
 			calibrationLength : 24;
 
-	void ClearReservedFields() noexcept { zero1 = 0; zero2 = 0; }
+	void ClearReservedFields() noexcept { extraDataValid = extraData = 0; zero2 = 0; }
 };
 
 // Message sent by expansion boards to report the status of their filament monitors

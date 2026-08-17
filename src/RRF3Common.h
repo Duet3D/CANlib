@@ -51,6 +51,9 @@ constexpr float DefaultScanningProbeTouchModeThreshold = 0.5;
 constexpr float DefaultScanningProbeTouchModeProbeSpeed = 200.0;	// mm/min
 constexpr float TouchModeMaxThreshold = 10.0;			// maximum touch mode threshold that can be configured and sent over CAN
 
+// Filament monitors
+constexpr uint32_t FilamentMonitorMotionLatchTime = 500;	// how long detected filament movement keeps being reported, in milliseconds
+
 // LED strips
 constexpr size_t DefaultMaxLedsPerStrip = 60;			// maximum Neopixel or DotStar LEDs per strip
 
@@ -324,7 +327,7 @@ NamedEnum(EventType, uint8_t, main_board_power_fail, expansion_reconnect, expans
 // Type of heater fault
 enum class HeaterFaultType : uint8_t
 {
-	failedToReadSensor = 0, temperatureRisingTooSlowly, exceededAllowedExcursion, monitorTriggered, pwmTooHigh,
+	failedToReadSensor = 0, temperatureRisingTooSlowly, exceededAllowedExcursion, monitorTriggered, pwmTooHigh, inductiveHeaterError,
 	heaterFaultTypeLimit
 };
 
@@ -336,6 +339,7 @@ constexpr const char *_ecv_array HeaterFaultText[] =
 	"exceeded allowed temperature excursion: ",		// "target ... actual ..." will be appended
 	"",												// "monitor ... was triggered" will be appended
 	"high PWM: ",									// "expected ... actual ..." will be appended
+	"inductive heater load error: ",				// message from expansion board will be appended
 	"unknown error: "								// this is used if the parameter is not a valid heater fault type
 };
 
