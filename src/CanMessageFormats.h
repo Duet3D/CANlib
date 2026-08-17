@@ -475,31 +475,19 @@ struct __attribute__((packed)) CanMessageChangeInputMonitorV1
 							actionChangeMinInterval = 4,			// change the minimum interval to param and set standard mode
 							actionReturnPinName = 5,				// return the pin name
 							actionSetDriveLevel = 6,				// set the drive level to param, only for scanning Z probes
-							actionSelectTouchMode = 7;				// select touch mode and set sensitivity to param, only for scanning Z probes
+							actionSelectTouchMode = 7,				// select touch mode and set sensitivity to param, only for scanning Z probes
+							actionTare = 8;							// tare an analog input in the mode given by param, the baseline is returned as a standard reply data word
+
+	// When the action is actionTare, param selects the tare mode
+	static constexpr uint32_t paramTareAndHold = 0,					// latch the baseline and hold it until the next tare, used while a probing move is in progress
+							  paramTareAndTrack = 1,				// latch the baseline and let it track slow drift afterwards
+							  paramTrackOnly = 2;					// resume tracking from the held baseline without latching, used when a probing move ends with the nozzle possibly still loaded
 
 	// When the action is actionSetDriveLevel, some values of param define a special action:
 	static constexpr uint32_t paramAutoCalibrateDriveLevelAndReport = 0xFFFFFFFFu, paramReportDriveLevel = 0xFFFFFFFEu;
 	static constexpr uint32_t paramDriveLevelMask = 0x1F;			// bottom 5 bits are the drive level
 	static constexpr unsigned int paramOffsetShift = 5;				// remaining bits are the offset
 	static constexpr uint32_t maxParamOffset = ((uint32_t)1 << (32 - paramOffsetShift)) - 1;
-
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
-};
-
-// Request to latch the current averaged reading of an analog input monitor as its baseline, so that the threshold is compared against
-// the change since the tare. The baseline comes back as a data word in the standard reply because only the expansion board knows the raw reading
-struct __attribute__((packed)) CanMessageTareInputMonitor
-{
-	static constexpr CanMessageType messageType = CanMessageType::tareInputMonitor;
-
-	uint16_t requestId : 12,
-			 zero : 4;
-	RemoteInputHandle handle;
-	uint8_t mode;
-
-	static constexpr uint8_t modeTareAndHold = 0,			// latch the baseline and hold it until the next tare, used while a probing move is in progress
-							modeTareAndTrack = 1,			// latch the baseline and let it track slow drift afterwards
-							modeTrackOnly = 2;				// resume tracking from the held baseline without latching, used when a probing move ends with the nozzle possibly still loaded
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
@@ -1403,7 +1391,6 @@ union CanMessage
 	CanMessageSetInputShapingV1 setInputShapingV1;
 	CanMessageCreateInputMonitorV1 createInputMonitorV1;
 	CanMessageChangeInputMonitorV1 changeInputMonitorV1;
-	CanMessageTareInputMonitor tareInputMonitor;
 	CanMessageInputChangedV1 inputChangedV1;
 	CanMessageInputChangedV2 inputChangedV2;
 	CanMessageFansReport fansReport;
