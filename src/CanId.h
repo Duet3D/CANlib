@@ -143,7 +143,6 @@ enum class CanMessageType : uint16_t
 	readInputsReplyV1 = 4529,
 	boardStatusReportV1 = 4530,
 	heaterModelReport = 4531,					// added in firmware 3.7
-	tareInputMonitorReply = 4532,				// added in firmware 3.7
 
 	// Firmware updates
 	firmwareBlockRequest = 5000,

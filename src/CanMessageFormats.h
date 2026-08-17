@@ -487,7 +487,7 @@ struct __attribute__((packed)) CanMessageChangeInputMonitorV1
 };
 
 // Request to latch the current averaged reading of an analog input monitor as its baseline, so that the threshold is compared against
-// the change since the tare. The baseline comes back in the reply because only the expansion board knows the raw reading
+// the change since the tare. The baseline comes back as a data word in the standard reply because only the expansion board knows the raw reading
 struct __attribute__((packed)) CanMessageTareInputMonitor
 {
 	static constexpr CanMessageType messageType = CanMessageType::tareInputMonitor;
@@ -747,34 +747,53 @@ struct __attribute__((packed)) CanMessageFirmwareUpdateResponse
 	void ClearReservedFields() noexcept { zero = 0; }
 };
 
-// This is the standard reply used by many calls. It carries a GCodeResult, some text, and in some cases 8 bits of additional information.
-// It can be split into multiple fragments so that the text is no constrained to 64 characters.
+// This is the standard reply used by many calls. It carries a GCodeResult, some text, and in some cases 8 bits and/or up to three 32-bit words of additional information.
+// It can be split into multiple fragments so that the text is not constrained to 60 characters. The data words are carried in fragment 0 only, ahead of the text.
 // The layout of requestId and resultCode are common to more than one reply type
 struct __attribute__((packed)) CanMessageStandardReply
 {
 	static constexpr CanMessageType messageType = CanMessageType::standardReply;
+	static constexpr size_t MaxNumWords = 3;
 
 	uint32_t requestId : 12,				// the request ID of the message we are replying to
 			 resultCode : 4,				// normally a GCodeResult
-			 fragmentNumber : 7,			// the fragment number of this message
+			 fragmentNumber : 5,			// the fragment number of this message
+			 numWords : 2,					// number of 32-bit data words preceding the text, fragment 0 only
 			 moreFollows : 1,				// set if this is not the last fragment of the reply
 			 extra : 8;						// normally unused, but occasionally carries extra data
-	char text[60];
+	char text[60];							// numWords data words followed by the text
 
-	static constexpr size_t MaxTextLength = sizeof(text);
+	size_t GetMaxTextLength() const noexcept { return sizeof(text) - numWords * sizeof(uint32_t); }
+	char *GetText() noexcept { return text + numWords * sizeof(uint32_t); }
+	const char *GetText() const noexcept { return text + numWords * sizeof(uint32_t); }
+
+	// Packed struct, so copy the word out rather than cast to uint32_t*
+	uint32_t GetWord(size_t index) const noexcept
+	{
+		uint32_t word;
+		memcpy(&word, text + index * sizeof(uint32_t), sizeof(word));
+		return word;
+	}
+
+	void SetWords(const uint32_t *words, size_t count) noexcept
+	{
+		numWords = count;
+		memcpy(text, words, count * sizeof(uint32_t));
+	}
 
 	size_t GetTextLength(size_t dataLength) const noexcept
 	{
 		// can't use min<> here because it hasn't been moved to RRFLibraries yet
-		return Strnlen(text, (dataLength < sizeof(uint32_t) + sizeof(text)) ? dataLength - sizeof(uint32_t) : sizeof(text));
+		const size_t headerLength = (numWords + 1) * sizeof(uint32_t);
+		return (dataLength <= headerLength) ? 0 : Strnlen(GetText(), (dataLength < headerLength + GetMaxTextLength()) ? dataLength - headerLength : GetMaxTextLength());
 	}
 
 	size_t GetActualDataLength(size_t textLength) const noexcept
 	{
-		return textLength + sizeof(uint32_t);
+		return textLength + (numWords + 1) * sizeof(uint32_t);
 	}
 
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; extra = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; fragmentNumber = 0; numWords = 0; moreFollows = 0; extra = 0; }
 };
 
 // Response to the ReadInputsRequest. The requestID and resultCode must be in the same place as for a standard reply.
@@ -813,21 +832,6 @@ struct __attribute__((packed)) CanMessageReadInputsReplyV1
 	{
 		return sizeof(uint32_t) + numReported * sizeof(results[0]);
 	}
-};
-
-// Response to the TareInputMonitor request. The requestID and resultCode must be in the same place as for a standard reply
-struct __attribute__((packed)) CanMessageTareInputMonitorReply
-{
-	static constexpr CanMessageType messageType = CanMessageType::tareInputMonitorReply;
-
-	uint32_t requestId : 12,				// the request ID of the message we are replying to - must be in the same place as in a StandardReply
-			 resultCode : 4,				// normally a GCodeResult - must be in the same place as in a StandardReply
-			 zero : 16;						// spare
-	int32_t baseline;						// the reading that was latched, in raw counts
-
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
-
-	size_t GetActualDataLength() const noexcept { return sizeof(uint32_t) + sizeof(int32_t); }
 };
 
 struct ParamDescriptor;
@@ -1400,7 +1404,6 @@ union CanMessage
 	CanMessageCreateInputMonitorV1 createInputMonitorV1;
 	CanMessageChangeInputMonitorV1 changeInputMonitorV1;
 	CanMessageTareInputMonitor tareInputMonitor;
-	CanMessageTareInputMonitorReply tareInputMonitorReply;
 	CanMessageInputChangedV1 inputChangedV1;
 	CanMessageInputChangedV2 inputChangedV2;
 	CanMessageFansReport fansReport;
