@@ -93,6 +93,7 @@ constexpr ParamDescriptor M569Point1Params[] =
 	FLOAT_PARAM('A'),					// acceleration feedforward term added in 3.5beta4
 	FLOAT_PARAM('Q'),					// torque constant in Nm per A added in 3.5 post beta4
 	REDUCED_STRING_PARAM('Y'),			// magnetic encoder type, added at 3.6.2
+	FLOAT_PARAM('B'),					// standstill position deadband, added in 3.7.0
 	END_PARAMS
 };
 
