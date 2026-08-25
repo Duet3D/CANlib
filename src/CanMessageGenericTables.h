@@ -97,12 +97,15 @@ constexpr ParamDescriptor M569Point1Params[] =
 	END_PARAMS
 };
 
-// Read or write stepper driver register
+// Read or write stepper driver register, or configure the sine table waveform correction
 constexpr ParamDescriptor M569Point2Params[] =
 {
 	LOCAL_DRIVER_PARAM('P'),
 	UINT8_PARAM('R'),
 	UINT32_PARAM('V'),
+	UINT8_PARAM('S'),					// waveform correction harmonic, added in 3.7
+	FLOAT_PARAM('J'),					// waveform correction magnitude in degrees, added in 3.7
+	FLOAT_PARAM('O'),					// waveform correction phase in degrees, added in 3.7
 	END_PARAMS
 };
 
