@@ -335,7 +335,7 @@ enum class HeaterFaultType : uint8_t
 constexpr const char *_ecv_array HeaterFaultText[] =
 {
 	"failed to read sensor: ",						// the sensor error message will be appended
-	"temperature rising too slowly: ",				// "expected ... measured ..." will be appended
+	"temperature rising too slowly (heater may need to be tuned): ",	// "expected ... measured ..." will be appended
 	"exceeded allowed temperature excursion: ",		// "target ... actual ..." will be appended
 	"",												// "monitor ... was triggered" will be appended
 	"high PWM: ",									// "expected ... actual ..." will be appended
