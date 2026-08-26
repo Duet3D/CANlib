@@ -109,6 +109,26 @@ constexpr ParamDescriptor M569Point2Params[] =
 	END_PARAMS
 };
 
+// Set stepper driver step mode and phase stepping parameters
+constexpr ParamDescriptor M970Params[] =
+{
+	LOCAL_DRIVER_PARAM('P'),
+	UINT8_PARAM('S'),					// step mode: 0 = step and direction, 1 = phase stepping
+	FLOAT_PARAM('V'),					// velocity feedforward Kv
+	FLOAT_PARAM('A'),					// acceleration feedforward Ka
+	END_PARAMS
+};
+
+// Configure the phase correction of a phase stepped driver
+constexpr ParamDescriptor M970Point3Params[] =
+{
+	LOCAL_DRIVER_PARAM('P'),
+	UINT8_PARAM('S'),					// harmonic of the electrical cycle
+	FLOAT_PARAM('J'),					// correction magnitude in degrees
+	FLOAT_PARAM('O'),					// correction phase in degrees
+	END_PARAMS
+};
+
 // Set driver torque mode
 constexpr ParamDescriptor M569Point4Params[] =
 {
