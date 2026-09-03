@@ -93,15 +93,39 @@ constexpr ParamDescriptor M569Point1Params[] =
 	FLOAT_PARAM('A'),					// acceleration feedforward term added in 3.5beta4
 	FLOAT_PARAM('Q'),					// torque constant in Nm per A added in 3.5 post beta4
 	REDUCED_STRING_PARAM('Y'),			// magnetic encoder type, added at 3.6.2
+	FLOAT_PARAM('B'),					// standstill position deadband, added in 3.7.0
 	END_PARAMS
 };
 
-// Read or write stepper driver register
+// Read or write stepper driver register, or configure the sine table waveform correction
 constexpr ParamDescriptor M569Point2Params[] =
 {
 	LOCAL_DRIVER_PARAM('P'),
 	UINT8_PARAM('R'),
 	UINT32_PARAM('V'),
+	UINT8_PARAM('S'),					// waveform correction harmonic, added in 3.7
+	FLOAT_PARAM('J'),					// waveform correction magnitude in degrees, added in 3.7
+	FLOAT_PARAM('O'),					// waveform correction phase in degrees, added in 3.7
+	END_PARAMS
+};
+
+// Set stepper driver step mode and phase stepping parameters
+constexpr ParamDescriptor M970Params[] =
+{
+	LOCAL_DRIVER_PARAM('P'),
+	UINT8_PARAM('S'),					// step mode: 0 = step and direction, 1 = phase stepping
+	FLOAT_PARAM('V'),					// velocity feedforward Kv
+	FLOAT_PARAM('A'),					// acceleration feedforward Ka
+	END_PARAMS
+};
+
+// Configure the phase correction of a phase stepped driver
+constexpr ParamDescriptor M970Point3Params[] =
+{
+	LOCAL_DRIVER_PARAM('P'),
+	UINT8_PARAM('S'),					// harmonic of the electrical cycle
+	FLOAT_PARAM('J'),					// correction magnitude in degrees
+	FLOAT_PARAM('O'),					// correction phase in degrees
 	END_PARAMS
 };
 
@@ -212,6 +236,7 @@ constexpr ParamDescriptor M955Params[] =
 	UINT8_PARAM('I'),					// orientation
 	UINT8_PARAM('R'),					// resolution (bits)
 	UINT16_PARAM('S'),					// sampling rate
+	REDUCED_STRING_PARAM('C'),			// pins to use when the accelerometer is connected via SPI
 	END_PARAMS
 };
 

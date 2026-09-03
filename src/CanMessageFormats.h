@@ -657,13 +657,15 @@ struct __attribute__((packed)) CanMessageEnableStallEndstop
 	static constexpr CanMessageType messageType = CanMessageType::enableStallEndstop;
 
 	uint16_t requestId : 12,
-			 zero : 4;
+			 endstopType : 4;							// which detection mechanism to use, see the type constants below. Firmware that predates this field always sends zero
 	uint16_t driverNumber;								// the number of the driver we want to enable a stall endstop for
-	float speed;										// the speed we will use for the homing move, not relevant if driverNumber == disableAll
+	float speed;										// the speed we will use for the homing move, not relevant if driverNumber == disableAll or endstopType is typeEncoder
 
 	static constexpr uint16_t disableAll = 0xFFFF;		// if driverNumber is this then we disable all stall endstops on this board
+	static constexpr uint16_t typeMotorLoad = 0;		// detect a stall using the driver's StallGuard feature
+	static constexpr uint16_t typeEncoder = 1;			// detect a stall from the encoder position error
 
-	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
+	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; endstopType = typeMotorLoad; }
 };
 
 // Request to set and return the default model for a heater
