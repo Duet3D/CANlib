@@ -4,7 +4,22 @@
 # Cross-compiler toolchain.
 # RepRapFirmware exports CROSS_COMPILE when building this as a submodule.
 # When building CANlib standalone, fall back to a toolchain on PATH.
-CROSS_COMPILE ?= arm-none-eabi-
+ARM_GNU_TOOLCHAIN_VERSION ?= 15.2.rel1
+HOST_ARCH_RAW := $(shell uname -m)
+
+ifeq ($(HOST_ARCH_RAW),aarch64)
+ARM_GNU_TOOLCHAIN_HOST_ARCH := aarch64
+else ifeq ($(HOST_ARCH_RAW),arm64)
+ARM_GNU_TOOLCHAIN_HOST_ARCH := aarch64
+else ifeq ($(HOST_ARCH_RAW),x86_64)
+ARM_GNU_TOOLCHAIN_HOST_ARCH := x86_64
+else ifeq ($(HOST_ARCH_RAW),amd64)
+ARM_GNU_TOOLCHAIN_HOST_ARCH := x86_64
+else
+ARM_GNU_TOOLCHAIN_HOST_ARCH := $(HOST_ARCH_RAW)
+endif
+
+CROSS_COMPILE ?= $(abspath ../arm-gnu-toolchain-$(ARM_GNU_TOOLCHAIN_VERSION)-$(ARM_GNU_TOOLCHAIN_HOST_ARCH)-arm-none-eabi/bin/arm-none-eabi-)
 export CROSS_COMPILE
 
 # Toolchain commands
