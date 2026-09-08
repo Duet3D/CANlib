@@ -43,7 +43,8 @@ CXXFLAGS := -c -std=c++20 \
 	-Wshadow \
 	-Wsign-promo \
 	$(INCLUDES) \
-	$(DEFINES)
+	$(DEFINES) \
+	$(DEBUG_FLAGS)
 
 OBJS := $(CPP_SRCS:%.cpp=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
