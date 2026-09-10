@@ -9,7 +9,12 @@
 #include <General/SimpleMath.h>
 #include <cmath>
 
-#define SQRT_FAN_SCALING		(0)				// Prusa apparently thinks that cooling goes as the square root of fan speed, but I can't find any evidence of thia
+// A note on how nozzle cooling varies with fan PWM.
+// Tests done tuning an INDX with the dual centrifugal fan cooler at fan PWM 0.4, 0.6, 0.8 and 1.0 yielded fan cooling rates of 1.182, 1.181, 1.123, 1.063.
+// The code assumes linear cooling rate with fan PWM and divides by PWM to get these figures, so ideally these values would all be the same.
+// A power law fit through these points suggests that cooling rate goes as fan PWM to the power 0.89.
+// This is sufficiently close to linear for us to tune at 0.7 PWM and assume linear scaling.
+// The cooling will be slightly higher than predicted at low PWM and slightly lower at full PWM.
 
 // Calculate the cooling rate excluding the fan contribution
 float HeaterModel::GetBasicCoolingRate(float temperatureRise) const noexcept
@@ -24,11 +29,7 @@ float HeaterModel::GetBasicCoolingRate(float temperatureRise) const noexcept
 // Calculate the extra cooling rate provided by the part cooling fan
 float HeaterModel::GetFanCoolingRate(float temperatureRise, float fanPwm) const noexcept
 {
-#if SQRT_FAN_SCALING
-	return temperatureRise * 0.01 * fanCoolingRate * fastSqrtf(fanPwm);
-#else
 	return temperatureRise * 0.01 * fanCoolingRate * fanPwm;
-#endif
 }
 
 // Calculate the total cooling rate, excluding cooling caused by the filament
@@ -56,11 +57,7 @@ float HeaterModel::GetExpectedPwm(float temperatureRise, float fanPwm, float act
 // Calculate the change in required heater PWM due to a change in fan PWM
 float HeaterModel::GetPwmCorrectionForFan(float temperatureRise, float oldFanPwm, float newFanPwm) const noexcept
 {
-#if SQRT_FAN_SCALING
-	return temperatureRise * 0.01 * fanCoolingRate * (fastSqrtf(newFanPwm) - fastSqrtf(oldFanPwm)) / heatingRate;
-#else
 	return temperatureRise * 0.01 * fanCoolingRate * (newFanPwm - oldFanPwm) / heatingRate;
-#endif
 }
 
 // Estimate the maximum temperature rise that this heater gives at full power
@@ -79,11 +76,7 @@ float HeaterModel::CalculateBasicCoolingRate(float temperatureRise, float coolin
 // Calculate the fan cooling rate from measurements. This is the inverse of GetFanCoolingRate.
 float HeaterModel::CalculateFanCoolingRate(float temperatureRise, float coolingRate, float fanPwm) const noexcept
 {
-#if SQRT_FAN_SCALING
-	return (coolingRate * 100.0)/(temperatureRise * fastSqrtf(fanPwm));
-#else
 	return (coolingRate * 100.0)/(temperatureRise * fanPwm);
-#endif
 }
 
 // End
