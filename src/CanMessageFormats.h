@@ -626,7 +626,9 @@ struct __attribute__((packed)) CanMessageHeaterFeedForwardV1
 
 	uint16_t zero;
 	uint16_t heaterNumber : 8,
-			 zero2 : 8;
+			 fanOnly : 1,						// added after 3.7.0-rc.1
+			 nonPrintingExtruderMove : 1,		// added after 3.7.0-rc.1
+			 zero2 : 6;
 	float fanPwmFraction;
 	float extrusionPwmBoost;
 	float extrusionTemperatureBoost;
