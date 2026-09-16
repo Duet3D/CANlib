@@ -323,7 +323,13 @@ static inline bool IsPidMode(HeaterMode m) noexcept
 // The type names are also the names of the associated macro files that are run in response to the event.
 // Note: main board power failure is not currently handled by the event system but is included here as a placeholder in case in future it is.
 // mcu_temperature_warning is not current used.
-NamedEnum(EventType, uint8_t, main_board_power_fail, expansion_reconnect, expansion_timeout, heater_fault, driver_error, filament_error, driver_stall, driver_warning, mcu_temperature_warning, overvoltage, undervoltage);
+NamedEnum(EventType, uint8_t,
+			main_board_power_fail,
+			expansion_reconnect, expansion_timeout,
+			heater_fault,
+			driver_error, filament_error, driver_stall, driver_warning,
+			mcu_temperature_warning, overvoltage, undervoltage,
+			board_temperature_warning, board_over_temperature);
 
 // Type of heater fault
 enum class HeaterFaultType : uint8_t
