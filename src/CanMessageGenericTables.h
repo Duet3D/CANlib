@@ -74,7 +74,7 @@ constexpr ParamDescriptor M569Params[] =
 	UINT8_ARRAY_PARAM('Y', 3),
 	FLOAT_ARRAY_PARAM('T', 4),
 	INT8_PARAM('U'),
-	UINT32_param('C'),					// added at 3.7.0-rc.2, was missing
+	UINT32_PARAM('C'),					// added at 3.7.0-rc.2, was missing
 	END_PARAMS
 };
 
