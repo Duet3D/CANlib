@@ -222,7 +222,7 @@ template<class T> struct __attribute__((packed)) CanMessageMultipleDrivesRequest
 	uint16_t driversToUpdate;
 	T values[MaxLinearDriversPerCanSlave];
 
-	static constexpr size_t GetActualDataLength(size_t numDrivers) noexcept { return sizeof(uint16_t) * 2 + numDrivers * sizeof(T); }
+	constexpr size_t GetActualDataLength() const noexcept { return sizeof(uint16_t) * 2 + CountSetBits(driversToUpdate) * sizeof(T); }
 	static constexpr size_t MaxDrivesPerMessage() noexcept { return (64 - 2 * sizeof(uint16_t))/sizeof(T); }
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 };
