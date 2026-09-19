@@ -5,7 +5,7 @@ TARGET := $(BUILD_DIR)/libCANlib.a
 
 SRC_DIR := src
 
-CPP_SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
+CPP_SRCS := $(call rwildcard,$(SRC_DIR),*.cpp)
 
 INCLUDES := \
 	-I$(SRC_DIR) \
@@ -40,7 +40,8 @@ CXXFLAGS := -c -std=c++20 \
 	-O2 \
 	-Wall \
 	$(INCLUDES) \
-	$(DEFINES)
+	$(DEFINES) \
+	$(DEBUG_FLAGS)
 
 OBJS := $(CPP_SRCS:%.cpp=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
