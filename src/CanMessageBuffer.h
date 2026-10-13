@@ -175,7 +175,7 @@ public:
 		marker = 0;
 		extId = 1;
 		fdMode = 1;
-		useBrs = (T::messageType != CanMessageType::emergencyStop);
+		useBrs = (T::messageType != CanMessageType::emergencyStop && T::messageType != CanMessageType::firmwareBlockRequest);
 		remote = 0;
 		reportInFifo = 0;
 		spare = 0;
