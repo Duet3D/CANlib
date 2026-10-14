@@ -114,8 +114,14 @@ endif
 ifeq ($(MAKECMDGOALS),STM32H5_RTOS)
 -include Makefiles/STM32H5_RTOS.mk
 endif
+ifeq ($(MAKECMDGOALS),STM32H5_nonRTOS)
+-include Makefiles/STM32H5_nonRTOS.mk
+endif
 ifeq ($(MAKECMDGOALS),STM32H7_RTOS)
 -include Makefiles/STM32H7_RTOS.mk
+endif
+ifeq ($(MAKECMDGOALS),STM32H7_nonRTOS)
+-include Makefiles/STM32H7_nonRTOS.mk
 endif
 
 # Generic clean target
