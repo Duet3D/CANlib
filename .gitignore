@@ -51,3 +51,4 @@ SAME70_nonRTOS/
 /.clangd
 /STM32H5_RTOS_Debug/
 /STM32H5_nonRTOS/
+/STM32H5_nonRTOS_Debug/
