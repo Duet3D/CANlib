@@ -1,6 +1,6 @@
-# CANlib STM32H7 Configuration Makefile
+# CANlib STM32H7_nonRTOS Configuration Makefile
 
-BUILD_DIR := STM32H7
+BUILD_DIR := STM32H7_nonRTOS
 TARGET := $(BUILD_DIR)/libCANlib.a
 
 SRC_DIR := src
@@ -43,8 +43,8 @@ CXXFLAGS := -c -std=c++20 \
 OBJS := $(CPP_SRCS:%.cpp=$(BUILD_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
-.PHONY: STM32H7
-STM32H7: $(TARGET)
+.PHONY: STM32H7_nonRTOS
+STM32H7_nonRTOS: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(Q)echo "  AR      $@"
@@ -58,7 +58,7 @@ $(BUILD_DIR)/%.o: %.cpp
 
 -include $(DEPS)
 
-.PHONY: clean-STM32H7
-clean-STM32H7:
+.PHONY: clean-STM32H7_nonRTOS
+clean-STM32H7_nonRTOS:
 	$(Q)echo "  RM      $(BUILD_DIR)"
 	$(Q)rm -rf $(BUILD_DIR)

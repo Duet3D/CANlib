@@ -1,4 +1,4 @@
-# CANlib STM32H5 Configuration Makefile
+# CANlib STM32H5_nonRTOS Configuration Makefile
 
 BUILD_DIR := STM32H5_nonRTOS
 TARGET := $(BUILD_DIR)/libCANlib.a
@@ -58,7 +58,7 @@ $(BUILD_DIR)/%.o: %.cpp
 
 -include $(DEPS)
 
-.PHONY: clean-STM32H5
-clean-STM32H5:
+.PHONY: clean-STM32H5_nonRTOS
+clean-STM32H5_nonRTOS:
 	$(Q)echo "  RM      $(BUILD_DIR)"
 	$(Q)rm -rf $(BUILD_DIR)
