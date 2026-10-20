@@ -12,7 +12,7 @@ INCLUDES := \
 	-I../RRFLibraries/src \
 	-I../CoreN2G/src \
 	-I../FreeRTOS/src/include \
-	-I../FreeRTOS/src/portable/GCC/ARM_CM7/r0p1
+	-I../FreeRTOS/src/portable/GCC/ARM_CM4F
 
 DEFINES := \
 	-D__SAME51N19A__ \
@@ -33,7 +33,9 @@ CXXFLAGS := -c -std=c++20 \
 	-nostdlib \
 	-Wundef \
 	-Wdouble-promotion \
+	-Wfloat-conversion \
 	-Werror=return-type \
+	-Wsuggest-override \
 	-Werror -Wnoexcept -Wshadow -Wsign-promo \
 	-fsingle-precision-constant \
 	-fstack-usage \
