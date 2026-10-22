@@ -2,16 +2,20 @@
 # DUET_MCU, which the consuming project's toolchain file sets along with the core's code generation
 # flags.
 #
-#   DUET_MCU          SAME70 or SAME5x
-#   DUET_PART_DEFINE  the macro naming the MCU part, e.g. __SAME70Q20B__
-#   DUET_RTOS         build against Duet::FreeRTOS, which must already exist
+#   DUET_MCU             SAME70, SAME5x, SAMC21 or STM32H5
+#   DUET_PART_DEFINE     the macro naming the MCU part, e.g. __SAME70Q20B__
+#   DUET_RTOS            build against Duet::FreeRTOS, which must already exist
+#   CANLIB_OPTIMISATION  Release optimisation for this library, if not the build type's
 #
 # Target: Duet::CANlib. Needs Duet::RRFLibraries and Duet::CoreN2G.
 
 cmake_minimum_required(VERSION 3.25)
 project(CANlib LANGUAGES CXX)
 
-if(NOT DUET_MCU MATCHES "^(SAME70|SAME5x)$")
+set(_options)
+if(DUET_MCU STREQUAL "STM32H5")
+    set(_options -mno-unaligned-access)
+elseif(NOT DUET_MCU MATCHES "^(SAME70|SAME5x|SAMC21)$")
     message(FATAL_ERROR "CANlib: unsupported DUET_MCU '${DUET_MCU}'")
 endif()
 
@@ -34,6 +38,8 @@ if(DUET_RTOS)
 endif()
 
 target_compile_options(CANlib PRIVATE
+    $<$<CONFIG:Release>:${CANLIB_OPTIMISATION}>
+    ${_options}
     -fno-math-errno
     -fsingle-precision-constant
     -fno-threadsafe-statics
