@@ -50,7 +50,9 @@ target_compile_options(CANlib PRIVATE
     -Wall
     -Wundef
     -Wdouble-promotion
+    -Wfloat-conversion
     -Werror=return-type
+    -Wsuggest-override
     -Wnoexcept
     -Wshadow
     -Wsign-promo
