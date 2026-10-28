@@ -15,9 +15,9 @@ cmake_minimum_required(VERSION 3.25)
 project(CANlib LANGUAGES CXX)
 
 set(_options)
-if(DUET_MCU STREQUAL "STM32H5")
+if(DUET_MCU MATCHES "^(STM32H5|SAME70)$")
     set(_options -mno-unaligned-access)
-elseif(NOT DUET_MCU MATCHES "^(SAME70|SAME5x|SAMC21)$")
+elseif(NOT DUET_MCU MATCHES "^(SAME5x|SAMC21)$")
     message(FATAL_ERROR "CANlib: unsupported DUET_MCU '${DUET_MCU}'")
 endif()
 
