@@ -50,7 +50,7 @@ export Q
 
 # Recursive wildcard: $(call rwildcard,<dir>,<patterns>)
 # Source lists must not shell out to find, which resolves to FIND.EXE on Windows
-rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
+rwildcard = $(sort $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d)))
 
 # An empty scan would archive no objects and then look up to date forever, so stop here instead
 ifeq ($(wildcard src/*),)
