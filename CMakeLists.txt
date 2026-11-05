@@ -7,7 +7,6 @@
 #   DUET_RTL_DUMPS       write each source's RTL (-fdump-rtl-expand), for call graph and
 #                        stack analysis; ccache cannot cache these compiles
 #   DUET_RTOS            build against Duet::FreeRTOS, which must already exist
-#   CANLIB_OPTIMISATION  Release optimisation for this library, if not the build type's
 #
 # Target: Duet::CANlib. Needs Duet::RRFLibraries and Duet::CoreN2G.
 
@@ -40,7 +39,6 @@ if(DUET_RTOS)
 endif()
 
 target_compile_options(CANlib PRIVATE
-    $<$<CONFIG:Release>:${CANLIB_OPTIMISATION}>
     ${_options}
     -fno-math-errno
     -fsingle-precision-constant

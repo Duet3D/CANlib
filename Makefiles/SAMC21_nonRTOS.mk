@@ -34,7 +34,7 @@ CXXFLAGS := -c -std=c++20 \
 	-Werror -Wnoexcept -Wshadow -Wsign-promo \
 	-fsingle-precision-constant \
 	-fstack-usage \
-	-O2 \
+	-Os \
 	-Wall \
 	-Werror \
 	-Wnoexcept \
