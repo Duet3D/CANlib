@@ -24,6 +24,12 @@
 
 size_t CanAdjustedLength(size_t rawLength) noexcept;
 
+// Get the number of bytes that follow the fixed part of a received message. A message shorter than its fixed part has none
+constexpr size_t TextLengthAfterHeader(size_t dataLength, size_t headerLength) noexcept
+{
+	return (dataLength > headerLength) ? dataLength - headerLength : 0;
+}
+
 // CAN message formats
 // Some messages end in strings. For such messages, it is now safe to compute the message length without allowing for a null terminator.
 // This is because when our sending functions need to round up the message length to a supported CAN size, the additional data is now set to zeros.
@@ -455,7 +461,7 @@ struct __attribute__((packed)) CanMessageCreateInputMonitorNew
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
 	size_t GetActualDataLength() const noexcept { return 2 * sizeof(uint16_t) + sizeof(uint32_t) + sizeof(RemoteInputHandle) + Strnlen(pinName, sizeof(pinName)/sizeof(pinName[0])); }
-	size_t GetMaxPinNameLength(size_t dataLength) const noexcept { return dataLength - (2 * sizeof(uint16_t) + sizeof(uint32_t) + sizeof(RemoteInputHandle)); }
+	size_t GetMaxPinNameLength(size_t dataLength) const noexcept { return TextLengthAfterHeader(dataLength, 2 * sizeof(uint16_t) + sizeof(uint32_t) + sizeof(RemoteInputHandle)); }
 };
 
 // Request to reconfigure an input monitor
@@ -664,7 +670,7 @@ struct __attribute__((packed)) CanMessageFirmwareUpdateRequest
 	static constexpr uint32_t BootloaderVersion0 = 0;
 
 	size_t GetActualDataLength() const noexcept { return 2 * sizeof(uint32_t) + Strnlen(boardType, sizeof(boardType)/sizeof(boardType[0])); }
-	size_t GetBoardTypeLength(size_t dataLength) const noexcept { return dataLength - 2 * sizeof(uint32_t); }
+	size_t GetBoardTypeLength(size_t dataLength) const noexcept { return TextLengthAfterHeader(dataLength, 2 * sizeof(uint32_t)); }
 	void ClearReservedFields() noexcept { }
 };
 
@@ -817,7 +823,7 @@ struct __attribute__((packed)) CanMessageAnnounceOld
 	size_t GetActualDataLength() const noexcept
 			{ return (2 * sizeof(uint32_t)) + Strnlen(boardTypeAndFirmwareVersion, sizeof(boardTypeAndFirmwareVersion)/sizeof(boardTypeAndFirmwareVersion[0])); }
 
-	static size_t GetMaxTextLength(size_t dataLength) noexcept { return dataLength - (2 * sizeof(uint32_t)); }
+	static size_t GetMaxTextLength(size_t dataLength) noexcept { return TextLengthAfterHeader(dataLength, 2 * sizeof(uint32_t)); }
 };
 
 // Message used by expansion boards running firmware 3.4.0beta5 and later to announce their presence on the CAN bus to other boards
@@ -835,7 +841,7 @@ struct __attribute__((packed)) CanMessageAnnounceNew
 	size_t GetActualDataLength() const noexcept
 			{ return sizeof(timeSinceStarted) + sizeof(uniqueId) + sizeof(uint8_t) + Strnlen(boardTypeAndFirmwareVersion, sizeof(boardTypeAndFirmwareVersion)/sizeof(boardTypeAndFirmwareVersion[0])); }
 
-	static size_t GetMaxTextLength(size_t dataLength) noexcept { return dataLength - (sizeof(timeSinceStarted) + sizeof(uniqueId) + sizeof(uint8_t)); }
+	static size_t GetMaxTextLength(size_t dataLength) noexcept { return TextLengthAfterHeader(dataLength, sizeof(timeSinceStarted) + sizeof(uniqueId) + sizeof(uint8_t)); }
 
 	void ClearReservedFields() noexcept { zero = 0; }
 };
@@ -1116,7 +1122,7 @@ struct __attribute__((packed)) CanMessageClosedLoopData
 	// Get the number of data bytes in a message, given the message length (which will have been rounded up to the next CAN-FD value)
 	static size_t GetNumDataBytes(size_t msglen) noexcept
 	{
-		return msglen - 2 * sizeof(uint32_t);
+		return TextLengthAfterHeader(msglen, 2 * sizeof(uint32_t));
 	}
 
 	void ClearReservedFields() noexcept { zero = 0; zero2 = 0; }
@@ -1142,7 +1148,7 @@ struct __attribute__((packed)) CanMessageEvent
 	// Get the maximum length of the text
 	size_t GetMaxTextLength(size_t msgLen) const noexcept
 	{
-		return msgLen - 2 * sizeof(uint32_t);
+		return TextLengthAfterHeader(msgLen, 2 * sizeof(uint32_t));
 	}
 
 	void ClearReservedFields() noexcept { zero = 0; }
