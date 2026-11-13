@@ -23,6 +23,7 @@ bool CanMessageGenericParser::GetStringParam(char c, const StringRef& v) const n
 }
 
 // Look for the specified parameter. If found, return its type and set the index of the corresponding data.
+// A parameter whose data would run past the end of the message is reported as not present
 ParamDescriptor::ParamType CanMessageGenericParser::FindParameter(char c, unsigned int& pos) const noexcept
 {
 	pos = 0;
@@ -30,30 +31,42 @@ ParamDescriptor::ParamType CanMessageGenericParser::FindParameter(char c, unsign
 	for (const ParamDescriptor *_ecv_array d = paramTable; d->letter != 0 && paramMap != 0; ++d)
 	{
 		const bool present = (paramMap & 1) != 0;
-		if (d->letter == c)
+		if (!present && d->letter == c)
 		{
-			return (present) ? d->type : ParamDescriptor::ParamType::none;
+			return ParamDescriptor::ParamType::none;
 		}
 		if (present)
 		{
-			// This parameter is present, so skip it
-			unsigned int size = d->ItemSize();
+			// Find the end of this parameter's data
+			unsigned int end = pos;
+			const unsigned int size = d->ItemSize();
 			if (size == 0)
 			{
 				// The only item with size 0 is string, so skip up to and including the null terminator
-				do
+				while (end < sizeof(msg.data) && msg.data[end] != 0)
 				{
-				} while (msg.data[pos++] != 0);
+					end++;
+				}
+				end++;
 			}
 			else if ((d->type & ParamDescriptor::ParamType::isArray) != 0)
 			{
-				const uint8_t numElems = msg.data[pos++];
-				pos += numElems * size;
+				end += (end < sizeof(msg.data)) ? 1 + msg.data[end] * size : 1;
 			}
 			else
 			{
-				pos += size;
+				end += size;
 			}
+
+			if (end > sizeof(msg.data))
+			{
+				return ParamDescriptor::ParamType::none;
+			}
+			if (d->letter == c)
+			{
+				return d->type;
+			}
+			pos = end;
 		}
 		paramMap >>= 1;
 	}
