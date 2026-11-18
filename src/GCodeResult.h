@@ -35,7 +35,8 @@ enum class GCodeResult : uint8_t
 	m291Cancelled,
 	waitingForAckSoIgnored,			// we are waiting for a message box to be acknowledged so the command has been ignored
 	noCanBuffer,					// only used if CAN expansion is supported - we failed to allocate a CAN buffer to send a message to an expansion board
-	canResponseTimeout				// only used if CAN expansion is supported - timed out waiting for a response to a CAN message - the associated reply buffer may contain more info
+	canResponseTimeout,				// only used if CAN expansion is supported - timed out waiting for a response to a CAN message - the associated reply buffer may contain more info
+	unknownCanBoard					// used when trying to send a message to a board that hasn't announced itself
 };
 
 constexpr const char *_ecv_array NoCanBufferMessage = "no CAN buffer available";
