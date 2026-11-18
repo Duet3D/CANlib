@@ -31,13 +31,13 @@ enum class CanMessageType : uint16_t
 	// High priority responses sent by expansion boards and Smart Tools
 	//unused_was_inputStateChangedV0 = 100,
 	event = 102,
-	enterTestMode = 104,	 	// sent by the ATE to the main board
+	enterTestMode = 104,	 		// sent by the ATE to the main board
 	inputStateChangedV1 = 105,
 	inputStateChangedV2 = 106,
 
 	// Configuration messages sent by the main board
 	setAddressAndNormalTiming = 2010,
-	setFastTiming = 2011,
+	//unused_was_setFastTiming = 2011,
 	reset = 2012,
 
 	// Medium priority messages sent by the main board
