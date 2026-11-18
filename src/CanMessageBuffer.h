@@ -64,7 +64,6 @@ public:
 		remote = 0;
 		useBrs = 1;
 		reportInFifo = 0;
-		spare = 0;
 		msg.generic.requestId = rid;
 		return &msg.generic;
 	}
@@ -82,7 +81,6 @@ public:
 		useBrs = 1;
 		remote = 0;
 		reportInFifo = 0;
-		spare = 0;
 		T* rslt = reinterpret_cast<T*>(&msg);
 		rslt->SetRequestId(rid);
 		return rslt;
@@ -101,7 +99,6 @@ public:
 		useBrs = 1;
 		remote = 0;
 		reportInFifo = 0;
-		spare = 0;
 		T* rslt = reinterpret_cast<T*>(&msg);
 		rslt->SetRequestId(rid);
 		return rslt;
@@ -120,7 +117,6 @@ public:
 		fdMode = 1;
 		remote = 0;
 		reportInFifo = 0;
-		spare = 0;
 		T* rslt = reinterpret_cast<T*>(&msg);
 		rslt->SetRequestId(rid);
 		return rslt;
@@ -139,7 +135,6 @@ public:
 		fdMode = 1;
 		remote = 0;
 		reportInFifo = 0;
-		spare = 0;
 		T* rslt = reinterpret_cast<T*>(&msg);
 		rslt->ClearReservedFields();
 		return rslt;
@@ -155,10 +150,10 @@ public:
 		marker = 0;
 		extId = 1;
 		fdMode = 1;
-		useBrs = (T::messageType != CanMessageType::timeSync && T::messageType != CanMessageType::emergencyStop);		// all broadcast messages except time sync and emergency stop use BRS
+		useBrs = (T::messageType != CanMessageType::timeSync && T::messageType != CanMessageType::emergencyStop && T::messageType != CanMessageType::reset
+					&& T::messageType != CanMessageType::startup);		// all broadcast messages except time sync, emergency stop, reset and startup use BRS
 		remote = 0;
 		reportInFifo = 0;
-		spare = 0;
 		T* rslt = reinterpret_cast<T*>(&msg);
 		rslt->ClearReservedFields();
 		return rslt;
@@ -175,10 +170,10 @@ public:
 		marker = 0;
 		extId = 1;
 		fdMode = 1;
-		useBrs = (T::messageType != CanMessageType::emergencyStop && T::messageType != CanMessageType::firmwareBlockRequest);
+		useBrs = (T::messageType != CanMessageType::emergencyStop && T::messageType != CanMessageType::firmwareBlockRequest && T::messageType != CanMessageType::reset
+					&& T::messageType != CanMessageType::startup);		// requests except these use BRS
 		remote = 0;
 		reportInFifo = 0;
-		spare = 0;
 		T* rslt = reinterpret_cast<T*>(&msg);
 		rslt->ClearReservedFields();
 		return rslt;
@@ -186,18 +181,18 @@ public:
 
 	void DebugPrint(const char *_ecv_array prefix) noexcept;
 
-	CanMessageBuffer *_ecv_null next;
-	CanId id;
-	size_t dataLength;
-	uint16_t timeStamp;
-	uint16_t marker : 8,			// message marker for transmit messages
-			extId : 1,				// true to send this using an extended ID
-			fdMode : 1,				// true to send as CAN-FD, false for plain CAN
-			useBrs : 1,				// true to use bit rate switching (only for CAN-FD) when sending, true if received message used BRS
-			remote : 1,				// true to set the 'remote' bit in the frame
-			reportInFifo : 1,		// true to report transmission complete via TxEventFifo
-			spare : 2,				// spare bits that are cleared by the Setup calls but are otherwise not used
-			managed : 1;			// true if this buffer is allocated from heap or freelist and returned to freelist, false if it is a local buffer
+	CanMessageBuffer *_ecv_null next;	// next buffer n the list, if this buffer is in a queue or freelist
+	CanId id;							// the 28-bit ID of this message
+	size_t dataLength;					// the length of the data field
+	uint16_t timeStamp;					// for received messages, the time stamp when the message began to be received
+	uint16_t marker : 8,				// for transmitted messages, the message marker
+			bus : 2,					// for received messages, the bus number on which this message was received
+			extId : 1,					// true to send this using an extended ID
+			fdMode : 1,					// true to send as CAN-FD, false for plain CAN
+			useBrs : 1,					// for transmitted messages: true to use bit rate switching (only for CAN-FD); for received messages: true if the received message used BRS
+			remote : 1,					// true to set the 'remote' bit in the frame
+			reportInFifo : 1,			// true to report transmission complete via TxEventFifo
+			managed : 1;				// true if this buffer is allocated from heap or freelist and returned to freelist, false if it is a local buffer
 	CanMessage msg;
 
 private:
