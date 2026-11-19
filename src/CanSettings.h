@@ -56,7 +56,7 @@ struct CanTiming
 		period = (uint16_t)((ClockFrequency + (bitRate/2))/bitRate);
 		nTseg1 = (uint16_t)((period * DefaultNormalSamplePointTimes1024)/1024) - 1;
 		nJumpWidth = period - (nTseg1 + 1);									// this is the maximum possible, as recommended by CiA
-		dataRateMultiplier = 0x0F;											// disable BRS
+		dataRateMultiplier = 0;												// disable BRS
 	}
 
 	// Set the arbitration phase sample point and set maximum jump width. The period must be set first.
@@ -85,7 +85,7 @@ struct CanTiming
 	// Set the data phase sample point and set maximum jump width. The period must be set first.
 	constexpr void SetDataSamplePoint(float samplePoint) noexcept
 	{
-		const uint16_t dataBitPeriod = period/(dataRateMultiplier + 1);
+		const uint16_t dataBitPeriod = period/GetActualDataRateMultiplier();
 		dTseg1 = (uint16_t)(dataBitPeriod * samplePoint) - 1;				// tseg1 excludes the 1-clock sync phase for historical reasons, hence the -1
 		dJumpWidth = dataBitPeriod - (dTseg1 + 1);
 	}
@@ -93,22 +93,34 @@ struct CanTiming
 	// Set the data phase sample point directly and set maximum jump width
 	constexpr void SetDataSamplePointDirect(uint16_t samplePoint) noexcept
 	{
-		const uint16_t dataBitPeriod = period/(dataRateMultiplier + 1);
-		dTseg1 = samplePoint;				// tseg1 excludes the 1-clock sync phase for historical reasons, hence the -1
+		const uint16_t dataBitPeriod = period/GetActualDataRateMultiplier();
+		dTseg1 = samplePoint;
 		dJumpWidth = dataBitPeriod - (dTseg1 + 1);
 	}
 
 	// Set the data phase jump width. The bit rate and sample point must be set first.
 	constexpr void SetDataJumpWidth(float jw) noexcept
 	{
-		const uint16_t dataBitPeriod = period/(dataRateMultiplier + 1);
+		const uint16_t dataBitPeriod = period/GetActualDataRateMultiplier();
 		dJumpWidth = constrain<uint16_t>((uint16_t)(dataBitPeriod * jw), 1, dataBitPeriod - (dTseg1 + 1));
 	}
 
 	// Get the actual data rate multiplier without the -1
 	constexpr unsigned int GetActualDataRateMultiplier() const noexcept
 	{
-		return dataRateMultiplier + 1;
+		return (dataRateMultiplier == 0x0F) ? 1 : dataRateMultiplier + 1;
+	}
+
+	// Get the arbitration bit rate
+	constexpr float GetArbitrationBitRate() const noexcept
+	{
+		return ClockFrequency/(float)(1000 * (uint32_t)period);
+	}
+
+	// Get the data bit rate
+	constexpr float GetDataBitRate() const noexcept
+	{
+		return ClockFrequency * GetActualDataRateMultiplier()/(float)(1000 * (uint32_t)period);
 	}
 };
 
