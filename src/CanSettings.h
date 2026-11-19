@@ -104,6 +104,12 @@ struct CanTiming
 		const uint16_t dataBitPeriod = period/(dataRateMultiplier + 1);
 		dJumpWidth = constrain<uint16_t>((uint16_t)(dataBitPeriod * jw), 1, dataBitPeriod - (dTseg1 + 1));
 	}
+
+	// Get the actual data rate multiplier without the -1
+	constexpr unsigned int GetActualDataRateMultiplier() const noexcept
+	{
+		return dataRateMultiplier + 1;
+	}
 };
 
 // This is read from the user area flash, so all values default to all bits set
