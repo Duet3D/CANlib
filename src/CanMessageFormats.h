@@ -979,7 +979,7 @@ struct __attribute__((packed)) CanMessageAnnounceV1
 			isReconnect : 1,				// set if this board didn't reset but is re-announcing after losing and regaining time sync
 			wasShutDown : 1,				// set if this board switched its heaters off because time sync was lost for longer than the connection timeout
 			noSmartDrivers : 1;				// set if none of the drivers on this board is a smart driver, inverted so older boards are taken to have smart drivers as before
-	char boardTypeAndFirmwareVersion[43];	// the type short name of this board followed by '|' and the firmware version
+	char boardTypeAndFirmwareVersion[43];	// the type short name of this board, the firmware version, the firmware date, and the bootloader version - separator is '|'
 
 	size_t GetActualDataLength() const noexcept
 			{ return sizeof(timeSinceStarted) + sizeof(uniqueId) + sizeof(uint8_t) + Strnlen(boardTypeAndFirmwareVersion, sizeof(boardTypeAndFirmwareVersion)/sizeof(boardTypeAndFirmwareVersion[0])); }
