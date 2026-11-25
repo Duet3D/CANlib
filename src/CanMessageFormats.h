@@ -194,12 +194,12 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped final
 
 	void DebugPrint() const noexcept;
 
-	size_t GetActualDataLength() const noexcept
+	size_t GetActualDataLength() const volatile noexcept
 	{
 		return (sizeof(*this) - sizeof(perDrive)) + (numDrivers * sizeof(perDrive[0]));
 	}
 
-	bool ValidMessageLength(size_t length) const noexcept { return length >= sizeof(*this) - sizeof(perDrive) && length >= GetActualDataLength(); }
+	bool ValidMessageLength(size_t length) const volatile noexcept { return length >= sizeof(*this) - sizeof(perDrive) && length >= GetActualDataLength(); }
 
 	// This is called from just one place (in CanMotion::FinishMovement), so inline
 	bool HasMotion() const noexcept
@@ -695,9 +695,9 @@ struct __attribute__((packed)) CanMessageSetInputShapingV1
 	uint16_t numImpulses;								// the total number of impulses
 	ShapingPair impulses[7];							// the coefficients and durations of the impulses
 
-	size_t GetActualDataLength() const noexcept { return (2 * sizeof(uint16_t)) + (numImpulses * sizeof(ShapingPair)); }
+	size_t GetActualDataLength() const volatile noexcept { return (2 * sizeof(uint16_t)) + (numImpulses * sizeof(ShapingPair)); }
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
-	bool ValidMessageLength(size_t length) const noexcept { return length >= 2 * sizeof(uint16_t) && length >= GetActualDataLength(); }
+	bool ValidMessageLength(size_t length) const volatile noexcept { return length >= 2 * sizeof(uint16_t) && length >= GetActualDataLength(); }
 };
 
 // Enable a stall endstop, or clear all stall endstops
