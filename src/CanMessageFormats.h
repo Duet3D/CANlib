@@ -142,7 +142,7 @@ struct __attribute__((packed)) CanMessageRevertPosition
 
 	void ClearReservedFields() noexcept { zero = 0; }
 	static constexpr size_t GetActualDataLength(size_t numReverting) noexcept { return (2 * sizeof(uint32_t)) + (numReverting * sizeof(int32_t)); }
-	bool ValidMessageLength(size_t length) const volatile noexcept { return length >= 2 * sizeof(uint32_t) && length > GetActualDataLength(CountSetBits(whichDrives)); }
+	bool ValidMessageLength(size_t length) const volatile noexcept { return length >= 2 * sizeof(uint32_t) && length >= GetActualDataLength(CountSetBits(whichDrives)); }
 };
 
 static_assert(CanMessageRevertPosition::GetActualDataLength(MaxLinearDriversPerCanSlave) == sizeof(CanMessageRevertPosition));
@@ -198,6 +198,8 @@ struct __attribute__((packed)) CanMessageMovementLinearShaped final
 	{
 		return (sizeof(*this) - sizeof(perDrive)) + (numDrivers * sizeof(perDrive[0]));
 	}
+
+	bool ValidMessageLength(size_t length) const noexcept { return length >= sizeof(*this) - sizeof(perDrive) && length >= GetActualDataLength(); }
 
 	// This is called from just one place (in CanMotion::FinishMovement), so inline
 	bool HasMotion() const noexcept
@@ -384,7 +386,7 @@ struct __attribute__((packed)) CanMessageHeaterModelV3
 	float _obsolete_was_tD;								// controller differential time
 
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; _obsolete_was_pidParametersOverridden = 0; zero2 = 0; }
-	bool ValidMessageLength(size_t length) const noexcept { return length >= 2 * sizeof(uint16_t) + sizeof(float); }			// we ignore pidParametersOverridden because it is no longer acted on
+	bool ValidMessageLength(size_t length) const noexcept { return length >= 2 * sizeof(uint16_t) + sizeof(HeaterModel) + sizeof(float); }	// we ignore pidParametersOverridden because it is no longer acted on
 };
 
 // M570 parameters
@@ -695,7 +697,7 @@ struct __attribute__((packed)) CanMessageSetInputShapingV1
 
 	size_t GetActualDataLength() const noexcept { return (2 * sizeof(uint16_t)) + (numImpulses * sizeof(ShapingPair)); }
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; zero = 0; }
-	bool ValidMessageLength(size_t length) const noexcept { return length >= 2 * sizeof(uint16_t) && length > GetActualDataLength(); }
+	bool ValidMessageLength(size_t length) const noexcept { return length >= 2 * sizeof(uint16_t) && length >= GetActualDataLength(); }
 };
 
 // Enable a stall endstop, or clear all stall endstops
@@ -894,7 +896,7 @@ struct __attribute__((packed)) CanMessageGeneric
 
 	static size_t GetActualDataLength(size_t paramLength) noexcept { return paramLength + sizeof(uint32_t); }
 	void SetRequestId(CanRequestId rid) noexcept { requestId = rid; }
-	bool ValidMessageLength(size_t length) const noexcept { return length >= 2 * sizeof(uint32_t); }		// NOTE: CanMessageGeericParser must check for reading data beyond the end of the message.
+	bool ValidMessageLength(size_t length) const noexcept { return length >= sizeof(uint32_t); }			// NOTE: CanMessageGeericParser must check for reading data beyond the end of the message.
 };
 
 // Messages sent from expansion boards to main board, or broadcast
@@ -1406,7 +1408,7 @@ struct __attribute__((packed)) CanMessageEvent
 	}
 
 	void ClearReservedFields() noexcept { zero = 0; }
-	bool ValidMessageLength(size_t length) const noexcept { return length >= 2 * sizeof(uint32_t) + 1; }
+	bool ValidMessageLength(size_t length) const noexcept { return length >= 2 * sizeof(uint32_t); }		// the text may be empty
 };
 
 // Debug text message, sent by the expansion board to the main board
